@@ -2,7 +2,13 @@
 
 A quiet Markdown editor and an inspector for agent skills. Free, runs in your browser, nothing is uploaded, no account, no analytics.
 
+[![CI](https://github.com/aa1skillz/mdprev/actions/workflows/ci.yml/badge.svg)](https://github.com/aa1skillz/mdprev/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Live:** <https://mdprev.space> · [Features](https://mdprev.space/features/) · [Skill inspector](https://mdprev.space/skill-inspector/) · [Guides](https://mdprev.space/guides/)
+
+![mdprev editor: Markdown source on the left, live preview on the right](.github/images/editor.png)
+
+![mdprev skill inspector: a collection of 20 skills with token cost per skill](.github/images/skill-inspector.png)
 
 ## What it does
 
