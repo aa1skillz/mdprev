@@ -13,6 +13,8 @@ import type { Element, ElementContent, Root } from 'hast';
 import { highlightBlocks } from './shiki';
 import { idMaker } from './slug';
 import { remarkCallout } from './callout';
+import { remarkSafeHtml } from './safe-html';
+import { normalizeMathDelims } from './mathdelim';
 import type { VaultCtx } from '../vault/preview';
 
 export interface FrontMatter { rows: [string, string][]; raw: string }
@@ -98,6 +100,9 @@ function rehypeSafeUrls() {
         if (scheme === 'asset' && k === 'src' && node.tagName === 'img' && /^asset:[a-z0-9]+\.[a-z0-9]+$/.test(v)) continue;
         if (scheme && !['http', 'https', 'mailto'].includes(scheme)) node.properties![k] = '#';
       }
+      // liên kết ra ngoài mở tab mới: bấm vào không đá người viết khỏi editor (noopener: trang kia không chạm được window.opener)
+      const h = node.properties?.href;
+      if (node.tagName === 'a' && typeof h === 'string' && /^https?:\/\//i.test(h)) { node.properties!.target = '_blank'; node.properties!.rel = ['noopener', 'noreferrer']; }
     });
   };
 }
@@ -116,7 +121,7 @@ type Proc = { process: (v: string) => Promise<{ toString(): string }> };
 
 /** Math (KaTeX) chỉ được nạp khi tài liệu có công thức, để trang thường không phải tải thư viện. */
 const build = async (math: boolean, vault?: { ctx: VaultCtx; src: string }): Promise<Proc> => {
-  const p = unified().use(remarkParse).use(remarkGfm).use(remarkCallout);
+  const p = unified().use(remarkParse).use(remarkGfm).use(remarkSafeHtml).use(remarkCallout);
   if (vault) p.use((await import('../vault/preview')).remarkVault, vault); // chỉ vault mới nạp phần wikilink
   if (math) {
     const [{ default: remarkMath }, { rehypeMath }] = await Promise.all([import('remark-math'), import('./rehype-math')]);
@@ -138,7 +143,8 @@ const getProc = (math: boolean): Promise<Proc> => {
 };
 
 export async function renderMarkdown(src: string, vault?: VaultCtx): Promise<{ html: string; fm: FrontMatter | null }> {
-  const { raw, body } = cutFrontMatter(src);
+  const { raw, body: rawBody } = cutFrontMatter(src);
+  const body = normalizeMathDelims(rawBody); // `\(…\)` và `\[…\]` -> `$…$` và `$$…$$` trước khi dò công thức
   // thư viện YAML (~25 KB gzip) chỉ nạp khi tài liệu có front matter
   const fm = raw === null ? null : (await import('./frontmatter')).fmRows(raw);
   let proc: Proc;

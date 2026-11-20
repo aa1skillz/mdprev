@@ -36,7 +36,7 @@ test('trang chủ: khung tĩnh là tờ giấy trống có thẻ chào (không b
   await expect(ta(page)).toBeVisible();
 });
 
-test('New hỏi trước, rồi bản cũ vào Restore previous, toast có Undo khôi phục', async ({ page }) => {
+test('New mở tab mới không hỏi, chữ cũ ở lại tab của nó', async ({ page }) => {
   let dialogs = 0;
   page.on('dialog', (d) => { dialogs++; void d.dismiss(); });
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -45,28 +45,18 @@ test('New hỏi trước, rồi bản cũ vào Restore previous, toast có Undo 
   await ta(page).fill('# my work\n\nimportant text');
   await newDocument(page);
   await expect(ta(page)).toHaveValue('');
-  await expect(page.locator('.pv-toast')).toContainText('Started a new document');
+  await expect(page.locator('.pv-tabgo')).toHaveCount(2);
+  await expect(page.getByRole('alertdialog')).toHaveCount(0);
   expect(dialogs).toBe(0);
-  await page.locator('.pv-toast').getByRole('button', { name: 'Undo' }).click();
+  await page.locator('.pv-tabgo').first().click();
   await expect(ta(page)).toHaveValue('# my work\n\nimportant text');
-  await expect(page.locator('.pv-toast')).toHaveCount(0);
 });
 
-test('New: "Keep editing" và Esc giữ nguyên chữ; palette tìm được publish vault, xoá writing log, authorship start over', async ({ page }) => {
+test('palette tìm được publish vault, xoá writing log, authorship start over', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/app/');
   await ready(page);
   await ta(page).fill('# keep me');
-  await page.getByRole('button', { name: 'New document' }).click();
-  const ask = page.getByRole('alertdialog', { name: 'Start a new document' });
-  await expect(ask).toBeVisible();
-  await ask.getByRole('button', { name: 'Keep editing' }).click();
-  await expect(ask).toBeHidden();
-  await expect(ta(page)).toHaveValue('# keep me');
-  await page.getByRole('button', { name: 'New document' }).click();
-  await page.keyboard.press('Escape');
-  await expect(ask).toBeHidden();
-  await expect(ta(page)).toHaveValue('# keep me');
   for (const [q, name] of [['publish', /Open folder as vault/], ['writing log', /Clear writing log/], ['start over', /Start over authorship marks/]] as const) {
     await page.keyboard.press('Control+/');
     await page.getByRole('textbox', { name: 'Command palette' }).fill(q);
@@ -164,21 +154,20 @@ test('skip link đưa focus vào ô soạn', async ({ page }) => {
   await expect(ta(page)).toBeFocused();
 });
 
-test('menu File có Recent: mở lại tài liệu trước, bản đang mở vào Restore previous', async ({ page }) => {
+test('menu File: Reopen closed tab đưa lại tài liệu vừa đóng (Alt+W rồi mở lại)', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/app/');
   await ready(page);
   await ta(page).fill('# First doc\n\nalpha');
   await newDocument(page);
   await ta(page).fill('# Second doc\n\nbeta');
-  await expect(page.locator('.pv-toast')).toHaveCount(0); // bắt đầu gõ thì toast Undo của lần New tự tắt
-  await page.getByRole('button', { name: 'Open menu', exact: true }).click();
-  const item = page.locator('.pv-menu .pv-menu-sub', { hasText: 'First doc' });
-  await expect(item).toBeVisible();
-  await item.click();
+  await page.keyboard.press('Alt+w');
   await expect(ta(page)).toHaveValue('# First doc\n\nalpha');
   await page.getByRole('button', { name: 'Open menu', exact: true }).click();
-  await expect(page.locator('.pv-menu').getByRole('button', { name: /Restore previous/ })).toContainText('Second doc');
+  const item = page.locator('.pv-menu').getByRole('button', { name: /Reopen closed tab/ });
+  await expect(item).toContainText('Second doc');
+  await item.click();
+  await expect(ta(page)).toHaveValue('# Second doc\n\nbeta');
 });
 
 test('điện thoại, trang chủ: "Start writing" vào Edit và focus ô soạn (không rơi vào Read)', async ({ browser }) => {
@@ -334,31 +323,25 @@ test('Zen trên điện thoại: không hiện gợi ý phím Alt/Ctrl', async (
   await ctx.close();
 });
 
-test('Restore previous ghi tiêu đề thật (không phải dòng title: của front matter) và toast Undo cũ tắt sau khi Restore', async ({ page }) => {
+test('Reopen closed tab ghi tiêu đề thật (không phải dòng title: của front matter)', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/app/');
   await ready(page);
-  await newDocument(page); // thay bài mẫu (không cất vì là SAMPLE); tự gõ một bài rồi thay tiếp
   await ta(page).fill('---\ntitle: My Real Title\n---\n\nbody');
   await newDocument(page);
-  await expect(page.locator('.pv-toast')).toBeVisible();
+  await ta(page).fill('second');
+  await page.locator('.pv-tab').first().getByRole('button', { name: /^Close/ }).click();
   await page.getByRole('button', { name: 'Open menu', exact: true }).click();
-  const rp = page.locator('.pv-menu').getByRole('button', { name: /Restore previous/ });
+  const rp = page.locator('.pv-menu').getByRole('button', { name: /Reopen closed tab/ });
   await expect(rp).toContainText('My Real Title');
   await expect(rp).not.toContainText('title:');
-  await rp.click();
-  await expect(page.locator('.pv-toast')).toHaveCount(0);
 });
 
-test('menu Open ▾ có Recent; palette tìm được Sample, New from template và Open from a link; mở lại palette thì ô nhập trống', async ({ page }) => {
+test('palette tìm được Sample, New from template và Open from a link; mở lại palette thì ô nhập trống', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/app/');
   await ready(page);
   await ta(page).fill('# Alpha doc\n\ntext');
-  await newDocument(page);
-  await page.getByRole('button', { name: 'Open menu' }).click();
-  await expect(page.locator('.pv-menu-open .pv-menu-sub', { hasText: 'Alpha doc' })).toBeVisible();
-  await page.locator('.appbar').click({ position: { x: 4, y: 4 } }); // đóng menu
   const pal = page.locator('[role=dialog][aria-label="Command palette"]');
   const input = pal.locator('input');
   await page.keyboard.press('Control+/');
@@ -746,7 +729,7 @@ test('"Start writing" ở khung tĩnh nạp editor với tài liệu trống', {
   await expect(page.locator('.pv-empty')).toContainText('Nothing to preview yet');
 });
 
-test('New document: bản xem của tài liệu cũ không còn lộ ra, toast Undo ở lại tới khi gõ', async ({ page }) => {
+test('New document: bản xem của tài liệu cũ không còn lộ ra, không có toast Undo (tài liệu cũ vẫn ở tab của nó)', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto('/app/');
   await ready(page);
@@ -754,11 +737,9 @@ test('New document: bản xem của tài liệu cũ không còn lộ ra, toast U
   await expect(page.locator('.md-doc h1')).toHaveText('Old heading');
   await newDocument(page);
   for (let i = 0; i < 8; i++) { await expect(page.locator('.md-doc')).not.toContainText('Old heading', { timeout: 1000 }); await page.waitForTimeout(80); }
-  await expect(page.locator('.pv-toast')).toContainText('Restore previous');
-  await page.waitForTimeout(9000);
-  await expect(page.locator('.pv-toast')).toBeVisible();
-  await ta(page).pressSequentially('x');
   await expect(page.locator('.pv-toast')).toHaveCount(0);
+  await page.locator('.pv-tabgo').first().click();
+  await expect(page.locator('.md-doc h1')).toHaveText('Old heading');
 });
 
 test('task list trong bản xem: bấm checkbox đổi [ ] ↔ [x] trong nguồn', async ({ page }) => {

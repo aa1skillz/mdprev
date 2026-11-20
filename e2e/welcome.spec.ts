@@ -151,7 +151,7 @@ test.describe('Clear document', () => {
     await page.getByRole('button', { name: 'Clear document' }).click();
     const ask = page.getByRole('alertdialog', { name: 'Clear this document' });
     await expect(ask).toBeVisible();
-    await expect(ask).toContainText('Restore previous');
+    await expect(ask).toContainText('Undo');
     await ask.getByRole('button', { name: 'Keep editing' }).click();
     await expect(ask).toHaveCount(0);
     await expect(ta(page)).toHaveValue(/real words/);
@@ -165,7 +165,7 @@ test.describe('Clear document', () => {
     await expect(ta(page)).toHaveValue(/real words/);
   });
 
-  test('Esc đóng hộp Clear mà không xoá; hộp "New" vẫn giữ tên "Start a new document"', async ({ page }) => {
+  test('Esc đóng hộp Clear mà không xoá; New mở tab mới không hỏi', async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto('/app/');
     await ready(page);
@@ -176,7 +176,8 @@ test.describe('Clear document', () => {
     await expect(page.getByRole('alertdialog')).toHaveCount(0);
     await expect(ta(page)).toHaveValue(/real words/);
     await page.getByRole('button', { name: 'New document' }).click();
-    await expect(page.getByRole('alertdialog', { name: 'Start a new document' })).toBeVisible();
+    await expect(page.getByRole('alertdialog')).toHaveCount(0); // New mở tab mới, không hỏi
+    await expect(page.locator('.pv-tabgo')).toHaveCount(2);
   });
 
   test('palette tìm được "Clear document" và mở đúng hộp hỏi', async ({ page }) => {

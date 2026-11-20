@@ -10,6 +10,11 @@ export const KEYS = {
   mdSplit: 'mdprev-md-split',
   mdSync: 'mdprev-md-sync',
   mdCursor: 'mdprev-md-cursor',
+  mdPair: 'mdprev-md-pair',
+  mdLn: 'mdprev-md-ln',
+  mdEds: 'mdprev-md-eds',
+  mdTabs: 'mdprev-md-tabs',
+  mdTabId: 'mdprev-md-tab', // id tab mà mdprev-md đang là bản gương của
   mdBase: 'mdprev-md-base',
   mdUi: 'mdprev-md-ui',
   insp: 'mdprev-insp',

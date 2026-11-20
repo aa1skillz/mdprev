@@ -29,15 +29,14 @@ const file = async (p: Page, item: string) => {
 };
 
 test.describe('studio: templates', () => {
-  test('FILE → New from template thay tài liệu, Restore previous đưa bản cũ về', async ({ page }) => {
+  test('FILE → New from template mở tab mới, tài liệu cũ vẫn ở tab của nó', async ({ page }) => {
     await open(page, '# My draft\n\nsome text of mine\n');
     page.once('dialog', (d) => void d.accept());
     await file(page, 'README');
     await expect.poll(() => val(page)).toContain('# Project name');
     await ready(page);
     await expect(page.locator('.md-doc h1')).toHaveText('Project name');
-    await page.getByRole('button', { name: 'Open menu', exact: true }).click();
-    await page.getByRole('button', { name: 'Restore previous' }).click();
+    await page.locator('.pv-tabgo').first().click();
     await expect.poll(() => val(page)).toBe('# My draft\n\nsome text of mine\n');
   });
 

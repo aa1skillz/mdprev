@@ -12,6 +12,13 @@ export type PresentMsg =
   | { t: 'reset' }
   | { t: 'scroll'; i: number; f: number };
 
+/** Mọi tin trên kênh mang mã phiên `sid` của màn chiếu: nhiều tab cùng chiếu (hoặc tab cũ bỏ quên) không lẫn vào nhau.
+ *  Presenter mở kèm `?s=<sid>`; mở không kèm thì `sid` rỗng và nó gắn với phiên đầu tiên trả lời. */
+export type Wire = PresentMsg & { sid: string };
+export const newSession = (): string => (typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36));
+/** Hàm gửi gắn mã phiên (đọc mã tại thời điểm gửi: presenter có thể gắn phiên muộn). */
+export const sender = (bc: BroadcastChannel, sid: () => string) => (m: PresentMsg): void => { bc.postMessage({ ...m, sid: sid() } satisfies Wire); };
+
 /** Các mục được hiện từng bước: li của danh sách cấp 1 trong slide (gốc là `.sl-doc`). */
 export const STEP_SEL = ':scope > ul > li, :scope > ol > li';
 /** Số bước hiện từng bullet của một slide (0 = không có danh sách). */
@@ -41,14 +48,15 @@ export function scrollWithin(cv: HTMLElement | null | undefined, fwd: boolean): 
  * Đồng bộ vị trí cuộn của slide hiện tại giữa màn chiếu và presenter, theo tỉ lệ 0..1 (hai khung có thể khác cỡ/hướng).
  * `root` chứa slide hiện tại (`.sv-canvas[data-overflow]`); trả về hàm gỡ. Áp dụng không hoạt ảnh, bỏ qua lệch <1% và không phát lại tin vừa nhận nên không dội ngược.
  */
-export function syncScroll(bc: BroadcastChannel, root: () => HTMLElement | null, index: () => number): { onMsg: (m: PresentMsg) => void; stop: () => void } {
+export function syncScroll(bc: BroadcastChannel, sid: () => string, root: () => HTMLElement | null, index: () => number): { onMsg: (m: PresentMsg) => void; stop: () => void } {
+  const post = sender(bc, sid);
   const canvas = () => root()?.querySelector<HTMLElement>('.sv-canvas[data-overflow="1"]') ?? null;
   const frac = (cv: HTMLElement) => { const r = cv.scrollHeight - cv.clientHeight; return r > 0 ? cv.scrollTop / r : 0; };
   let mute = 0; // sự kiện scroll do chính ta áp dụng từ bên kia không được dội ngược (làm đứt hoạt ảnh cuộn mượt ở bên gửi)
   const onScroll = (ev: Event) => {
     const cv = ev.target as HTMLElement;
     if (cv !== canvas() || performance.now() < mute) return;
-    bc.postMessage({ t: 'scroll', i: index(), f: frac(cv) } satisfies PresentMsg);
+    post({ t: 'scroll', i: index(), f: frac(cv) });
   };
   document.addEventListener('scroll', onScroll, true); // `root` có thể chưa render lúc gắn (presenter chờ state): nghe ở document, lọc theo canvas hiện tại
   return {

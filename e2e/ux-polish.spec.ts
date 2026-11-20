@@ -5,6 +5,7 @@ test('empty state có nút, Properties sửa được, Revert all không ngắt 
   await page.goto('/app/');
   await ready(page);
   const ta = page.locator('.ed-ta');
+  await page.getByRole('button', { name: 'Start writing' }).click({ timeout: 3000 }).catch(() => undefined); // thẻ chào phủ lên preview trống: tắt nó thì mới thấy khối "Nothing to preview" bên dưới
   await ta.fill('');
   await expect(page.getByRole('button', { name: 'Load sample' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Paste from clipboard' })).toBeVisible();
@@ -25,5 +26,5 @@ test('empty state có nút, Properties sửa được, Revert all không ngắt 
   expect((await rev.boundingBox())!.height).toBeLessThan(24);
 
   await page.getByRole('button', { name: /words/ }).first().click();
-  await expect(page.getByRole('tab', { name: 'Checks', selected: true }).or(page.getByText('Writing').first())).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Checks', selected: true }).or(page.getByText('Writing').first()).first()).toBeVisible();
 });

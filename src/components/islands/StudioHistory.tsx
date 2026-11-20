@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { diffRpc } from '../../lib/diff/client';
 import { splitLines } from '../../lib/diff/engine';
-import { deleteSnapshot, listSnapshots, MAX_SNAPS, type Snap } from '../../lib/studio/history';
+import { deleteSnapshot, getHistoryDoc, listSnapshots, MAX_SNAPS, type Snap } from '../../lib/studio/history';
 import { hunksOf, revertHunk, type Hunk } from '../../lib/studio/hunks';
 
 interface Props {
@@ -40,7 +40,7 @@ export function StudioHistory({ src, baseline, onApply, onJump, onSnapshot, onCl
 
   const good = useRef<Snap[] | null>(null);
   // IndexedDB lỗi chập chờn: thử lại một lần, và nếu vẫn lỗi thì giữ danh sách đã có thay vì ẩn hết snapshot
-  const reload = () => { void listSnapshots().then((s) => (s === null ? new Promise<Snap[] | null>((r) => setTimeout(() => void listSnapshots().then(r), 400)) : s)).then((s0) => { const s = s0 ?? good.current; good.current = s; setSnaps(s); setSel((c) => (c !== null && s?.some((x) => x.id === c) ? c : s?.[0]?.id ?? null)); }); };
+  const reload = () => { void listSnapshots(getHistoryDoc()).then((s) => (s === null ? new Promise<Snap[] | null>((r) => setTimeout(() => void listSnapshots(getHistoryDoc()).then(r), 400)) : s)).then((s0) => { const s = s0 ?? good.current; good.current = s; setSnaps(s); setSel((c) => (c !== null && s?.some((x) => x.id === c) ? c : s?.[0]?.id ?? null)); }); };
   useEffect(() => { reload(); if (!embedded) box.current?.focus(); }, []);
 
   const snap = snaps?.find((s) => s.id === sel) ?? null;
@@ -109,7 +109,7 @@ export function StudioHistory({ src, baseline, onApply, onJump, onSnapshot, onCl
                 <div class="hs-row">
                   <span class={busy || !live ? 'pv-dim' : ''}>{calc.hunks.length === 0 && !calc.truncated ? (tab === 'changes' ? '✓ Same as when this page was opened or last saved' : '✓ Same as this snapshot') : `${calc.hunks.length.toLocaleString('en-US')} ${calc.hunks.length === 1 ? 'change' : 'changes'} ${tab === 'changes' ? 'since opened or last saved' : 'from this snapshot'}`}</span>
                   {tab === 'changes'
-                    ? <button type="button" class="pv-linkbtn" disabled={calc.hunks.length === 0 || !live} onClick={() => { if (askAll) { setAskAll(false); onApply(baseline, 0, 'REVERTED TO SAVED', true); } else setAskAll(true); }} onBlur={() => setAskAll(false)} title="Discards all changes since this page was opened or last saved. Ctrl/⌘+Z undoes it.">{askAll ? 'CLICK AGAIN TO DISCARD' : 'REVERT ALL'}</button>
+                    ? <button type="button" class="pv-linkbtn" disabled={calc.hunks.length === 0 || !live} onClick={() => { if (askAll) { setAskAll(false); onApply(baseline, 0, 'REVERTED TO SAVED', true); } else setAskAll(true); }} onBlur={() => setAskAll(false)} title="Discards all changes since this page was opened or last saved with Ctrl/⌘+S (autosave does not move that point). Ctrl/⌘+Z undoes it.">{askAll ? 'CLICK AGAIN TO DISCARD' : 'REVERT ALL'}</button>
                     : <button type="button" class="pv-linkbtn" disabled={!snap || !live} onClick={() => { if (snap) onApply(snap.text, 0, 'RESTORED SNAPSHOT', true); }}>RESTORE THIS</button>}
                 </div>
                 {calc.truncated && <p class="hs-msg pv-warn">Too many changes to list one by one. Use {tab === 'changes' ? 'REVERT ALL' : 'RESTORE THIS'}.</p>}

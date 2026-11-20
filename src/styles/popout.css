@@ -72,3 +72,5 @@
 .pr-btns button { width: 32px; height: 30px; padding: 0; display: inline-grid; place-items: center; }
 .pop-r .pv-linkbtn { width: 30px; height: 30px; padding: 0; display: inline-grid; place-items: center; text-decoration: none; color: var(--sub); border: 1px solid transparent; }
 .pop-r .pv-linkbtn:hover { color: var(--ink); border-color: var(--line2); }
+/* tên bộ slide ở thanh trên: nhìn là biết cửa sổ này đang bám vào bộ nào */
+.pr-deck { flex: 0 1 26ch; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--t-sm); color: var(--sub); }

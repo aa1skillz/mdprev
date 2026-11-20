@@ -35,6 +35,7 @@ export function SlideView({ html, doc, dt, fixed = false, landscape = false, rev
   const box = useRef<HTMLDivElement>(null);
   const pos = useRef<HTMLElement>(null);
   const more = useRef<HTMLElement>(null);
+  const frame = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLDivElement>(null);
   const content = useRef<HTMLElement>(null);
   const fittedFor = useRef(''); // "w|html|doc" lần fit gần nhất
@@ -114,6 +115,8 @@ export function SlideView({ html, doc, dt, fixed = false, landscape = false, rev
     if (!bw || !bh) return;
     const s = Math.min(bw / sz.w, bh / sz.h);
     cv.style.transform = `translate(-50%, -50%) scale(${s})`;
+    const fr = frame.current; // lớp chỉ báo trùng đúng khung đã scale; --k để chỉ báo co theo
+    if (fr) { const fw = sz.w * s, fh = sz.h * s; fr.style.cssText = `left:${(bw - fw) / 2}px;top:${(bh - fh) / 2}px;width:${fw}px;height:${fh}px;--k:${s}`; }
   };
   const live = useRef(layout); live.current = layout;
 
@@ -159,8 +162,11 @@ export function SlideView({ html, doc, dt, fixed = false, landscape = false, rev
       <div class="sv-canvas" ref={canvas} onScroll={onScroll}>
         <article class="md-doc sl-doc" data-doc={doc && doc !== 'default' ? doc : undefined} style={dt?.doc.fontFamily ? `font-family:${dt.doc.fontFamily}` : undefined} ref={content} dangerouslySetInnerHTML={{ __html: html }} />
       </div>
-      <i class="sv-pos" ref={pos} aria-hidden="true" />
-      <i class="sv-more" ref={more} aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6" /></svg></i>
+      {/* lớp chỉ báo bám đúng khung slide (khung 16:9 nằm giữa ô chứa, có thể có dải trống hai bên): vạch cuộn và mũi tên "còn nữa" */}
+      <div class="sv-frame" ref={frame} aria-hidden="true">
+        <i class="sv-pos" ref={pos} />
+        <i class="sv-more" ref={more}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6" /></svg></i>
+      </div>
     </div>
   );
 }

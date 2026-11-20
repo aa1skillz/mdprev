@@ -45,6 +45,8 @@
 .wc-hint { margin: 18px 0 0; font: 500 var(--t-xs)/1.5 'JetBrains Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sub); }
 .wc-alt { background: none; border: 0; padding: 0; font: inherit; letter-spacing: inherit; text-transform: none; color: var(--sub); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .wc-alt:hover { color: var(--ink); }
+.wc-alt { position: relative; }
+.wc-alt::after { content: ''; position: absolute; inset: -4px -6px; } /* vùng chạm ≥ 24px mà không đổi bố cục thẻ */
 
 /* parallax theo chuột: chỉ khi không yêu cầu giảm chuyển động (không dùng !important) */
 @media (prefers-reduced-motion: no-preference) {

@@ -6,14 +6,17 @@
 .sv-fixed .sv-canvas { position: relative; left: 0; top: 0; }
 .sv .sl-hid { visibility: hidden; } /* hiện từng bullet: ẩn mà vẫn giữ chỗ */
 /* chỉ báo vị trí cuộn của slide dài: vạch mảnh bên phải, ngoài vùng cuộn nên không bị mờ; không có ở ô thu nhỏ và bản in */
-.sv-pos { display: none; position: absolute; z-index: 2; right: 8px; top: 12px; bottom: 12px; width: 4px; background: linear-gradient(var(--dim), var(--dim)) 0 var(--p, 0%) / 100% var(--s, 20%) no-repeat, var(--line); pointer-events: none; }
+/* lớp chỉ báo trùng đúng khung slide (SlideView đặt vị trí/cỡ và --k = tỉ lệ scale): chỉ báo bám khung chứ không bám cả ô chứa */
+.sv-frame { position: absolute; z-index: 2; pointer-events: none; }
+.sv-pos { display: none; position: absolute; right: calc(8px * var(--k, 1)); top: calc(12px * var(--k, 1)); bottom: calc(12px * var(--k, 1)); width: max(2px, calc(4px * var(--k, 1))); background: linear-gradient(var(--dim), var(--dim)) 0 var(--p, 0%) / 100% var(--s, 20%) no-repeat, var(--line); }
 .sv-pos[data-on='1'] { display: block; }
-/* mũi tên "còn nữa" ở giữa đáy, nằm trong dải chừa nên không đè chữ; biến mất khi chạm đáy */
-.sv-more { display: none; position: absolute; z-index: 2; left: 50%; bottom: 6px; margin-left: -11px; width: 22px; height: 22px; color: var(--sub); pointer-events: none; }
+/* mũi tên "còn nữa" ở giữa đáy khung, nằm trong dải chừa nên không đè chữ; biến mất khi chạm đáy */
+.sv-more { display: none; position: absolute; left: 50%; bottom: calc(4px * var(--k, 1)); width: calc(22px * var(--k, 1)); height: calc(22px * var(--k, 1)); margin-left: calc(-11px * var(--k, 1)); color: var(--sub); }
+.sv-more svg { display: block; width: 100%; height: 100%; }
 .sv-more[data-on='1'] { display: block; }
 @media (prefers-reduced-motion: no-preference) { .sv-more[data-on='1'] { animation: sv-bob 1.6s ease-in-out infinite; } }
-@keyframes sv-bob { 50% { transform: translateY(3px); } }
-.sv.sv-fixed .sv-pos, .sv.sl-tsv .sv-pos, .sv.pr-nsv .sv-pos, .sv.sv-fixed .sv-more, .sv.sl-tsv .sv-more, .sv.pr-nsv .sv-more { display: none; }
+@keyframes sv-bob { 50% { transform: translateY(calc(3px * var(--k, 1))); } }
+.sv.sv-fixed .sv-frame, .sv.sl-tsv .sv-frame, .sv.pr-nsv .sv-frame { display: none; }
 
 /* Cỡ chữ của slide: lớn, mọi cỡ con theo em; độ ưu tiên cao hơn md-doc.css và kiểu paper/compact */
 .sv .md-doc.sl-doc { position: absolute; left: 56px; top: 56px; margin: 0; max-width: none; transform-origin: 0 0; font-size: 32px; line-height: 1.5; }

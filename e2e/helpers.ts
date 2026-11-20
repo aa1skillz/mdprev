@@ -79,6 +79,9 @@ export async function enterZenWrite(page: Page): Promise<void> {
 }
 
 /** Bấm "New document": nếu tài liệu có chữ thì hộp "Start a new document?" hiện ra, xác nhận nó. */
+/** Tên của tài liệu đang chọn: ô tên (một tài liệu) hoặc tab đang chọn (nhiều tài liệu). */
+export const docName = (page: Page): Locator => page.getByRole('textbox', { name: 'File name' }).or(page.locator('.pv-tabgo[aria-current="true"]'));
+
 export async function newDocument(page: Page, from: Locator = page.getByRole('button', { name: 'New document' })): Promise<void> {
   await from.click();
   const ask = page.getByRole('alertdialog', { name: 'Start a new document' });

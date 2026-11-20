@@ -1,11 +1,15 @@
 /** Lịch sử bản chụp tài liệu trong IndexedDB. Mọi hàm đều nuốt lỗi: không có IndexedDB thì tính năng tắt, trang vẫn chạy. */
 
-export interface Snap { id: number; t: number; reason: string; name: string; size: number; lines: number; text: string }
+export interface Snap { id: number; t: number; reason: string; name: string; size: number; lines: number; text: string; doc?: string } // doc: id tab; bản chụp cũ (trước khi có tab) không có trường này và hiện ở mọi tab
 
 const DB = 'mdprev-md-history';
 const STORE = 'snaps';
 export const MAX_SNAPS = 20;
 export const MAX_SNAP_CHARS = 2_000_000;
+let curDoc: string | undefined;
+/** Tab đang chọn: bản chụp mới gắn với nó (giới hạn MAX_SNAPS cho từng tab). */
+export const setHistoryDoc = (id: string | undefined): void => { curDoc = id; };
+export const getHistoryDoc = (): string | undefined => curDoc;
 
 let dbp: Promise<IDBDatabase | null> | null = null;
 function open(): Promise<IDBDatabase | null> {
@@ -25,11 +29,11 @@ function open(): Promise<IDBDatabase | null> {
 const done = (tx: IDBTransaction) => new Promise<boolean>((res) => { tx.oncomplete = () => res(true); tx.onerror = () => res(false); tx.onabort = () => res(false); });
 const req = <T,>(r: IDBRequest<T>) => new Promise<T | null>((res) => { r.onsuccess = () => res(r.result); r.onerror = () => res(null); });
 
-export async function listSnapshots(): Promise<Snap[] | null> {
+export async function listSnapshots(doc?: string): Promise<Snap[] | null> {
   const db = await open(); if (!db) return null;
   try {
     const all = await req(db.transaction(STORE, 'readonly').objectStore(STORE).getAll() as IDBRequest<Snap[]>);
-    return all ? all.sort((x, y) => y.id - x.id) : null;
+    return all ? all.filter((x) => !doc || !x.doc || x.doc === doc).sort((x, y) => y.id - x.id) : null;
   } catch { return null; }
 }
 
@@ -40,10 +44,13 @@ export async function addSnapshot(text: string, reason: string, name: string): P
   try {
     const tx = db.transaction(STORE, 'readwrite');
     const st = tx.objectStore(STORE);
-    const keys = (await req(st.getAllKeys())) as number[] | null;
-    if (keys?.length) { const last = await req(st.get(Math.max(...keys)) as IDBRequest<Snap>); if (last?.text === text) return false; }
-    st.add({ t: Date.now(), reason, name, size: text.length, lines: text.split('\n').length, text });
-    if (keys && keys.length + 1 > MAX_SNAPS) [...keys].sort((x, y) => x - y).slice(0, keys.length + 1 - MAX_SNAPS).forEach((k) => st.delete(k));
+    const all = (await req(st.getAll() as IDBRequest<Snap[]>)) ?? [];
+    const mine = all.filter((x) => (x.doc ?? undefined) === curDoc).sort((a, b) => a.id - b.id); // cùng tab (hoặc cùng nhóm cũ không có doc)
+    const last = mine[mine.length - 1];
+    if (last?.text === text) return false;
+    const rec: Omit<Snap, 'id'> = { t: Date.now(), reason, name, size: text.length, lines: text.split('\n').length, text, ...(curDoc ? { doc: curDoc } : {}) };
+    st.add(rec);
+    if (mine.length + 1 > MAX_SNAPS) mine.slice(0, mine.length + 1 - MAX_SNAPS).forEach((x) => st.delete(x.id));
     return await done(tx);
   } catch { return false; }
 }

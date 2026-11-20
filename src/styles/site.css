@@ -25,7 +25,7 @@
 .st-faq p { margin: 10px 0 0; max-width: 52em; font-size: 14px; }
 .st-foot { border-top: 1px solid var(--line); padding: 30px 0 48px; font-size: 13px; color: var(--sub); }
 .st-foot nav { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 14px; }
-.st-foot nav a { color: var(--sub); text-decoration: none; }
+.st-foot nav a { color: var(--sub); text-decoration: none; padding: 2px 0; } /* vùng chạm ≥ 24px (WCAG 2.5.8) */
 .st-foot nav a:hover { color: var(--ink); }
 .st-foot p { margin: 0; max-width: 62em; }
 
@@ -156,3 +156,10 @@ body[data-view='page'] .frame { max-width: none; }
   }
 }
 @media print { .fig, .st-chips { display: none; } }
+
+/* vùng chạm ≥ 24px cho liên kết trong câu: phần đệm dọc của phần tử inline không đổi bố cục dòng, chỉ nới vùng bấm */
+.st a:not([class]), .art a:not([class]), .guide-list a { padding-block: 4px; }
+/* độ dài dòng ≤ ~72 ký tự cho khối văn bản (cột 700px của bài viết cho dòng 90+ ký tự ở cỡ 18px) */
+.art p, .art li { max-width: 29em; }
+.pg-alt { max-width: 34em; }
+.st-faq p { max-width: 33em; }

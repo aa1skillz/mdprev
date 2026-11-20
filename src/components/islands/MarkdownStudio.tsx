@@ -1,12 +1,16 @@
 import { render } from 'preact';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { emit, on } from '../../lib/bus';
+import { DocName } from './StudioDocName';
+import { StudioTabs } from './StudioTabs';
+import { MAX_TABS, activate, deleteTabRecord, moveTab as moveTabIn, renameTab as renameTabIn, displayNames, isChangedVsFile, closeTab as closeTabIn, getActive, hydrate as hydrateTabs, isPristine, loadTabRecord, openTab as openTabIn, reopenClosed, restore as restoreTabs, saveTabRecord, toMeta, updateTab, type Tab, type TabsState } from '../../lib/studio/tabs';
 import { copyText } from '../../lib/clipboard';
 import { nrm } from '../../lib/tags';
 import { KEYS, readJson, readString, removeKey, writeJson, writeString, writeStringOk } from '../../lib/storage';
 import { diffLines } from '../../lib/studio/diff';
 import { seamCenter } from '../../lib/studio/seam';
 import { alignTableAt, codeBlock, collapseMarker, diffSpan, hr, image, math, toc, indentLines, insertTable, link, linkTo, moveCell, smartEnter, table, tableCellAt, tableEnter, tableOp, tableRangeAt, type TableOp, toggleLines, tsvToRows, wrapKey, wrapSel, type Edit, type LineKind } from '../../lib/studio/edit';
+import { autoPair, backPair } from '../../lib/studio/autopair';
 import { deleteLines, duplicateLines, linkAt, moveLines, moveSection, selectLines, selectNext, swapSection } from '../../lib/studio/lineops';
 import { applySlash, filterSlash, slashAt, type SlashItem } from '../../lib/studio/slash';
 import { applyCompletion, completionAt, completionItems, type CompAt, type CompItem } from '../../lib/studio/complete';
@@ -24,11 +28,11 @@ import { url } from '../../lib/url';
 import { SAMPLE } from '../../lib/studio/sample';
 import WelcomeCard from '../WelcomeCard';
 import { NEWSPRINT, isNewsprint, newsprintState, paperIsDark } from '../../lib/studio/default-theme';
-import { fileNameFromUrl, resolveLink, rewriteHtml, sourceLabel, toRawUrl } from '../../lib/studio/source';
+import { fileNameFromUrl, resolveLink, rewriteHtml, toRawUrl } from '../../lib/studio/source';
 import { blockExternalImages } from '../../lib/studio/guard';
 import { paragraphRange, paragraphLevels, renderLines, sentenceMarks, tokenizeLines } from '../../lib/studio/tokenize';
 import docCss from '../../styles/md-doc.css?raw';
-import { addSnapshot, listSnapshots, type Snap } from '../../lib/studio/history';
+import { addSnapshot, listSnapshots, setHistoryDoc, type Snap } from '../../lib/studio/history';
 import { TEMPLATES } from '../../lib/studio/templates';
 import { cleanClipboardHtml, htmlToMarkdown, preloadTurndown } from '../../lib/studio/paste-html';
 import { StudioFind } from './StudioFind';
@@ -118,6 +122,12 @@ let HEADS_NOW: () => { id: string; text: string; level: number }[] = () => [];
 /** `OPENED SKILL.md` thành `Opened SKILL.md`: chỉ hạ các từ viết hoa toàn bộ, chữ cái đầu viết hoa. */
 const KEEP_CAPS = new Set(['URL', 'HTML', 'PDF', 'MD', 'DOCX', 'IME', 'OS']);
 const sentence = (t: string): string => t.split(' ').map((w) => (/^[A-Z]{2,}[.,;:]?$/.test(w) && !KEEP_CAPS.has(w.replace(/[.,;:]$/, '')) ? w.toLowerCase() : w)).join(' ').replace(/^./, (c) => c.toUpperCase());
+/** Nhóm trong menu Export (theo nhãn của mục); mục không thuộc nhóm nào rơi vào "Site". */
+const EXPORT_GROUPS: [string, string[]][] = [
+  ['Download', ['Download Markdown (.md)', 'HTML (.html)', 'Word (.docx)', 'EPUB (.epub)', 'LaTeX (.tex)', 'TextPack (.textpack)']],
+  ['Print to PDF', ['PDF (print)', 'PDF with contents', 'Slides PDF']],
+  ['Copy and share', ['Copy Markdown', 'Copy HTML', 'Copy rich text', 'Copy share link', 'Share with password…']],
+];
 const BY_KEY: Record<string, string> = { b: 'b', i: 'i', k: 'link' };
 const TOOLS = Object.fromEntries(GROUPS.flat().map((t) => [t.id, t]));
 const SPELLS: Spell[] = ['off', 'en'];
@@ -290,6 +300,13 @@ export default function MarkdownStudio() {
   const [metrics, setMetrics] = useState({ lh: 23, cw: 8.4 });
   const [spell, setSpell] = useState<Spell>(() => { const v = readString(KEYS.mdSpell); return v === 'en' ? v : 'off'; }); // chỉ off hoặc English (giá trị 'vi' cũ về off)
   const [wide, setWide] = useState<boolean>(() => readString(KEYS.mdWide) === '1');
+  const [pairOn, setPairOn] = useState<boolean>(() => readString(KEYS.mdPair) !== '0'); // tự đóng cặp ( " ` khi không chọn gì: mặc định bật
+  const [lnOn, setLnOn] = useState<boolean>(() => readString(KEYS.mdLn) !== '0'); // số dòng ở lề ô soạn: mặc định bật
+  const [eds, setEds] = useState<'s' | 'm' | 'l'>(() => { const v = readString(KEYS.mdEds); return v === 's' || v === 'l' ? v : 'm'; }); // cỡ chữ ô soạn, tách khỏi bản xem
+  const backToEditor = () => { const t = ta.current; if (t && t.offsetParent !== null) t.focus({ preventScroll: true }); }; // chọn xong một tuỳ chọn ô soạn: trả con trỏ về chỗ đang gõ (nếu không, phím tiếp theo rơi vào nút menu và mất)
+  const togglePair = () => { const n = !pairOn; setPairOn(n); writeString(KEYS.mdPair, n ? '1' : '0'); say(n ? 'AUTO-CLOSE ON' : 'AUTO-CLOSE OFF'); backToEditor(); };
+  const toggleLn = () => { const n = !lnOn; setLnOn(n); writeString(KEYS.mdLn, n ? '1' : '0'); backToEditor(); };
+  const setEdsSaved = (v: 's' | 'm' | 'l') => { setEds(v); writeString(KEYS.mdEds, v); backToEditor(); };
   const [cursorMark, setCursorMark] = useState<boolean>(() => readString(KEYS.mdCursor) === '1'); // vạch con trỏ ở bản xem (Split): mặc định tắt, bật trong View options
   const [syncOn, setSyncOn] = useState<boolean>(() => readString(KEYS.mdSync) !== '0'); // cuộn đồng bộ Split: mặc định bật
   const toggleSync = () => { const n = !syncOn; setSyncOn(n); writeString(KEYS.mdSync, n ? '1' : '0'); say(n ? 'SYNC SCROLL ON' : 'SYNC SCROLL OFF'); }; // dùng chung cho nút ở thanh trạng thái và lệnh Palette; bật lại thì effect [syncOn] bên dưới căn bản xem theo ô soạn
@@ -299,7 +316,7 @@ export default function MarkdownStudio() {
   const [base, setBaseState] = useState<string | null>(() => readString(KEYS.mdBase));
   const baseRef = useRef<string | null>(base);
   baseRef.current = base;
-  const setBase = (b: string | null) => { baseRef.current = b; setBaseState(b); if (b) writeString(KEYS.mdBase, b); else removeKey(KEYS.mdBase); };
+  const setBase = (b: string | null) => { baseRef.current = b; setBaseState(b); if (!canWrite.current) return; if (b) writeString(KEYS.mdBase, b); else removeKey(KEYS.mdBase); }; // cửa sổ chỉ đọc không ghi khoá dùng chung
   const nav = useRef<{ stack: string[]; i: number }>({ stack: [], i: -1 });
   const [navTick, setNavTick] = useState(0);
   const pendingHash = useRef('');
@@ -312,6 +329,54 @@ export default function MarkdownStudio() {
   const [undoBar, setUndoBar] = useState<string | null>(null); // thông báo có nút Undo sau khi thay tài liệu (thay cho confirm)
   const undoTimer = useRef(0);
   const [hasPrev, setHasPrev] = useState<boolean>(() => !!readString(KEYS.mdPrev));
+  // ---- nhiều tài liệu (tab) trong MỘT ô soạn: tab không chọn chỉ là dữ liệu, không render/lint/đếm chữ ----
+  const [tabsS, setTabsS] = useState<TabsState>(() => restoreTabs(readString(KEYS.mdTabs), readString(KEYS.md) ?? '', readString(KEYS.mdName) ?? '', readString(KEYS.mdTabId)));
+  const tabsRef = useRef(tabsS); tabsRef.current = tabsS;
+  const customRef = useRef(custom); customRef.current = custom;
+  const baselineRef = useRef(baseline); baselineRef.current = baseline;
+  const savedRef = useRef(saved); savedRef.current = saved;
+  const handles = useRef(new Map<string, FsHandle>()); // file handle theo tab, chỉ trong phiên (v1 không lưu qua reload)
+  const persisted = useRef(new Map<string, number>());
+  const seenIds = useRef(new Set<string>()), canWrite = useRef(typeof navigator === 'undefined' || !navigator.locks), flushNow = useRef<() => void>(() => {}); // seenIds: id tab đã thấy ở đây (để xoá bản ghi khi bị đẩy khỏi ngăn đóng); canWrite: cửa sổ này đang giữ khoá soạn, được phép ghi
+  const [tabToast, setTabToast] = useState<string | null>(null);
+  // MỘT cửa sổ sửa, các cửa sổ khác chỉ đọc (Web Locks, một khoá cho cả ứng dụng). Cửa sổ chỉ đọc không ghi gì (bản gương, metadata, IndexedDB).
+  // Take over: chiếm khoá rồi tải lại trang từ kho (bản gương + IndexedDB do cửa sổ cũ ghi tới lúc mất khoá). Không có Web Locks thì bỏ qua.
+  const EDITOR_LOCK = 'mdprev-editor';
+  const [ro, setRo] = useState(false);
+  const roRef = useRef(false); roRef.current = ro;
+  const lockRel = useRef<(() => void) | null>(null);
+  const writeMirror = () => { // khi vừa giữ được khoá: ghi toàn bộ khoá gương của tài liệu đang hiển thị (cửa sổ chỉ đọc không ghi gì)
+    if (wsOnRef.current || wsBusyRef.current) return;
+    writeString(KEYS.mdTabId, tabsRef.current.activeId); writeString(KEYS.md, srcRef.current);
+    if (customRef.current) writeString(KEYS.mdName, customRef.current); else removeKey(KEYS.mdName);
+    if (baseRef.current) writeString(KEYS.mdBase, baseRef.current); else removeKey(KEYS.mdBase);
+  };
+  const [lockPending, setLockPending] = useState(() => typeof navigator !== 'undefined' && !!navigator.locks); // chỉ đọc cho tới khi biết có giữ được khoá hay không (một lần mỗi lần tải trang)
+  const tookAt = useRef(0), skipUnload = useRef(false);
+  const acquireLock = (n = 0) => {
+    const L = typeof navigator !== 'undefined' ? navigator.locks : undefined;
+    if (!L) { canWrite.current = true; setLockPending(false); return; }
+    if (n === 0) { try { tookAt.current = Number(sessionStorage.getItem('mdprev-took') ?? 0); sessionStorage.removeItem('mdprev-took'); } catch { /* bỏ qua */ } }
+    const took = Date.now() - tookAt.current < 15000; // vừa Take over: trang cũ nhả khoá chậm hơn bình thường nên thử nhiều lần hơn
+    const max = took ? 8 : 1, delay = took ? 500 : 1200; // F5: khoá của trang cũ nhả chậm, thử lại; hết lượt thì chỉ đọc
+    const hold = (lock: unknown) => {
+      if (!lock) { if (n < max) setTimeout(() => acquireLock(n + 1), delay); else { canWrite.current = false; setLockPending(false); setRo(true); } return undefined; }
+      canWrite.current = true; setLockPending(false); setRo(false);
+      writeMirror(); setSaveInfo({ t: new Date().toTimeString().slice(0, 5), ok: true }); flushNow.current();
+      return new Promise<void>((res) => { lockRel.current = res; });
+    };
+    void L.request(EDITOR_LOCK, { ifAvailable: true }, hold).catch(() => { canWrite.current = false; setLockPending(false); setRo(true); }); // bị chiếm: request đang giữ bị huỷ
+  };
+  const takeOver = () => {
+    const L = typeof navigator !== 'undefined' ? navigator.locks : undefined; if (!L) return;
+    try { sessionStorage.setItem('mdprev-took', String(Date.now())); } catch { /* bỏ qua */ }
+    skipUnload.current = true; // không để hộp "rời trang?" của file chưa lưu chặn việc tải lại
+    void L.request(EDITOR_LOCK, { steal: true }, () => { location.reload(); return new Promise<void>(() => undefined); });
+  };
+  useEffect(() => { acquireLock(); return () => { lockRel.current?.(); }; }, []);
+  const readOnlyHere = () => { if (!roRef.current) return false; say('READ-ONLY HERE · TAKE OVER FIRST'); return true; };
+  const tabAct = useRef({ add: () => {}, close: () => {}, reopen: () => {}, go: (_i: number) => {}, step: (_d: number) => {} }); // gán sau khi các hàm tab được định nghĩa
+  useEffect(() => { if (!tabToast) return; const id = setTimeout(() => setTabToast(null), 10000); return () => clearTimeout(id); }, [tabToast]);
   const [slides, setSlides] = useState<{ start: number; k: number } | null>(null);
   const [docStyle, setDocStyle] = useState<DocStyle>(() => { const v = readString(KEYS.mdDoc); return (DOC_STYLES as string[]).includes(v ?? '') ? (v as DocStyle) : 'paper'; });
   const [printToc, setPrintToc] = useState(false);
@@ -405,7 +470,8 @@ export default function MarkdownStudio() {
 
   const { lh, cw } = metrics;
   const lazy = useDebounced(src, 250);
-  const st = useMemo(() => stats(lazy), [lazy]);
+  const small = src.length < 20000; // tài liệu nhỏ: đếm chữ theo từng phím (rẻ); lớn thì chờ debounce để không tốn khi gõ
+  const st = useMemo(() => stats(small ? src : lazy), [small ? src : lazy]);
   const issues = useMemo(() => lint(lazy), [lazy]);
   const wPrev = useRef(-1); // nhật ký số từ viết mỗi ngày (chuỗi ngày ở tab Checks); bỏ bước tăng lớn (dán, nạp tài liệu)
   useEffect(() => { const d = st.words - wPrev.current; if (wPrev.current >= 0 && d > 0 && d <= 200) void import('../../lib/studio/writing-log').then((m) => m.bumpToday(d)); wPrev.current = st.words; }, [st.words]);
@@ -564,7 +630,7 @@ export default function MarkdownStudio() {
   const [extBlocked, setExtBlockedState] = useState(() => readString(KEYS.mdExtBlock) === '1');
   const blockRef = useRef(extBlocked);
   blockRef.current = extBlocked;
-  const setExtBlocked = (v: boolean) => { blockRef.current = v; setExtBlockedState(v); if (v) writeString(KEYS.mdExtBlock, '1'); else removeKey(KEYS.mdExtBlock); };
+  const setExtBlocked = (v: boolean) => { blockRef.current = v; setExtBlockedState(v); if (!canWrite.current) return; if (v) writeString(KEYS.mdExtBlock, '1'); else removeKey(KEYS.mdExtBlock); };
   /** HTML của worker → HTML hiển thị: link/ảnh tương đối theo nguồn, ảnh `asset:` thành blob URL, ảnh ngoài bị chặn nếu cần. */
   const finish = (h: string) => { const x = withAssetUrls(rewriteHtml(h, baseRef.current)); return blockRef.current ? blockExternalImages(x).html : x; };
 
@@ -595,8 +661,9 @@ export default function MarkdownStudio() {
   const vctxRef = useRef(vctx); vctxRef.current = vctx;
   // ---- render bản xem sau khi ngừng gõ; bỏ kết quả cũ nếu đã có lần gõ mới hơn ----
   useEffect(() => {
-    const okW = wsOnRef.current || wsBusyRef.current ? true : writeStringOk(KEYS.md, src);
-    setSaveInfo((p) => { const t = okW ? new Date().toTimeString().slice(0, 5) : p.t; return p.ok === okW && p.t === t ? p : { t, ok: okW }; });
+    const writing = !wsOnRef.current && !wsBusyRef.current && canWrite.current; // chưa giữ khoá / chỉ đọc: không ghi nên không báo "Saved"
+    const okW = wsOnRef.current || wsBusyRef.current ? true : (canWrite.current ? (writeString(KEYS.mdTabId, tabsRef.current.activeId), writeStringOk(KEYS.md, src)) : true);
+    if (writing || wsOnRef.current || wsBusyRef.current) setSaveInfo((p) => { const t = okW ? new Date().toTimeString().slice(0, 5) : p.t; return p.ok === okW && p.t === t ? p : { t, ok: okW }; });
     const my = ++seq.current;
     setBusy(true);
     const id = setTimeout(() => {
@@ -722,6 +789,7 @@ export default function MarkdownStudio() {
   }, []);
   useEffect(() => { updateWin(); }, [lineCount, lh, view, zen, wrapped]);
   useEffect(() => { if (!zen) measure(); }, [zen]); // ra khỏi zen: đo lại sau khi bố cục thường đã áp
+  useEffect(() => { if (!zen) { measure(); updateWin(); } }, [eds]); // đổi cỡ chữ ô soạn: dòng cao/ký tự rộng đổi nhưng ô soạn không đổi kích thước nên ResizeObserver không báo; đo lại
   // zen: lớp tô màu phải rộng đúng bằng vùng chữ của ô soạn, nếu không hai lớp ngắt dòng lệch nhau
   useEffect(() => {
     const t = ta.current; if (!wrapped || !t) return;
@@ -1048,7 +1116,7 @@ export default function MarkdownStudio() {
   const canRedo = hist.current.redo && qce('redo');
   const stepHistory = (redo: boolean) => { const t = ta.current; if (!t) return; t.focus(); try { document.execCommand(redo ? 'redo' : 'undo'); } catch { /* bỏ qua */ } };
   const commit = (r: Edit) => {
-    const t = ta.current; if (!t) return;
+    const t = ta.current; if (!t || roRef.current) return;
     const old = t.value;
     inCommit.current = true;
     t.focus();
@@ -1066,10 +1134,25 @@ export default function MarkdownStudio() {
     inCommit.current = false;
     caret();
   };
-  const apply = (fn: Fn) => { const t = ta.current; if (t) commit(fn(t.value, t.selectionStart, t.selectionEnd)); };
-
+  const linkHole = useRef<number | null>(null); // vị trí bắt đầu ô URL vừa chèn bằng nút/phím link
+  const apply = (fn: Fn) => { const t = ta.current; if (!t) return; const r = fn(t.value, t.selectionStart, t.selectionEnd); linkHole.current = fn === link ? r.start : null; commit(r); };
+  /** Gõ tên miền trần (example.com) đè lên placeholder `https://` thì thêm `https://` khi con trỏ rời ô URL (hoặc ô soạn mất focus), thay vì âm thầm bỏ nó. Không sửa giữa chừng: gõ "http://…" từng ký tự không được bị chen `https://` vào. */
+  const checkLink = (force = false) => {
+    const h = linkHole.current, t = ta.current;
+    if (h === null || !t || inCommit.current) return;
+    const v = t.value, c = t.selectionStart;
+    const close = v.indexOf(')', h);
+    if (v.slice(h - 2, h) !== '](' || close < 0) { linkHole.current = null; return; } // ô URL đã bị phá
+    if (!force && c >= h && c <= close) return; // con trỏ còn trong ô URL
+    linkHole.current = null;
+    const typed = v.slice(h, close);
+    if (!typed || /^(?:[a-z][a-z0-9+.-]*:|[#/?.])/i.test(typed)) return; // trống, đã có scheme, hoặc neo/đường dẫn tương đối
+    const pos = c > close ? c + 'https://'.length : c;
+    commit({ text: v.slice(0, h) + 'https://' + typed + v.slice(close), start: pos, end: pos });
+  };
   function caret() {
     const t = ta.current; if (!t || inCommit.current) return;
+    if (linkHole.current !== null) checkLink();
     if (zrRef.current && !zenEnter.current) return; // mặt Read của Zen: ô soạn ẩn, blur/selectionchange (WebKit đặt lại vùng chọn về 0) không được ghi đè vị trí con trỏ đã lưu
     const p = t.selectionStart;
     // rời khỏi một bảng chưa căn thì căn lại (một bước undo riêng, không làm khi đang gõ)
@@ -1205,8 +1288,9 @@ export default function MarkdownStudio() {
       return;
     }
     if (ev.key === ' ') { const c = collapseMarker(t.value, s, e); if (c) { ev.preventDefault(); commit(c); return; } }
+    if (ev.key === 'Backspace' && pairOn) { const r = backPair(t.value, s, e); if (r) { ev.preventDefault(); commit(r); } return; }
     if (ev.key.length === 1) {
-      const r = wrapKey(t.value, s, e, ev.key);
+      const r = wrapKey(t.value, s, e, ev.key) ?? (pairOn ? autoPair(t.value, s, e, ev.key) : null);
       if (r) { ev.preventDefault(); commit(r); }
     }
   };
@@ -1309,7 +1393,7 @@ export default function MarkdownStudio() {
       const b = baseRef.current;
       const r = b ? resolveLink(hit.href, b) : null;
       if (!r) say('NO SOURCE URL · use File, Open URL');
-      else if (r.md) void openRemote(r.md, { push: true });
+      else if (r.md) void openRemote(r.md, { push: true, inPlace: true });
       else window.open(r.href, '_blank', 'noopener,noreferrer');
     }
     return true;
@@ -1357,7 +1441,7 @@ export default function MarkdownStudio() {
       return;
     }
     const md = el.closest<HTMLAnchorElement>('a[data-md]');
-    if (md && ev.button === 0 && !ev.metaKey && !ev.ctrlKey && !ev.shiftKey && !ev.altKey) { ev.preventDefault(); void openRemote(md.dataset['md'] ?? '', { push: true }); return; }
+    if (md && ev.button === 0 && !ev.metaKey && !ev.ctrlKey && !ev.shiftKey && !ev.altKey) { ev.preventDefault(); void openRemote(md.dataset['md'] ?? '', { push: true, inPlace: true }); return; }
     const rel = el.closest<HTMLAnchorElement>('a[href]');
     if (rel && !baseRef.current && resolveLink(rel.getAttribute('href') ?? '', 'https://base.invalid/')) { ev.preventDefault(); say('NO SOURCE URL · use File, Open URL'); return; }
     if (el.closest('a') || el.closest('.pv-fm') || view === 'pv') return;
@@ -1537,12 +1621,142 @@ export default function MarkdownStudio() {
   const chooseView = (v: View) => { if (zen) { document.documentElement.removeAttribute('data-focus'); setZen(false); } setView(v); };
 
   // ---- tài liệu: thay thế (có chỗ lui), file trên máy, chia sẻ ----
+  /** Ghi metadata (đồng bộ) + nội dung các tab chưa ghi vào IndexedDB; xoá bản ghi của tab đã bị đẩy khỏi ngăn đóng. Chỉ cửa sổ giữ khoá soạn mới ghi. */
+  const persistTabs = (s: TabsState) => {
+    if (!canWrite.current || roRef.current || wsOnRef.current || wsBusyRef.current) return;
+    const all = [...s.tabs, ...s.closed], ids = new Set(all.map((t) => t.id));
+    for (const id of seenIds.current) if (!ids.has(id)) { seenIds.current.delete(id); void deleteTabRecord(id).catch(() => undefined); }
+    for (const id of ids) seenIds.current.add(id);
+    writeString(KEYS.mdTabs, toMeta(s));
+    for (const t of all) {
+      if (t.text === null || persisted.current.get(t.id) === t.updatedAt) continue;
+      persisted.current.set(t.id, t.updatedAt);
+      void saveTabRecord(t).catch(() => persisted.current.delete(t.id));
+    }
+  };
+  // lưu nền (gộp 600 ms) và khi ẩn trang; đổi/đóng/mở tab thì lưu ngay (xem persistTabs ở switchTab, closeTabAt, load)
+  useEffect(() => {
+    if (wsOnRef.current || wsBusyRef.current || ro) return;
+    const flush = () => {
+      if (!canWrite.current || roRef.current) return;
+      const s = updateTab(tabsRef.current, tabsRef.current.activeId, capture()); tabsRef.current = s;
+      persistTabs(s);
+    };
+    flushNow.current = flush;
+    const id = setTimeout(flush, 600);
+    const onHide = () => { if (document.visibilityState === 'hidden') flush(); };
+    document.addEventListener('visibilitychange', onHide); window.addEventListener('pagehide', flush);
+    return () => { clearTimeout(id); document.removeEventListener('visibilitychange', onHide); window.removeEventListener('pagehide', flush); };
+  }, [src, custom, saved, baseline, base, tabsS, ro]);
+  // bản vừa đọc từ IndexedDB coi như đã lưu (persisted): không ghi lại, tránh đè bản mới hơn của cửa sổ khác
+  useEffect(() => { // nạp nền nội dung các tab không chọn (đã nằm trong IndexedDB)
+    if (tabsRef.current.tabs.length < 2 && !tabsRef.current.closed.length) return;
+    let live = true;
+    void hydrateTabs(tabsRef.current).then((h) => { if (!live) return; const fill = (x: Tab) => { if (x.text !== null) return x; const y = h.tabs.find((z) => z.id === x.id) ?? h.closed.find((z) => z.id === x.id) ?? x; if (y.text !== null) persisted.current.set(y.id, y.updatedAt); return y; }; setTabs({ ...tabsRef.current, tabs: tabsRef.current.tabs.map(fill), closed: tabsRef.current.closed.map(fill) }); });
+    return () => { live = false; };
+  }, []);
   const stash = (current: string) => { if (current.trim() && current !== SAMPLE) { writeString(KEYS.mdPrev, current); setHasPrev(true); void addSnapshot(current, 'replaced', ''); } };
-  const load = (text: string, name: string, opts: { handle?: FsHandle | null; keepPrev?: boolean; name?: string; reason?: string; base?: string | null; snapshot?: boolean } = {}) => {
+  /** Trạng thái tài liệu đang chọn, để cất vào tab trước khi rời. */
+  const capture = (): Partial<Tab> => {
+    const e = ta.current;
+    return { text: srcRef.current, name: customRef.current, baseline: baselineRef.current, savedFile: savedRef.current, base: baseRef.current, hasFile: savedRef.current !== null, sel: { s: e?.selectionStart ?? 0, e: e?.selectionEnd ?? 0 }, top: e?.scrollTop ?? 0 };
+  };
+  const setTabs = (s: TabsState) => { tabsRef.current = s; setHistoryDoc(s.activeId); setTabsS(s); };
+  setHistoryDoc(tabsRef.current.activeId);
+  /** Nạp một tab vào CÙNG ô soạn (undo, tác giả, vị trí đều làm lại như khi mở tài liệu khác). */
+  const applyTab = (t: Tab) => {
+    const text = t.text ?? '';
+    setExtBlocked(false);
+    fh.current = handles.current.get(t.id) ?? null;
+    setBase(t.base); setSaved(t.savedFile); setBaseline(t.baseline || text);
+    hist.current = { loaded: text, redo: false };
+    auth.current?.mark('import');
+    const s = Math.min(t.sel.s, text.length), e = Math.min(t.sel.e, text.length);
+    const before = text.slice(0, s), nl = before.lastIndexOf('\n');
+    setPos({ ln: before.split('\n').length, col: s - nl });
+    setPvStale(true);
+    setSrc(text);
+    if (ta.current) { ta.current.value = text; ta.current.setSelectionRange(s, e); ta.current.scrollTop = t.top; }
+    setCustom(t.name);
+    wPrev.current = -1; // đổi tab không tính là số chữ vừa viết
+    if (canWrite.current) { if (t.name) writeString(KEYS.mdName, t.name); else removeKey(KEYS.mdName); }
+    if (!wsOnRef.current && !wsBusyRef.current && canWrite.current) { writeString(KEYS.mdTabId, t.id); writeString(KEYS.md, text); } // gương: bản cũ (rollback) mở đúng tài liệu này
+  };
+  const saveCurrentTab = () => (roRef.current ? tabsRef.current : updateTab(tabsRef.current, tabsRef.current.activeId, capture())); // chỉ đọc: không có gì thay đổi để cất
+  /** Đưa tab (có text) vào `f`. Chưa nạp thì đọc IndexedDB, thử lại một lần; vẫn lỗi hoặc thiếu bản ghi thì KHÔNG áp tab rỗng (sẽ ghi đè nội dung thật), chỉ báo. */
+  const withText = (t: Tab, f: (t: Tab) => void) => {
+    if (t.text !== null) { f(t); return; }
+    const get = () => loadTabRecord(t.id).catch(() => undefined);
+    void get().then((r) => r ?? new Promise<Tab | undefined>((res) => setTimeout(() => void get().then(res), 400))).then((r) => { if (r && typeof r.text === 'string') { persisted.current.set(t.id, r.updatedAt); f({ ...t, ...r }); } else say('COULD NOT LOAD THAT TAB · TRY AGAIN'); });
+  };
+  const switchTab = (id: string) => {
+    if (wsOnRef.current || id === tabsRef.current.activeId) return;
+    const target = tabsRef.current.tabs.find((t) => t.id === id); if (!target) return;
+    withText(target, (t) => {
+      if (tabsRef.current.activeId === id) return;
+      setTabs(activate(saveCurrentTab(), id)); persistTabs(tabsRef.current); // chọn tab MỚI chỉ sau khi nội dung của nó đã sẵn sàng; tab vừa rời được lưu ngay
+      applyTab(t);
+    });
+  };
+  const closeTabAt = (id: string) => {
+    if (wsOnRef.current || readOnlyHere()) return;
+    const cur = tabsRef.current, was = id === cur.activeId;
+    const base = was ? saveCurrentTab() : cur;
+    const gone = base.tabs.find((t) => t.id === id); if (!gone) return;
+    const label = tabItems.find((t) => t.id === id)?.label ?? gone.name;
+    const next = getActive(closeTabIn(base, id));
+    const finish = (t: Tab | null) => {
+      const s = closeTabIn(was ? saveCurrentTab() : tabsRef.current, id);
+      setTabs(s); persistTabs(s); handles.current.delete(id);
+      if (!isPristine(gone)) setTabToast(`Closed ${label || 'the document'}`);
+      if (was) { const act = getActive(s); applyTab(t && t.id === act.id ? t : act); }
+    };
+    if (was) withText(next, finish); else finish(null); // đóng tab đang chọn: nạp tab kế bên xong mới đóng (nạp lỗi thì giữ nguyên)
+  };
+  /** Đóng nhiều tab một lượt (Close others / Close tabs to the right); `keep` là tab sẽ còn lại hoặc vẫn đang chọn. */
+  const closeMany = (ids: string[], keep: string) => {
+    if (wsOnRef.current || readOnlyHere() || !ids.length) return;
+    let s = saveCurrentTab();
+    const wasActive = s.activeId;
+    for (const id of ids) { s = closeTabIn(s, id); handles.current.delete(id); }
+    if (!s.tabs.some((t) => t.id === s.activeId)) s = { ...s, activeId: keep };
+    const finish = (t: Tab | null) => { setTabs(s); persistTabs(s); setTabToast(`Closed ${ids.length} ${ids.length === 1 ? 'tab' : 'tabs'}`); if (t) applyTab(t); };
+    if (s.activeId !== wasActive) withText(getActive(s), (t) => finish(t)); else finish(null);
+  };
+  const duplicateTab = (id: string) => {
+    if (wsOnRef.current || readOnlyHere()) return;
+    const cur = saveCurrentTab(), t = cur.tabs.find((x) => x.id === id); if (!t) return;
+    const label = tabItems.find((x) => x.id === id)?.label ?? 'document.md';
+    const copy = label.replace(/(\.[^./]*)?$/, ' copy$1');
+    withText(t, (src0) => {
+      const r = openTabIn(saveCurrentTab(), { text: src0.text ?? '', name: copy, baseline: src0.text ?? '', base: src0.base, savedFile: null, hasFile: false });
+      if (r.id === null) { say(`TOO MANY TABS (${MAX_TABS}) · CLOSE ONE FIRST`); return; }
+      const placed = moveTabIn(r.state, r.id, r.state.tabs.findIndex((x) => x.id === id) + 1); // ngay sau tab gốc
+      setTabs(placed); persistTabs(placed); setTabToast(null); applyTab(getActive(placed));
+    });
+  };
+  const reopenTab = () => {
+    if (wsOnRef.current || readOnlyHere()) return;
+    const top = tabsRef.current.closed[0]; if (!top) { say('NO CLOSED TAB TO REOPEN'); return; }
+    withText(top, (t) => {
+      const r = reopenClosed({ ...saveCurrentTab(), closed: [t, ...tabsRef.current.closed.slice(1)] });
+      if (r.full || r.id === null) { say(`TOO MANY TABS (${MAX_TABS}) · CLOSE ONE FIRST`); return; }
+      setTabs(r.state); setTabToast(null); applyTab(t);
+    });
+  };
+  const load = (text: string, name: string, opts: { handle?: FsHandle | null; keepPrev?: boolean; inPlace?: boolean; name?: string; reason?: string; base?: string | null; snapshot?: boolean } = {}) => {
+    if (readOnlyHere()) return;
     if (wsOnRef.current && !wsInternal.current) { say('CLOSE THE COPY FIRST TO OPEN ANOTHER DOCUMENT'); return; } // nếu không, wsFlush sẽ ghi tài liệu này đè lên file đang mở của bản sao
     const clean = text.replace(/\r\n/g, '\n');
+    const nm0 = opts.name ?? opts.handle?.name;
+    if (!opts.keepPrev && !opts.inPlace && clean !== srcRef.current) { // mở tài liệu khác = TAB MỚI (dùng lại tab hiện tại nếu nó rỗng và nguyên vẹn)
+      const r = openTabIn(saveCurrentTab(), { text: clean, name: nm0 ?? '', baseline: clean, savedFile: opts.handle ? clean : null, base: opts.base ?? null, hasFile: !!opts.handle });
+      if (r.id === null) { say(`TOO MANY TABS (${MAX_TABS}) · CLOSE ONE FIRST`); return; }
+      setTabs(r.state); persistTabs(r.state); setTabToast(null);
+      if (opts.handle) handles.current.set(r.id, opts.handle);
+    }
     setExtBlocked(false); // tài liệu khác: không còn là tài liệu chia sẻ
-    if (!opts.keepPrev && clean !== srcRef.current) stash(srcRef.current); // dùng ref: hàm này cũng được gọi từ sự kiện hashchange (closure cũ)
+    if (!opts.keepPrev && opts.inPlace && clean !== srcRef.current) stash(srcRef.current); // thay tại chỗ (Clear, điều hướng link): cất bản cũ để Undo; dùng ref vì hàm này cũng được gọi từ hashchange (closure cũ)
     if (clean !== SAMPLE && opts.snapshot !== false) void addSnapshot(clean, opts.reason ?? (opts.name || opts.handle ? 'opened' : 'loaded'), opts.name ?? opts.handle?.name ?? '');
     fh.current = opts.handle ?? null;
     setBase(opts.base ?? null);
@@ -1560,13 +1774,13 @@ export default function MarkdownStudio() {
     say(name);
   };
   /** Mở tài liệu Markdown từ URL raw (có thể kèm #anchor). `push` ghi vào ngăn xếp back/forward. */
-  const openRemote = async (target: string, opts: { push: boolean; idx?: number }) => {
+  const openRemote = async (target: string, opts: { push: boolean; idx?: number; inPlace?: boolean }) => {
     if (loadingUrl.current) return;
     const at = target.indexOf('#');
     const rawUrl = at < 0 ? target : target.slice(0, at);
     const hash = at < 0 ? '' : decodeURIComponent(target.slice(at + 1));
     if (rawUrl === baseRef.current && hash) { pendingHash.current = ''; const el = doc.current?.querySelector<HTMLElement>('#' + CSS.escape(hash)); el?.scrollIntoView(); return; }
-    if (dirty && !confirm('Replace the current document? Unsaved changes go to Restore previous.')) return;
+    if (opts.inPlace && dirty && !confirm('Replace the current document? Unsaved changes go to Restore previous.')) return;
     loadingUrl.current = true;
     say('LOADING…');
     try {
@@ -1583,7 +1797,7 @@ export default function MarkdownStudio() {
       }
       if (opts.idx !== undefined) nav.current.i = opts.idx;
       pendingHash.current = hash;
-      load(text, 'OPENED ' + fileNameFromUrl(rawUrl), { name: fileNameFromUrl(rawUrl), base: rawUrl, reason: 'remote', snapshot: false });
+      load(text, 'OPENED ' + fileNameFromUrl(rawUrl), { name: fileNameFromUrl(rawUrl), base: rawUrl, reason: 'remote', snapshot: false, ...(opts.inPlace ? { inPlace: true } : {}) });
       setNavTick((t) => t + 1);
     } catch {
       say('COULD NOT LOAD ' + fileNameFromUrl(rawUrl));
@@ -1653,7 +1867,7 @@ export default function MarkdownStudio() {
   const goHistory = (d: -1 | 1) => {
     const n = nav.current, j = n.i + d;
     if (j < 0 || j >= n.stack.length) return;
-    void openRemote(n.stack[j]!, { push: false, idx: j });
+    void openRemote(n.stack[j]!, { push: false, idx: j, inPlace: true });
   };
   const canBack = navTick >= 0 && nav.current.i > 0, canFwd = navTick >= 0 && nav.current.i >= 0 && nav.current.i < nav.current.stack.length - 1;
   const prevTitle = () => { const t = docTitle(readString(KEYS.mdPrev) ?? ''); return t.length > 26 ? t.slice(0, 25) + '…' : t; };
@@ -1684,7 +1898,7 @@ export default function MarkdownStudio() {
     const had = srcRef.current.trim() !== '' && srcRef.current !== SAMPLE;
     load(text, name, opts);
     clearTimeout(undoTimer.current);
-    if (had) setUndoBar(msg); else setUndoBar(null); // thông báo ở lại tới khi người dùng đóng, bấm Undo hoặc bắt đầu gõ (không còn tự tắt sau vài giây)
+    if (had && opts?.inPlace) setUndoBar(msg); else setUndoBar(null); // thông báo ở lại tới khi người dùng đóng, bấm Undo hoặc bắt đầu gõ (không còn tự tắt sau vài giây)
   };
   useEffect(() => { if (menu && matchMedia('(max-width: 899px)').matches) setUndoBar(null); }, [menu]); // bảng trượt từ đáy che toast; bản cũ vẫn ở Open ▾ → Restore previous
   useEffect(() => {
@@ -1777,6 +1991,7 @@ export default function MarkdownStudio() {
     try { const h = await w.showSaveFilePicker({ suggestedName: fileName, types: MD_TYPES }); fh.current = h; setCustom(h.name); writeString(KEYS.mdName, h.name); await writeTo(h); } catch { /* người dùng huỷ */ }
   };
   const save = async () => {
+    if (readOnlyHere()) return;
     if (fh.current) { try { await writeTo(fh.current); } catch { say('SAVE FAILED'); } return; }
     // chưa gắn tệp trên đĩa: ⌘S không bật hộp thoại, bản sao trong trình duyệt đã tự lưu; ghi ra đĩa là việc của "Save as…" và Export
     setBaseline(src); void addSnapshot(src, 'saved', fileName); say('SAVED IN THIS BROWSER · SAVE AS… WRITES A FILE');
@@ -1811,11 +2026,22 @@ export default function MarkdownStudio() {
   const openShared = (t = pendingShare, th = pendingTheme.current) => { if (t === null) return; setPendingShare(null); setXd(null); load(t, th ? 'OPENED SHARED DOCUMENT · WITH THE SENDER\'S THEME' : 'OPENED SHARED DOCUMENT'); setExtBlocked(true); if (th) themeOf(th, false); };
   useEffect(() => {
     const o = out.current, d = doc.current; if (!o || !d) return;
-    for (const k of [...o.style]) if (k.startsWith('--')) o.style.removeProperty(k);
+    for (const k of [...o.style]) if (k.startsWith('--') && k !== '--pane-w') o.style.removeProperty(k);
     for (const [k, v] of dtx?.vars ?? []) o.style.setProperty(k, v);
     o.toggleAttribute('data-dt', !!dtx);
-    d.style.fontFamily = dtx?.doc.fontFamily ?? ''; d.style.fontSize = dtx?.doc.fontSize ?? ''; d.style.maxWidth = dtx?.doc.maxWidth ?? '';
-  }, [dtx, view, zen]);
+    // Chữ (phông, cỡ, độ rộng) của theme mặc định ngầm vẫn áp ở giao diện tối: ở đó chỉ bỏ MÀU (giấy trắng không hợp nền tối), nếu bỏ cả chữ
+    // thì bản xem rơi về kiểu `paper` mặc định (19px thay vì 18px) và nhịp dòng/khoảng cách lệch ~5% so với giao diện sáng.
+    const typo = dtx ?? (implicit ? dt : null);
+    d.style.fontFamily = typo?.doc.fontFamily ?? ''; d.style.fontSize = typo?.doc.fontSize ?? ''; d.style.maxWidth = typo?.doc.maxWidth ?? '';
+  }, [dtx, dt, implicit, view, zen]);
+  // bề rộng khung xem cho sơ đồ rộng (CSS không có đơn vị theo khung chứa mà không phải dựng container-type, thứ làm phần tử fixed bên trong đổi mốc định vị)
+  useEffect(() => {
+    const o = out.current; if (!o || typeof ResizeObserver === 'undefined') return;
+    const set = () => o.style.setProperty('--pane-w', o.clientWidth + 'px');
+    set();
+    const ro = new ResizeObserver(set); ro.observe(o);
+    return () => ro.disconnect();
+  }, [view, zen]);
   const allowImages = () => { setExtBlocked(false); setHtml(finish(rawHtml.current)); runMermaid(rawHtml.current, seq.current); };
   const blockedN = useMemo(() => (extBlocked ? (html.match(/class="md-img-blocked"/g)?.length ?? 0) : 0), [html, extBlocked]);
   // PWA: service worker (chỉ bản build, chỉ nơi an toàn: HTTPS hay localhost). Lõi được cache khi cài; phần nạp động tải nền sau 5 giây nếu online và không tiết kiệm dữ liệu
@@ -1841,26 +2067,26 @@ export default function MarkdownStudio() {
   }, []);
   useEffect(() => { // cảnh báo khi đóng tab với file đang sửa chưa lưu
     if (!dirty) return;
-    const h = (ev: BeforeUnloadEvent) => { ev.preventDefault(); };
+    const h = (ev: BeforeUnloadEvent) => { if (!skipUnload.current) ev.preventDefault(); };
     window.addEventListener('beforeunload', h);
     return () => window.removeEventListener('beforeunload', h);
   }, [dirty]);
 
   // ---- menu ----
   const exportItems: { label: string; hint?: string; run: () => void }[] = [
-    { label: 'Download Markdown (.md)', run: () => { download(fileName, 'text/markdown', src); say('DOWNLOADED ' + fileName + (hasAssets(src) ? ' · pasted images stay in this browser, use HTML to keep them' : '')); } },
-    { label: 'HTML (.html)', run: () => { const n = withExt('html'); void fullHtml().then(inlineAssets).then((body) => { download(n, 'text/html', standaloneHtml({ title: titleOf(src), bodyHtml: body, css: docCss, vars: resolveVars((v) => getComputedStyle(document.documentElement).getPropertyValue(v)), docStyle, extra: (dtx?.css ?? '') + (document.getElementById('pv-user-css')?.textContent ?? '') })); say('DOWNLOADED ' + n); }); } },
-    { label: 'Word (.docx)', hint: 'headings, lists, tables, footnotes, images', run: () => { void exportDocx(); } },
+    { label: 'Download Markdown (.md)', hint: 'source text', run: () => { download(fileName, 'text/markdown', src); say('DOWNLOADED ' + fileName + (hasAssets(src) ? ' · pasted images stay in this browser, use HTML to keep them' : '')); } },
+    { label: 'HTML (.html)', hint: 'one standalone page', run: () => { const n = withExt('html'); void fullHtml().then(inlineAssets).then((body) => { download(n, 'text/html', standaloneHtml({ title: titleOf(src), bodyHtml: body, css: docCss, vars: resolveVars((v) => getComputedStyle(document.documentElement).getPropertyValue(v)), docStyle, extra: (dtx?.css ?? '') + (document.getElementById('pv-user-css')?.textContent ?? '') })); say('DOWNLOADED ' + n); }); } },
+    { label: 'Word (.docx)', hint: 'tables, footnotes, images', run: () => { void exportDocx(); } },
     { label: 'EPUB (.epub)', hint: 'e-book', run: () => { void exportMore('epub'); } },
     { label: 'LaTeX (.tex)', hint: 'common syntax', run: () => { void exportMore('tex'); } },
     { label: 'TextPack (.textpack)', hint: 'Markdown + images', run: () => { void exportMore('textpack'); } },
-    { label: 'PDF (print)', hint: 'print dialog', run: () => { void fullHtml().then(() => printDoc(false)); } },
-    { label: 'PDF with contents', hint: 'print dialog', run: () => { void fullHtml().then(() => printDoc(true)); } },
+    { label: 'PDF (print)', hint: 'browser print dialog', run: () => { void fullHtml().then(() => printDoc(false)); } },
+    { label: 'PDF with contents', hint: 'adds a table of contents', run: () => { void fullHtml().then(() => printDoc(true)); } },
     { label: 'Slides PDF', hint: 'one slide per page', run: () => { void fullHtml().then(printSlides); } },
-    { label: 'Copy Markdown', run: () => { copyText(src).then((k) => k && say('COPIED MARKDOWN')); } },
-    { label: 'Copy HTML', run: () => { void fullHtml().then((h) => inlineAssets(cleanHtml(h))).then((h) => copyText(h)).then((k) => k && say('COPIED HTML')); } },
-    { label: 'Copy rich text', run: () => { void fullHtml().then((h) => inlineAssets(cleanHtml(h))).then((h) => copyRich(h, src)).then((k) => k && say('COPIED RICH TEXT')); } },
-    { label: 'Copy share link', run: () => { void share(); } },
+    { label: 'Copy Markdown', hint: 'to clipboard', run: () => { copyText(src).then((k) => k && say('COPIED MARKDOWN')); } },
+    { label: 'Copy HTML', hint: 'to clipboard', run: () => { void fullHtml().then((h) => inlineAssets(cleanHtml(h))).then((h) => copyText(h)).then((k) => k && say('COPIED HTML')); } },
+    { label: 'Copy rich text', hint: 'paste into Docs or Mail', run: () => { void fullHtml().then((h) => inlineAssets(cleanHtml(h))).then((h) => copyRich(h, src)).then((k) => k && say('COPIED RICH TEXT')); } },
+    { label: 'Copy share link', hint: 'document in the link', run: () => { void share(); } },
     { label: 'Share with password…', hint: 'encrypted link', run: () => setXd({ k: 'share', p: { mode: 'new', doc: shareDoc() } }) },
     ...(ws?.origin.kind === 'vault' ? [{ label: 'Static site (.zip)', hint: 'whole vault', run: siteDialog }] : [{ label: 'Publish a vault as a site…', hint: 'pick a folder', run: () => openVault(true) }]),
   ];
@@ -1907,22 +2133,23 @@ export default function MarkdownStudio() {
     rootEl.setAttribute('data-slprint', '1');
     document.title = fileName.replace(/\.[^./]*$/, '') + '-slides';
     let fin = false;
-    const done = () => { if (fin) return; fin = true; window.removeEventListener('afterprint', done); render(null, host); host.remove(); rootEl.removeAttribute('data-slprint'); document.title = baseTitle.current; };
+    const done = () => { if (fin) return; fin = true; window.removeEventListener('afterprint', done); render(null, host); host.remove(); rootEl.removeAttribute('data-slprint'); document.title = baseTitle.current; ta.current?.focus({ preventScroll: true }); };
     window.addEventListener('afterprint', done);
     // afterprint không tới nơi ở mọi trình duyệt (Safari, chế độ không giao diện): print() trả về thì dọn sau một nhịp để tên tài liệu và trạng thái Present không kẹt lại
-    void document.fonts?.ready.then(() => requestAnimationFrame(() => { window.print(); setTimeout(done, 5000); }));
+    void document.fonts?.ready.then(() => requestAnimationFrame(() => { try { window.print(); } catch { say('PRINTING IS NOT AVAILABLE IN THIS BROWSER'); done(); return; } setTimeout(done, 5000); })); // luôn dọn và trả focus, kể cả khi trình duyệt không mở hộp in
   }
   /** In ra PDF: tên file gợi ý theo tên tài liệu (trình duyệt lấy từ document.title), tuỳ chọn mục lục ở đầu. */
   function printDoc(toc: boolean) {
     document.title = fileName.replace(/\.[^./]*$/, '');
     setPrintToc(toc);
     let fin = false;
-    const done = () => { if (fin) return; fin = true; document.title = baseTitle.current; setPrintToc(false); window.removeEventListener('afterprint', done); };
+    const done = () => { if (fin) return; fin = true; document.title = baseTitle.current; setPrintToc(false); window.removeEventListener('afterprint', done); ta.current?.focus({ preventScroll: true }); }; // trả focus cho ô soạn để bàn phím không kẹt sau khi in
     window.addEventListener('afterprint', done);
-    setTimeout(() => { window.print(); setTimeout(done, 5000); }, 80);
+    setTimeout(() => { try { window.print(); } catch { say('PRINTING IS NOT AVAILABLE IN THIS BROWSER'); done(); return; } setTimeout(done, 5000); }, 80); // không giả định có hộp in
   }
 
   const commitName = () => {
+    if (roRef.current) { setEditName(null); return; }
     const v = (editName ?? '').trim().replace(/[\\/:*?"<>|]+/g, '-');
     setEditName(null);
     const next = !v || v === derivedName ? '' : /\.[a-z0-9]+$/i.test(v) ? v : v + '.md';
@@ -1971,12 +2198,20 @@ export default function MarkdownStudio() {
       if (ev.isComposing) return;
       const k = ev.key.toLowerCase();
       if ((ev.metaKey || ev.ctrlKey) && k === 's') { ev.preventDefault(); void act.current.save(); return; }
+      if (ev.altKey && !ev.metaKey && !ev.ctrlKey) { // tab tài liệu: Alt+N mới, Alt+W đóng, Alt+Shift+T mở lại, Alt+1..9, Alt+PgUp/PgDn (Ctrl+T/W/Tab thuộc trình duyệt)
+        const t = tabAct.current, many = tabsRef.current.tabs.length > 1;
+        if (!ev.shiftKey && ev.code === 'KeyN') { ev.preventDefault(); t.add(); return; }
+        if (!ev.shiftKey && ev.code === 'KeyW' && many) { ev.preventDefault(); t.close(); return; }
+        if (ev.shiftKey && ev.code === 'KeyT') { ev.preventDefault(); t.reopen(); return; }
+        if (!ev.shiftKey && many && /^Digit[1-9]$/.test(ev.code)) { ev.preventDefault(); t.go(Number(ev.code.slice(5)) - 1); return; }
+        if (!ev.shiftKey && many && (ev.code === 'PageUp' || ev.code === 'PageDown')) { ev.preventDefault(); t.step(ev.code === 'PageUp' ? -1 : 1); return; }
+      }
       // ⌘K trên Mac, Ctrl+K nơi khác (Ctrl+K trên Mac là "xoá tới cuối dòng" của ô soạn, không được chiếm)
       const mac = /Mac|iPhone|iPad/.test(navigator.platform);
       if ((mac ? ev.metaKey && !ev.ctrlKey : ev.ctrlKey && !ev.metaKey) && !ev.shiftKey && !ev.altKey && k === 'k' && act.current.zen) { ev.preventDefault(); emit('search', '>zen '); return; } // lệnh zen bằng chữ
       if ((ev.metaKey || ev.ctrlKey) && !ev.altKey && ev.code === 'Backslash') { ev.preventDefault(); act.current.cmd(ev.shiftKey ? 'inspector' : 'sidebar'); return; } // ⌘/Ctrl+\ panel file, ⌘/Ctrl+⇧+\ Inspector (⌘B/⌘I là đậm/nghiêng)
       if ((ev.metaKey || ev.ctrlKey) && ev.shiftKey && k === 'o') { ev.preventDefault(); act.current.openRail(); return; }
-      if ((ev.metaKey || ev.ctrlKey) && !ev.shiftKey && !ev.altKey && k === 'f' && (ev.target as HTMLElement | null)?.closest?.('.ed-main, .pv-find')) { ev.preventDefault(); act.current.openFind(); return; }
+      if ((ev.metaKey || ev.ctrlKey) && !ev.shiftKey && !ev.altKey && k === 'f' && (() => { const t = ev.target as HTMLElement | null; return !!t?.closest?.('.ed-main, .pv-find') || (!!t?.closest?.('.pv') && !t.closest('[role="dialog"], [role="alertdialog"], .pv-guard, .pv-menu') && root.current?.getAttribute('data-sview') !== 'read'); })()) { ev.preventDefault(); act.current.openFind(); return; }
       if (k === 'o' && !ev.metaKey && !ev.ctrlKey && !ev.altKey && !typing(ev.target)) { ev.preventDefault(); act.current.openRail(); }
       if (k === 's' && !ev.metaKey && !ev.ctrlKey && !ev.altKey && !typing(ev.target)) { ev.preventDefault(); act.current.cmd(ev.shiftKey ? 'present-here' : 'present'); }
       // Alt+P: trình chiếu từ slide đang soạn, cả khi đang ở mặt Read của zen (ô soạn đã có handler riêng)
@@ -2049,7 +2284,7 @@ export default function MarkdownStudio() {
     const m: Record<string, () => void> = {
       present: () => present(false), inspector: toggleInsp, sidebar: () => { if (wsRef.current) setWsOpen((o) => !o); else say('NO FILE PANEL: IT OPENS WHEN YOU EDIT A COPY OF A SKILL'); },
       history: () => { if (inspAvail && !skillMode) openInspTab('history'); else setHistOpen((o) => !o); }, images: () => setAssetsOpen(true),
-      zen: toggleZen, 'zen-read': () => { if (!act.current.zen) toggleZen(); setZr(true); }, 'zen-write': () => { if (!act.current.zen) toggleZen(); setZr(false); }, 'new': newDoc, clear: clearDoc, sample: loadSample,
+      zen: toggleZen, 'zen-read': () => { if (!act.current.zen) toggleZen(); setZr(true); }, 'zen-write': () => { if (!act.current.zen) toggleZen(); setZr(false); }, 'new': newDoc, 'reopen-tab': reopenTab, 'close-tab': () => closeTabAt(tabsRef.current.activeId), 'next-tab': () => tabAct.current.step(1), 'prev-tab': () => tabAct.current.step(-1), clear: clearDoc, sample: loadSample,
       sync: toggleSync,
       install: installApp, 'open-url': openFromUrl, template: () => { setMenu('file'); setTplOpen(true); }, find: () => { if (view === 'pv') { chooseView('split'); setTimeout(openFind, 80); } else openFind(); }, // ở Read không có ô soạn: sang Split rồi mới mở Find jump: openRail, save: () => { void save(); }, 'export-md': ex('Download Markdown (.md)'), 'export-html': ex('HTML (.html)'), 'export-pdf': ex('PDF (print)'), 'export-pdf-toc': ex('PDF with contents'), 'export-docx': ex('Word (.docx)'), 'export-epub': ex('EPUB (.epub)'), 'export-tex': ex('LaTeX (.tex)'), 'export-textpack': ex('TextPack (.textpack)'), 'export-slides-pdf': ex('Slides PDF'),
       'copy-md': ex('Copy Markdown'), 'copy-html': ex('Copy HTML'), 'copy-rich': ex('Copy rich text'), share: ex('Copy share link'), 'share-pw': ex('Share with password…'), theme: () => setXd({ k: 'theme', p: {} }), restore,
@@ -2080,6 +2315,7 @@ export default function MarkdownStudio() {
 
   // ---- nhớ trạng thái giao diện (con trỏ, cuộn, chế độ xem): khôi phục khi tải lại, chỉ khi tài liệu chưa đổi ----
   const writeUi = () => {
+    if (!canWrite.current) return; // cửa sổ chỉ đọc không ghi trạng thái giao diện dùng chung
     writeStringOk(KEYS.mdUi, JSON.stringify({ s: savedSel.current.s, e: savedSel.current.e, top: uiRef.current.zen ? prevTop.current : ta.current?.scrollTop ?? 0, view: uiRef.current.zen ? prevView.current : uiRef.current.view, n: srcRef.current.length }));
   };
   function scheduleUi() { clearTimeout(uiT.current); uiT.current = window.setTimeout(writeUi, 500); }
@@ -2122,7 +2358,7 @@ export default function MarkdownStudio() {
   const setDocStyleSaved = (n: DocStyle) => { setDocStyle(n); writeString(KEYS.mdDoc, n); say(`DOCUMENT STYLE ${n.toUpperCase()}`); };
   const cycleDocStyle = () => setDocStyleSaved(DOC_STYLES[(DOC_STYLES.indexOf(docStyle) + 1) % DOC_STYLES.length]!);
   const setSpellSaved = (n: Spell) => { setSpell(n); writeString(KEYS.mdSpell, n); say(`SPELLCHECK ${n.toUpperCase()}`); };
-  const toggleWrap = () => { setWrapPref(!wrapOn); writeString(KEYS.mdWrap, wrapOn ? '0' : '1'); };
+  const toggleWrap = () => { setWrapPref(!wrapOn); writeString(KEYS.mdWrap, wrapOn ? '0' : '1'); backToEditor(); };
   const toggleWide = () => { setWide(!wide); writeString(KEYS.mdWide, wide ? '0' : '1'); };
   const editing = view !== 'pv';
   // gạch chấm dưới phần chữ của dòng có cảnh báo (chế độ thường; zen xuống dòng mềm nên không vẽ)
@@ -2242,6 +2478,7 @@ export default function MarkdownStudio() {
       const btn = (seg.querySelector('.pv-desk') as HTMLElement | null)?.getBoundingClientRect();
       const off = btn && btn.width > 0 ? btn.left + btn.width / 2 - segR.left : segR.width / 2; // từ mép trái nhóm tới tâm nút Split (hoặc tâm nhóm khi Split ẩn)
       bar.style.setProperty('--seg-off', `${off}px`);
+      bar.style.setProperty('--seg-want', `${x - off - br.left}px`); // mép trái mong muốn của nhóm chế độ (trước khi kẹp): thanh tab dùng làm giới hạn phải, không phụ thuộc bề rộng của chính nó
       const leftEdges = ['.pv-title', '.pv-menuwrap-l'].map((q) => (bar.querySelector(q) as HTMLElement | null)?.getBoundingClientRect().right ?? br.left); // tên file và nút menu File ▾ đứng sau nó
       const left = Math.max(...leftEdges) + 12;
       const right = br.right - 12;
@@ -2254,7 +2491,7 @@ export default function MarkdownStudio() {
     ro.observe(splitNode); ro.observe(bar);
     for (const q of ['.pv-title', '.pv-menuwrap-l']) { const n = bar.querySelector(q); if (n) ro.observe(n); }
     window.addEventListener('resize', place);
-    return () => { ro.disconnect(); window.removeEventListener('resize', place); delete bar.dataset['seam']; bar.style.removeProperty('--seam-x'); bar.style.removeProperty('--seg-off'); };
+    return () => { ro.disconnect(); window.removeEventListener('resize', place); delete bar.dataset['seam']; bar.style.removeProperty('--seam-x'); bar.style.removeProperty('--seg-off'); bar.style.removeProperty('--seg-want'); };
   }, [slots.aa, slots.ex, view, split, wsOpen, ws, zen, wide, inspOpen, InspC, fileName]);
 
   const inspBtn = (
@@ -2265,21 +2502,27 @@ export default function MarkdownStudio() {
       <button type="button" class="pv-btn pv-ic" aria-haspopup="true" aria-expanded={menu === 'view'} aria-label="View options" title="View settings" onClick={() => setMenu(menu === 'view' ? '' : 'view')}><Icon n="gear" /></button>
       {menu === 'view' && (
         <div class="pv-menu pv-menu-view">
-          <div class="pv-menu-h" role="presentation">DOCUMENT STYLE</div>
-          {DOC_STYLES.map((d) => <button key={d} type="button" aria-pressed={docStyle === d} onClick={() => { setMenu(''); setDocStyleSaved(d); }}>{DOC_LABEL[d]}<span>{DOC_HINT[d]}</span></button>)}
-          <button type="button" onClick={() => { setMenu(''); setXd({ k: 'theme', p: {} }); }}>Theme…<span>{dt && !isNewsprint(dt.t) ? 'custom' : 'colors, font'}</span></button>
-          <div class="pv-menu-h" role="presentation">PREVIEW WIDTH</div>
-          <button type="button" aria-pressed={!wide} onClick={() => { setMenu(''); if (wide) toggleWide(); }}>Narrow<span>reading column</span></button>
-          <button type="button" aria-pressed={wide} onClick={() => { setMenu(''); if (!wide) toggleWide(); }}>Wide<span>tables, code</span></button>
-          <div class="pv-menu-h pv-nophone" role="presentation">SPLIT VIEW</div>
-          <button type="button" class="pv-nophone" aria-pressed={cursorMark} onClick={() => { setMenu(''); const n = !cursorMark; setCursorMark(n); writeString(KEYS.mdCursor, n ? '1' : '0'); }} title="Mark the block in the preview that matches the line your cursor is on">Cursor marker<span>{cursorMark ? 'on' : 'off'}</span></button>
-          <div class="pv-menu-h" role="presentation">SOURCE</div>
-          <button type="button" aria-pressed={wrapOn} onClick={() => { setMenu(''); toggleWrap(); }}>Wrap lines<span>{wrapOn ? 'on' : 'off'}</span></button>
-          <button type="button" aria-pressed={authOn} onClick={() => { setMenu(''); toggleAuth(); }} title="Mark pasted and dropped text in the editor. Local, approximate, not proof">Authorship marks<span>{authOn ? 'on' : 'off'}</span></button>
-          <div class="pv-menu-h" role="presentation">SPELLCHECK</div>
-          {SPELLS.map((v) => <button key={v} type="button" aria-pressed={spell === v} onClick={() => { setMenu(''); setSpellSaved(v); }}>{SPELL_LABEL[v]}</button>)}
-          <div class="pv-menu-h" role="presentation">WINDOW</div>
-          <button type="button" onClick={() => { setMenu(''); popOut(); }}>Pop out preview<span>linked window</span></button>
+          <div class="pv-mv-h" role="presentation">Preview</div>
+          <div class="pv-mv-row"><span class="pv-mv-l" id="mv-style">Style</span>
+            <span class="pv-seg2" role="group" aria-labelledby="mv-style">{DOC_STYLES.map((d) => <button key={d} type="button" aria-pressed={docStyle === d} title={DOC_HINT[d]} onClick={() => { setMenu(''); setDocStyleSaved(d); }}>{DOC_LABEL[d]}</button>)}</span></div>
+          <div class="pv-mv-row"><span class="pv-mv-l" id="mv-width">Width</span>
+            <span class="pv-seg2" role="group" aria-labelledby="mv-width">
+              <button type="button" aria-pressed={!wide} title="Reading column" onClick={() => { setMenu(''); if (wide) toggleWide(); }}>Narrow</button>
+              <button type="button" aria-pressed={wide} title="Tables, code" onClick={() => { setMenu(''); if (!wide) toggleWide(); }}>Wide</button></span></div>
+          <button type="button" class="pv-mv-go" onClick={() => { setMenu(''); setXd({ k: 'theme', p: {} }); }}>Theme…<span>{dt && !isNewsprint(dt.t) ? 'custom' : 'colors, font'}</span></button>
+          <div class="pv-mv-h" role="presentation">Editor</div>
+          <div class="pv-mv-row pv-nophone pv-eds"><span class="pv-mv-l" id="mv-size">Text size</span>
+            <span class="pv-seg2" role="group" aria-labelledby="mv-size">{(['s', 'm', 'l'] as const).map((v) => <button key={v} type="button" aria-pressed={eds === v} title={v === 's' ? '13px' : v === 'm' ? '14px' : '17px'} onClick={() => { setMenu(''); setEdsSaved(v); }}>{v === 's' ? 'Small' : v === 'm' ? 'Default' : 'Large'}</button>)}</span></div>
+          <div class="pv-mv-row"><span class="pv-mv-l" id="mv-spell">Spellcheck</span>
+            <span class="pv-seg2" role="group" aria-labelledby="mv-spell">{SPELLS.map((v) => <button key={v} type="button" aria-pressed={spell === v} onClick={() => { setMenu(''); setSpellSaved(v); }}>{SPELL_LABEL[v]}</button>)}</span></div>
+          <div class="pv-mv-tog">
+            <button type="button" aria-pressed={wrapOn} onClick={() => { setMenu(''); toggleWrap(); }}>Wrap lines<i class="pv-sw" aria-hidden="true" /></button>
+            <button type="button" aria-pressed={lnOn} onClick={() => { setMenu(''); toggleLn(); }}>Line numbers<i class="pv-sw" aria-hidden="true" /></button>
+            <button type="button" aria-pressed={pairOn} onClick={() => { setMenu(''); togglePair(); }} title="Typing ( or &quot; or a backtick adds the closing one. Never [ { or ' (Vietnamese Telex uses [ ])">Auto-close ( &quot; `<i class="pv-sw" aria-hidden="true" /></button>
+            <button type="button" aria-pressed={authOn} onClick={() => { setMenu(''); toggleAuth(); }} title="Mark pasted and dropped text in the editor. Local, approximate, not proof">Authorship marks<i class="pv-sw" aria-hidden="true" /></button>
+            <button type="button" class="pv-nophone" aria-pressed={cursorMark} onClick={() => { setMenu(''); const n = !cursorMark; setCursorMark(n); writeString(KEYS.mdCursor, n ? '1' : '0'); }} title="Split view: mark the block in the preview that matches the line your cursor is on">Cursor marker<i class="pv-sw" aria-hidden="true" /></button>
+          </div>
+          <button type="button" class="pv-mv-go pv-mv-last" onClick={() => { setMenu(''); popOut(); }}>Pop out preview<span>linked window</span></button>
         </div>
       )}
     </span>
@@ -2288,10 +2531,27 @@ export default function MarkdownStudio() {
     <span class="pv-menuwrap pv-exportwrap">
       <button type="button" class="pv-btn pv-solid pv-hact" aria-haspopup="true" aria-expanded={menu === 'export'} aria-label="Export" title="Export" onClick={() => setMenu(menu === 'export' ? '' : 'export')}><Icon n="download" s={14} /><span class="lbl">Export</span></button>
       {menu === 'export' && (
-        <div class="pv-menu">
-          {exportItems.map((it) => (
-            <button key={it.label} type="button" onClick={() => { setMenu(''); it.run(); }}>{it.label}{it.hint && <span>{it.hint}</span>}</button>
-          ))}
+        <div class="pv-menu pv-menu-exp">
+          {EXPORT_GROUPS.map(([title, labels]) => {
+            const list = exportItems.filter((it) => labels.includes(it.label));
+            return list.length ? (
+              <div key={title} class="pv-ex-sec">
+                <div class="pv-ex-h" role="presentation">{title}</div>
+                <div class="pv-ex-grid">
+                  {list.map((it) => <button key={it.label} type="button" class="pv-ex-b" onClick={() => { setMenu(''); it.run(); }}>{it.label}{it.hint && <span>{it.hint}</span>}</button>)}
+                </div>
+              </div>
+            ) : null;
+          })}
+          {(() => {
+            const grouped = new Set(EXPORT_GROUPS.flatMap(([, l]) => l)), rest = exportItems.filter((it) => !grouped.has(it.label));
+            return rest.length ? (
+              <div class="pv-ex-sec">
+                <div class="pv-ex-h" role="presentation">Site</div>
+                <div class="pv-ex-grid">{rest.map((it) => <button key={it.label} type="button" class="pv-ex-b" onClick={() => { setMenu(''); it.run(); }}>{it.label}{it.hint && <span>{it.hint}</span>}</button>)}</div>
+              </div>
+            ) : null;
+          })()}
         </div>
       )}
     </span>
@@ -2301,12 +2561,12 @@ export default function MarkdownStudio() {
   // New: đang sửa bản sao skill thì "New" là tạo file mới trong bản sao (mở form của panel), không xoá file đang mở
   const newDoc = () => {
     setMenu(''); if (ws) { setWsOpen(true); emit('ws-new'); return; }
-    if (src.trim()) { setNewAsk('new'); return; }
     doNew(); };
-  const doNew = () => { setNewAsk(''); replaceDoc('', 'NEW DOCUMENT', undefined, 'Started a new document. Earlier text: Open ▾ → Restore previous'); };
+  tabAct.current = { add: newDoc, close: () => closeTabAt(tabsRef.current.activeId), reopen: reopenTab, go: (i) => { const t = tabsRef.current.tabs[i]; if (t) switchTab(t.id); }, step: (d) => { const a = tabsRef.current, i = a.tabs.findIndex((x) => x.id === a.activeId), n = a.tabs.length; const t = a.tabs[(i + d + n) % n]; if (t) switchTab(t.id); } };
+  const doNew = () => { setNewAsk(''); replaceDoc('', 'NEW DOCUMENT', undefined, ''); };
   // Clear: xoá hết chữ của tài liệu đang mở, hỏi trước (cùng hộp với New). Bản cũ được cất: Open ▸ Restore previous, và thanh Undo hiện sau khi xoá.
   // Bài mẫu không phải của khách nên xoá thẳng. Khi đang sửa bản sao skill thì không có "Clear" (New ở đó là tạo file trong bản sao).
-  const doClear = () => { setNewAsk(''); replaceDoc('', 'CLEARED', undefined, 'Cleared the document. Earlier text: Open ▾ → Restore previous'); ta.current?.focus(); };
+  const doClear = () => { setNewAsk(''); replaceDoc('', 'CLEARED', { inPlace: true }, 'Cleared the document'); ta.current?.focus(); };
   const clearDoc = () => {
     setMenu('');
     if (ws) { say('Clear is not available while you edit a copy'); return; }
@@ -2329,6 +2589,7 @@ export default function MarkdownStudio() {
             <button type="button" onClick={() => openVault(false)} title="A zip of Markdown notes with [[wikilinks]], to publish as a static site">Open zip as vault…</button>
             {recentDocs().length > 0 && <div class="pv-menu-h" role="presentation">Recent</div>}
             {recentDocs().map(({ snap, title }) => <button key={snap.id} type="button" class="pv-menu-sub" title="Open this document again; the current one goes to Restore previous" onClick={() => { setMenu(''); replaceDoc(snap.text, 'OPENED ' + title, { ...(snap.name ? { name: snap.name } : {}), reason: 'recent', snapshot: false }, `Opened ${title}`); }}>{title}<span>{ago(snap.t)}</span></button>)}
+            {!ws && tabsS.closed.length > 0 && <button type="button" onClick={() => { setMenu(''); reopenTab(); }} title="Bring back the tab you closed last (Alt+Shift+T)">Reopen closed tab<span>{(docTitle(tabsS.closed[0]!.text ?? '') || tabsS.closed[0]!.name || 'Closed tab').slice(0, 26)}</span></button>}
             {hasPrev && <button type="button" onClick={() => { setMenu(''); restore(); }} title="Swap with the document you had before">Restore previous<span>{prevTitle()}</span></button>}
           </div>
         )}
@@ -2340,7 +2601,7 @@ export default function MarkdownStudio() {
   const fileUp = !!fileSlot && matchMedia('(min-width: 900px)').matches; // desktop: File nằm hàng 1 cạnh New/Open
   const fileMenuEl = (
             <span class="pv-menuwrap pv-menuwrap-l">
-              <button type="button" class={fileUp ? 'appbar-btn appbar-act' : 'pv-btn pv-ic'} aria-haspopup="true" aria-expanded={menu === 'file'} aria-label="File menu" title="File menu: save, export, find and more" onClick={() => setMenu(menu === 'file' ? '' : 'file')}><span class={fileUp ? 'lbl' : 'pv-fl'} aria-hidden="true">File</span><Icon n="chev" /></button>
+              <button type="button" class={fileUp ? 'appbar-btn appbar-act' : 'pv-btn pv-ic'} aria-haspopup="true" aria-expanded={menu === 'file'} aria-label="File menu" title="File menu: save, export, find and more" onClick={() => setMenu(menu === 'file' ? '' : 'file')}>{fileUp && <Icon n="ffile" />}<span class={fileUp ? 'lbl' : 'pv-fl'} aria-hidden="true">File</span>{fileUp ? <Icon n="chev" s={14} /> : <Icon n="chev" />}</button>
               {menu === 'file' && (
                 <div class="pv-menu pv-menu-file">
                   <div class="pv-menu-doc"><b>{fileName}</b><span>{dirty ? 'Unsaved changes' : saveInfo.ok ? (saveInfo.t ? `Saved ${saveInfo.t} in this browser` : 'Saved in this browser') : 'Not saved: browser storage is full or blocked'}</span></div>
@@ -2356,7 +2617,8 @@ export default function MarkdownStudio() {
                   <button type="button" class="pv-menu-phone" onClick={() => { setMenu(''); present(false); }}>Present</button>
                   <button type="button" class="pv-menu-phone" disabled={!editing || !canUndo} onClick={() => { setMenu(''); stepHistory(false); }}>Undo</button>
                   <button type="button" class="pv-menu-phone" disabled={!editing || !canRedo} onClick={() => { setMenu(''); stepHistory(true); }}>Redo</button>
-                  {hasPrev && <button type="button" onClick={() => { setMenu(''); restore(); }} title="Swap with the document you had before">Restore previous<span>{prevTitle()}</span></button>}
+                  {!ws && tabsS.closed.length > 0 && <button type="button" onClick={() => { setMenu(''); reopenTab(); }} title="Bring back the tab you closed last (Alt+Shift+T)">Reopen closed tab<span>{(docTitle(tabsS.closed[0]!.text ?? '') || tabsS.closed[0]!.name || 'Closed tab').slice(0, 26)}</span></button>}
+            {hasPrev && <button type="button" onClick={() => { setMenu(''); restore(); }} title="Swap with the document you had before">Restore previous<span>{prevTitle()}</span></button>}
                   <button type="button" onClick={() => { setMenu(''); installApp(); }} title="Install mdprev as an app; it then works offline">Install app</button>
                   <button type="button" onClick={() => { setMenu(''); loadSample(); }} title="A short document that shows what the editor can do">Sample</button>
                   {!ws && src.trim() !== '' && <button type="button" onClick={clearDoc} title="Remove all text. It stays in Open ▾ → Restore previous">Clear document</button>}
@@ -2389,29 +2651,30 @@ export default function MarkdownStudio() {
   // role=heading cấp 2, để DOM sau khi chạy JS vẫn chỉ có một <h1>. Ở /app/ giữ nguyên.
   const onHome = useRef(!!document.querySelector('.home-tool')).current;
   const Title = (onHome ? 'div' : 'h1') as 'h1';
+  const tabsOn = tabsS.tabs.length >= 2 && !ws;
+  const inactiveNames = useMemo(() => new Map(tabsS.tabs.map((t) => [t.id, t.text ? fileNameOf(t.text) : 'untitled.md'])), [tabsS]);
+  const tabItems = useMemo(() => {
+    const tabs = tabsS.tabs.map((t) => (t.id === tabsS.activeId ? { ...t, name: custom || derivedName, hasFile: saved !== null, savedFile: saved } : { ...t, name: t.name || inactiveNames.get(t.id) || 'untitled.md' }));
+    const bare = tabs.map((t) => ({ ...t, name: t.name.replace(/\.(md|markdown|txt)$/i, '') })); // nhãn tab không mang đuôi: "untitled", "untitled (2)" phân biệt được khi bị cắt
+    const names = displayNames(bare, () => '');
+    return tabs.map((t, i) => ({ id: t.id, label: names[i]!, full: t.name, changed: t.id === tabsS.activeId ? dirty : isChangedVsFile(t) }));
+  }, [tabsS, inactiveNames, custom, derivedName, saved, dirty]);
+  const renameTabLabel = (id: string, raw: string) => { if (readOnlyHere()) return;
+    const v = raw.trim().replace(/[\\/:*?"<>|]+/g, '-'); if (!v) return;
+    const name = /\.[a-z0-9]+$/i.test(v) ? v : v + '.md'; // cùng quy tắc với ô tên file: thiếu đuôi thì thêm .md
+    if (id === tabsS.activeId) { setCustom(name); if (canWrite.current) writeString(KEYS.mdName, name); }
+    setTabs(renameTabIn(tabsRef.current, id, name)); };
   const barEl = (
     <div class="pv-bar" data-focus-hide>
           <Title class="pv-title">
 
             <span class="pv-sr">mdprev: </span>
-            {ws && <span class="pv-crumb" title={wsPath ? `${ws.name} / ${wsPath}` : ws.name}>{ws.name}<i aria-hidden="true"> / </i></span>}
-            <span class="pv-namewrap">
-              <span class="pv-namemirror" aria-hidden="true">{nameShown + ' '}</span>
-              <input class="pv-name" size={1} value={nameShown} title={nameShown} aria-label="File name" spellcheck={false}
-                onFocus={() => setEditName(fileName)} onInput={(ev) => setEditName((ev.target as HTMLInputElement).value)} onBlur={commitName}
-                onKeyDown={(ev) => { if (ev.isComposing) return; if (ev.key === 'Enter') (ev.target as HTMLInputElement).blur(); else if (ev.key === 'Escape') { setEditName(null); (ev.target as HTMLInputElement).blur(); } }} />
-            </span>
-            {dirty && <span class="pv-dirty" title="Unsaved changes" role="img" aria-label="Unsaved changes">●</span>}
-            {!dirty && saveInfo.ok && <span class="pv-sv" role="img" aria-label="Saved in this browser" title="Saved in this browser" />}
-            {!dirty && saveInfo.ok && saveInfo.t && <span class="pv-svt" aria-hidden="true">Saved {saveInfo.t}</span>}
-            {dirty && <span class="pv-svt pv-svt-w" aria-hidden="true">Unsaved</span>}
-            {base && <a class="pv-from" href={base} target="_blank" rel="noopener noreferrer" title={base}>{sourceLabel(base)}</a>}
-            {(canBack || canFwd) && (
-              <span class="pv-histnav" role="group" aria-label="Linked documents">
-                <button type="button" class="pv-linkbtn" aria-label="Back" title="Previous document" disabled={!canBack} onClick={() => goHistory(-1)}>←</button>
-                <button type="button" class="pv-linkbtn" aria-label="Forward" title="Next document" disabled={!canFwd} onClick={() => goHistory(1)}>→</button>
-              </span>
+            {tabsOn && <StudioTabs items={tabItems} activeId={tabsS.activeId} canAdd={!ws} onSwitch={switchTab} onClose={closeTabAt} onAdd={newDoc} onRename={renameTabLabel} onDuplicate={duplicateTab} onCloseOthers={(id) => closeMany(tabsRef.current.tabs.filter((t) => t.id !== id).map((t) => t.id), id)} onCloseRight={(id) => { const i = tabsRef.current.tabs.findIndex((t) => t.id === id); closeMany(tabsRef.current.tabs.slice(i + 1).map((t) => t.id), id); }} onReopen={reopenTab} canReopen={tabsS.closed.length > 0} />}
+            {(
+              <DocName crumb={ws ? { name: ws.name, path: wsPath ?? '' } : null} shown={nameShown} fileName={fileName} dirty={dirty && !tabsOn} saved={saveInfo} hideName={tabsOn} base={base} canBack={canBack} canFwd={canFwd}
+              onEditStart={setEditName} onEdit={setEditName} onCommit={commitName} onCancel={() => setEditName(null)} onHistory={goHistory} />
             )}
+            {!tabsOn && !ws && <button type="button" class="pv-tabadd1" aria-label="New tab" title="New document in a new tab (Alt+N)" onClick={newDoc}><span aria-hidden="true">+</span></button>}
           </Title>
             {!fileUp && fileMenuEl}
           {modesEl}
@@ -2466,11 +2729,11 @@ export default function MarkdownStudio() {
     );
   };
   return (
-    <div class={'pv' + (wide ? ' pv-wide' : '')} lang="en" ref={root} data-pv data-sview={view} data-zen={zen ? '1' : undefined} data-wrap={wrapOn ? '1' : undefined} data-ws={ws ? '1' : undefined} data-wsbusy={wsBusy ? '1' : undefined} data-wsclosed={ws && !wsOpen ? '1' : undefined} data-insp={inspOpen ? '1' : undefined} data-zface={zen ? zp.face : undefined} data-zdim={zen ? zp.dim : undefined} data-zsize={zen ? zp.size : undefined} data-zcol={zen ? zp.col : undefined} data-zread={zen && zr ? '1' : undefined}>
+    <div class={'pv' + (wide ? ' pv-wide' : '')} lang="en" ref={root} data-pv data-sview={view} data-zen={zen ? '1' : undefined} data-wrap={wrapOn ? '1' : undefined} data-noln={lnOn ? undefined : '1'} data-eds={eds === 'm' ? undefined : eds} data-ws={ws ? '1' : undefined} data-wsbusy={wsBusy ? '1' : undefined} data-wsclosed={ws && !wsOpen ? '1' : undefined} data-insp={inspOpen ? '1' : undefined} data-zface={zen ? zp.face : undefined} data-zdim={zen ? zp.dim : undefined} data-zsize={zen ? zp.size : undefined} data-zcol={zen ? zp.col : undefined} data-zread={zen && zr ? '1' : undefined}>
       {newAsk && (
         <div class="pv-guard pv-urldlg" role="alertdialog" aria-label={newAsk === 'clear' ? 'Clear this document' : 'Start a new document'} data-focus-hide
           onKeyDown={(ev) => { if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); setNewAsk(''); ta.current?.focus(); } }}>
-          <div class="pv-dlgh"><span class="pv-urllab">{newAsk === 'clear' ? 'Clear this document?' : 'Start a new document?'}</span><span class="pv-dlgsub">{newAsk === 'clear' ? 'All text is removed. It is kept: Open ▸ Restore previous brings it back.' : 'The current text is kept: Open ▸ Restore previous brings it back.'}</span></div>
+          <div class="pv-dlgh"><span class="pv-urllab">{newAsk === 'clear' ? 'Clear this document?' : 'Start a new document?'}</span><span class="pv-dlgsub">{newAsk === 'clear' ? 'All text is removed. Undo in the notice that follows brings it back.' : 'The current text stays open in its own tab.'}</span></div>
           <span class="pv-guard-act"><button type="button" ref={(el) => el?.focus()} onClick={() => { setNewAsk(''); ta.current?.focus(); }}>Keep editing</button><button type="button" class="pv-guard-go" onClick={newAsk === 'clear' ? doClear : doNew}>{newAsk === 'clear' ? 'Clear document' : 'New document'}</button></span>
         </div>
       )}
@@ -2490,15 +2753,9 @@ export default function MarkdownStudio() {
         onOpen={(d: { md: string; theme?: unknown }) => openShared(d.md, d.theme ?? null)} current={dt?.t ?? {}} onTheme={(t: DocTheme) => themeOf(t, true)} src={src}
         onTemplate={(body: string, n: string) => { setXd(null); replaceDoc(body, 'NEW FROM ' + n.toUpperCase(), { reason: 'template' }, `Started from ${n}`); }} />}
       {pendingShare !== null && (
-        <div class="pv-guard" role="alertdialog" aria-label="Open shared document" data-focus-hide>
-          <span>Open the shared document from this link? It replaces the text on screen; yours stays in FILE → Restore previous. Images from other sites stay blocked until you allow them.</span>
-          <span class="pv-guard-act"><button type="button" class="pv-guard-go" onClick={() => openShared()} autoFocus>OPEN</button><button type="button" onClick={() => { setPendingShare(null); say('SHARED DOCUMENT NOT OPENED'); }}>CANCEL</button></span>
-        </div>
-      )}
-      {pendingShare === null && blockedN > 0 && (
-        <div class="pv-guard" role="status" data-focus-hide>
-          <span>{blockedN} image{blockedN > 1 ? 's' : ''} from other sites blocked in this shared document. Loading them tells those sites your IP address.</span>
-          <span class="pv-guard-act"><button type="button" onClick={allowImages}>LOAD IMAGES</button></span>
+        <div class="pv-guard pv-urldlg" role="alertdialog" aria-label="Open shared document" data-focus-hide>
+          <div class="pv-dlgh"><span class="pv-urllab">Open the shared document?</span><span class="pv-dlgsub">It opens in a new tab; your current text stays open. Images from other sites stay blocked until you allow them.</span></div>
+          <span class="pv-guard-act"><button type="button" onClick={() => { setPendingShare(null); say('SHARED DOCUMENT NOT OPENED'); }}>CANCEL</button><button type="button" class="pv-guard-go" onClick={() => openShared()} autoFocus>OPEN</button></span>
         </div>
       )}
       {barEl}
@@ -2516,7 +2773,7 @@ export default function MarkdownStudio() {
       <div class="pv-split" data-view={view} ref={splitEl} style={`--pvr:${split}`}>
         {ws && PanelC && !zen && <PanelC {...panelProps()} />}
         {inspAvail && inspOpen && !InspC && <aside class="pv-insp" aria-label="Inspector" aria-busy="true" data-focus-hide />}
-        {inspAvail && inspOpen && InspC && <InspC onFix={fixFrontmatter} focusLine={checkFocus} mode={skillMode ? 'skill' : 'doc'} report={skillRep} onOpenFinding={openFinding} tab={inspTab} onTab={pickInspTab} renderOutline={() => renderOutline(true)} fmRows={fm?.rows ?? []} onEditProp={editProp} issues={issues} onGoto={(l: number) => goToLine(l)} trailing={trailing} onFixTrailing={fixTrailingNow} src={lazy} goal={zp.goal} auth={authOn && auth.current ? auth.current.stats() : undefined} onAuthExport={() => { const j = auth.current?.json(); if (j) { download(withExt('authorship.json'), 'application/json', j); say('DOWNLOADED AUTHORSHIP RECORD'); } }} onAuthClear={() => { auth.current?.clear(); setAuthTick((n) => n + 1); say('AUTHORSHIP RECORD CLEARED'); }} renderHistory={() => <StudioHistory embedded initialTab={histSub.current} onTab={(t) => { histSub.current = t; }} src={src} baseline={baseline} onApply={applyFromPanel} onJump={(l) => goToLine(l)} onSnapshot={snapshotNow} onClose={() => {}} />} />}
+        {inspAvail && inspOpen && InspC && <InspC key={tabsS.activeId} onFix={fixFrontmatter} focusLine={checkFocus} mode={skillMode ? 'skill' : 'doc'} report={skillRep} onOpenFinding={openFinding} tab={inspTab} onTab={pickInspTab} renderOutline={() => renderOutline(true)} fmRows={fm?.rows ?? []} onEditProp={editProp} issues={issues} onGoto={(l: number) => goToLine(l)} trailing={trailing} onFixTrailing={fixTrailingNow} src={lazy} goal={zp.goal} auth={authOn && auth.current ? auth.current.stats() : undefined} onAuthExport={() => { const j = auth.current?.json(); if (j) { download(withExt('authorship.json'), 'application/json', j); say('DOWNLOADED AUTHORSHIP RECORD'); } }} onAuthClear={() => { auth.current?.clear(); setAuthTick((n) => n + 1); say('AUTHORSHIP RECORD CLEARED'); }} renderHistory={() => <StudioHistory embedded initialTab={histSub.current} onTab={(t) => { histSub.current = t; }} src={src} baseline={baseline} onApply={applyFromPanel} onJump={(l) => goToLine(l)} onSnapshot={snapshotNow} onClose={() => {}} />} />}
         <section class="pv-pane pv-src" aria-label="Editor">
           <div class="pv-tools" data-focus-hide role="toolbar" aria-label="Formatting" ref={toolsRef}>
             <span class="pv-grp pv-fixed" role="group" aria-label="History">
@@ -2580,12 +2837,12 @@ export default function MarkdownStudio() {
               </div>
               <textarea
                 ref={ta} class="ed-ta" value={src} wrap={wrapped ? 'soft' : 'off'} spellcheck={spell !== 'off'} lang="en" autocomplete="off" autocapitalize="off"
-                readOnly={wsBusy || wsStale || (ws !== null && wsPath === null)} aria-label="Markdown, press Esc to leave the editor" placeholder="Write or paste Markdown, or type / for blocks"
+                readOnly={wsBusy || wsStale || ro || lockPending || (ws !== null && wsPath === null)} aria-label="Markdown, press Esc to leave the editor" placeholder="Write or paste Markdown, or type / for blocks"
                 aria-autocomplete="list" aria-controls={slash && slashItems.length ? 'pv-slash' : undefined}
                 aria-activedescendant={slash && slashItems.length ? `pv-slash-${Math.min(slash.sel, slashItems.length - 1)}` : undefined}
                 onInput={(ev) => { const it = (ev as InputEvent).inputType; hist.current.redo = it === 'historyUndo' || (it === 'historyRedo' && hist.current.redo); lastInput.current = performance.now(); setSrc((ev.target as HTMLTextAreaElement).value); caret(); if (!(ev as InputEvent).isComposing) syncSlash(); }}
                 onKeyDown={onKeyDown} onClick={onEdClick} onScroll={onEdScroll} onPaste={onPaste}
-                onFocus={() => { setFocused(true); preloadTurndown(); }} onBlur={() => { setFocused(false); setSlash(null); }}
+                onFocus={() => { setFocused(true); preloadTurndown(); }} onBlur={() => { checkLink(true); setFocused(false); setSlash(null); }}
                 onDragOver={(ev) => ev.preventDefault()}
                 onDrop={(ev) => {
                   const fs = [...(ev.dataTransfer?.files ?? [])];
@@ -2664,7 +2921,7 @@ export default function MarkdownStudio() {
                 )}
                 <article class="md-doc" ref={doc} data-doc={docStyle === 'default' ? undefined : docStyle} dangerouslySetInnerHTML={{ __html: onHome ? html.replace(/<h1(?=[\s>])([^>]*)>/g, '<div role="heading" aria-level="2" data-h1$1>').replace(/<\/h1>/g, '</div>') : html }} />
                 <div class="pv-cur" ref={curBar} aria-hidden="true" hidden />
-                {src.trim() === '' && !pvStale && <div class="pv-empty"><p>Nothing to preview yet. Write in the editor and the formatted page appears here.</p>
+                {src.trim() === '' && !pvStale && !welcomeUp && <div class="pv-empty"><p>Nothing to preview yet. Write in the editor and the formatted page appears here.</p>
                   <span class="pv-empty-acts"><button type="button" class="pv-btn" onClick={loadSample}>Load sample</button><button type="button" class="pv-btn" onClick={() => { void navigator.clipboard?.readText().then((x) => { if (x.trim()) replaceDoc(x, 'PASTED', { snapshot: false }, 'Pasted from the clipboard'); else say('CLIPBOARD IS EMPTY'); }).catch(() => say('ALLOW CLIPBOARD ACCESS, OR PRESS CTRL/⌘+V IN THE EDITOR')); }}>Paste from clipboard</button><button type="button" class="pv-btn" onClick={() => { void openFile(); }}>Open a file…</button></span></div>}
               </div>
             </div>
@@ -2683,7 +2940,17 @@ export default function MarkdownStudio() {
           onCopy={(k) => (k === 'sel' ? copyText(zSel ? src.slice(zSel.s, zSel.e) : '') : k === 'md' ? copyText(src) : k === 'plain' ? copyText(htmlToPlain(cleanHtml(html))) : fullHtml().then((x) => inlineAssets(cleanHtml(x))).then((h) => copyRich(h, src)))}
         />
       )}
+      <div class="pv-notices">
+      {pendingShare === null && blockedN > 0 && (
+        <div class="pv-ro pv-imgnote" role="status" data-focus-hide>
+          <span>{blockedN} image{blockedN > 1 ? 's' : ''} from other sites blocked. Loading them shares your IP address.</span>
+          <button type="button" onClick={allowImages}>LOAD IMAGES</button>
+        </div>
+      )}
+      {ro && <div class="pv-ro" role="status" data-focus-hide><span>Open in another window, so read-only here.</span><button type="button" onClick={takeOver}>Take over</button></div>}
+      {tabToast && <div class="pv-toast" role="status" data-focus-hide><span>{tabToast}.</span><button type="button" onClick={reopenTab}>Reopen</button><button type="button" class="pv-toast-x" aria-label="Dismiss" onClick={() => setTabToast(null)}>×</button></div>}
       {undoBar && <div class="pv-toast" role="status" data-focus-hide><span>{undoBar}.</span><button type="button" onClick={undoReplace}>Undo</button><button type="button" class="pv-toast-x" aria-label="Dismiss" onClick={() => { clearTimeout(undoTimer.current); setUndoBar(null); }}>×</button></div>}
+      </div>
       <div class="pv-mode" data-focus-hide>
         <span class="pv-modetag" data-busy={busy ? '1' : undefined}><i class="pv-dot" aria-hidden="true" /><span>{busy ? 'RENDERING' : 'READY'}</span></span>
         {!online && <span class="pv-offline" title="No network. Editing, preview and export still work; Open URL and web images do not.">Offline</span>}
@@ -2691,6 +2958,7 @@ export default function MarkdownStudio() {
         <button type="button" class="pv-modebtn pv-words" title="Every word in the file, code and tables included. Click for Checks → Writing, which counts prose only." onClick={() => toggleInspTab(skillMode ? 'findings' : 'checks')}>{num(st.words)} words<span class="pv-more"> · {num(st.chars)} chars · {st.minutes} min</span></button>
         {inspAvail && lineIssue && <button type="button" class="pv-modebtn pv-curlint" title="Open this issue in Checks" aria-label={`Issue on this line: ${lineIssue[0]}`} aria-expanded={inspOpen && inspTab === 'checks' && checkFocus?.line === pos.ln} onClick={() => toggleInspTab('checks', pos.ln)}><span class="pv-warn" aria-hidden="true">!</span> {lineIssue[0]}</button>}
         <span class="pv-mode-r">
+        {canWrite.current && (dirty ? <span class="pv-svt pv-svt-w" role="status">Unsaved changes</span> : saveInfo.ok && saveInfo.t ? <span class="pv-svt" title="Saved in this browser"><i class="pv-sv" aria-hidden="true" />Saved {saveInfo.t}</span> : null)}
         {inspAvail && <button type="button" class="pv-modebtn pv-chk" title={skillMode ? 'Open Findings in the inspector' : 'Open Checks in the inspector'} aria-expanded={inspOpen && inspTab === (skillMode ? 'findings' : 'checks')} onClick={() => toggleInspTab(skillMode ? 'findings' : 'checks')}>{skillMode ? (skillRep && skillRep.findings.length ? <><span class="pv-warn" aria-hidden="true">!</span> {skillRep.findings.length} {skillRep.findings.length === 1 ? 'finding' : 'findings'}</> : <><span class="pv-ok" aria-hidden="true">✓</span> No findings</>) : issues.length ? <><span class="pv-warn" aria-hidden="true">!</span> {issues.length} {issues.length === 1 ? 'issue' : 'issues'}</> : <><span class="pv-ok" aria-hidden="true">✓</span> No issues</>}</button>}
         {inspAvail && <span class="pv-sr" role="status" aria-live="polite">{skillMode ? (skillRep && skillRep.findings.length ? `${skillRep.findings.length} ${skillRep.findings.length === 1 ? 'finding' : 'findings'}` : 'No findings') : issues.length ? `${issues.length} ${issues.length === 1 ? 'issue' : 'issues'}` : 'No issues'}</span>}
         <button type="button" class="pv-modebtn" title="Changes since the last save and version history" aria-expanded={inspAvail && !skillMode ? inspHistory : histOpen} disabled={!editing} onClick={() => { if (inspAvail && !skillMode) { toggleInspTab('history'); return; } setHistOpen(!histOpen); }}>changes</button>
@@ -2703,7 +2971,7 @@ export default function MarkdownStudio() {
       </div>
       {assetsOpen && <StudioAssets src={src} say={say} onClose={() => { setAssetsOpen(false); refreshAssets(); ta.current?.focus(); }}
         onInsert={(id, name) => { const t = ta.current; if (!t) return; const md = `![${altFromName(name)}](asset:${id})`; const s = t.selectionStart, e = t.selectionEnd; commit({ text: t.value.slice(0, s) + md + t.value.slice(e), start: s + md.length, end: s + md.length }); }} />}
-      {histOpen && editing && !inspHistory && <StudioHistory src={src} baseline={baseline} onApply={applyFromPanel} onJump={(l) => goToLine(l)} onSnapshot={snapshotNow} onClose={() => setHistOpen(false)} />}
+      {histOpen && editing && !inspHistory && <StudioHistory key={tabsS.activeId} src={src} baseline={baseline} onApply={applyFromPanel} onJump={(l) => goToLine(l)} onSnapshot={snapshotNow} onClose={() => setHistOpen(false)} />}
       {menu && <div class="pv-scrim" aria-hidden="true" onClick={(ev) => { ev.preventDefault(); setMenu(''); }} />}
       {slides && <StudioSlides key={slides.k} html={html} start={slides.start} doc={docStyle} dt={slideDt} onClose={closeSlides} onPrint={() => { void fullHtml().then(printSlides); }} />}
     </div>

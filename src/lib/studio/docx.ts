@@ -15,6 +15,7 @@ import {
   LevelFormat, Packer, Paragraph, ShadingType, Table, TableCell, TableRow, TextRun, WidthType, type ParagraphChild,
 } from 'docx';
 import { splitFrontMatter } from './frontmatter';
+import { normalizeMathDelims } from './mathdelim';
 import { idMaker, plainHeading } from './slug';
 import { parseCallout, CALLOUTS } from './callout';
 
@@ -193,7 +194,7 @@ function imageRun(img: DocxImage): ImageRun {
 export function mdastOf(src: string): Root {
   const { body } = splitFrontMatter(src);
   const p = unified().use(remarkParse).use(remarkGfm).use(remarkMath);
-  return p.runSync(p.parse(body)) as Root;
+  return p.runSync(p.parse(normalizeMathDelims(body))) as Root;
 }
 
 /** Dựng Document từ Markdown. */

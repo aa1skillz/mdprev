@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { ensureKatexCss } from '../../lib/studio/katex-css';
 import { Icon } from './icons';
-import { clock, PRESENT_CHANNEL, scrollWithin, syncScroll, type PresentMsg } from '../../lib/studio/present';
+import { clock, PRESENT_CHANNEL, scrollWithin, sender, syncScroll, type PresentMsg, type Wire } from '../../lib/studio/present';
 import { SlideView } from './SlideView';
 import { themeForStorageEvent } from '../../lib/prefs';
 
@@ -12,7 +12,7 @@ export default function StudioPresenter() {
   const [st, setSt] = useState<State | null>(null);
   const [ended, setEnded] = useState(false);
   const [now, setNow] = useState(() => Date.now());
-  const ch = useRef<BroadcastChannel | null>(null);
+  const ch = useRef<((m: PresentMsg) => void) | null>(null);
   const cur_ = useRef<HTMLElement>(null);
   const iRef = useRef(0);
   iRef.current = st?.i ?? 0;
@@ -22,20 +22,25 @@ export default function StudioPresenter() {
   const keep = (k: string, v: number) => { try { localStorage.setItem(k, String(v)); } catch { /* bỏ qua */ } };
   const [goal, setGoal] = useState(() => num('mdprev-pr-goal', 0)); // thời lượng dự kiến (phút), 0 = tắt đếm ngược
   const [ns, setNs] = useState(() => num('mdprev-pr-ns', 1)); // hệ số cỡ chữ ghi chú
-  const send = (m: PresentMsg) => ch.current?.postMessage(m);
+  // mã phiên của màn chiếu mà cửa sổ này điều khiển (từ ?s=); không có thì gắn với phiên đầu tiên trả lời
+  const sidRef = useRef(typeof location === 'undefined' ? '' : new URLSearchParams(location.search).get('s') ?? '');
+  const send = (m: PresentMsg) => ch.current?.(m);
 
   useEffect(() => {
     const bc = new BroadcastChannel(PRESENT_CHANNEL);
-    ch.current = bc;
-    const sync = syncScroll(bc, () => cur_.current, () => iRef.current);
-    bc.onmessage = (e: MessageEvent<PresentMsg>) => {
+    const post = sender(bc, () => sidRef.current);
+    ch.current = post;
+    const sync = syncScroll(bc, () => sidRef.current, () => cur_.current, () => iRef.current);
+    bc.onmessage = (e: MessageEvent<Wire>) => {
       const m = e.data;
-      if (!m || typeof m !== 'object') return;
+      if (!m || typeof m !== 'object' || !m.sid) return;
+      if (!sidRef.current) sidRef.current = m.sid;
+      if (m.sid !== sidRef.current) return; // tin của phiên khác (tab chiếu khác/tab cũ): bỏ qua
       sync.onMsg(m);
       if (m.t === 'state') { setSt(m); setEnded(false); }
       else if (m.t === 'end') setEnded(true);
     };
-    bc.postMessage({ t: 'hello' } satisfies PresentMsg);
+    post({ t: 'hello' });
     const id = setInterval(() => setNow(Date.now()), 1000);
     const key = (ev: KeyboardEvent) => {
       if (ev.metaKey || ev.ctrlKey || ev.altKey || ev.isComposing) return;
@@ -44,10 +49,10 @@ export default function StudioPresenter() {
       const scrollKey = fwd || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace';
       const R = revRef.current; // đang hiện từng bullet: màn chiếu lo (bullet trước, cuộn sau), presenter không tự cuộn
       if (scrollKey && !(R && (fwd ? R.rev < R.rt : R.rev > 0)) && scrollWithin(cur_.current?.querySelector<HTMLElement>('.sv-canvas[data-overflow="1"]'), fwd)) { /* cuộn trong slide dài; màn chiếu theo qua kênh */ }
-      else if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ') bc.postMessage({ t: 'step', d: 1, s: scrollKey } satisfies PresentMsg);
-      else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') bc.postMessage({ t: 'step', d: -1, s: scrollKey } satisfies PresentMsg);
-      else if (k === 'b' || k === 'B' || k === '.') bc.postMessage({ t: 'blank' } satisfies PresentMsg);
-      else if (k === 'r' || k === 'R') bc.postMessage({ t: 'reset' } satisfies PresentMsg);
+      else if (k === 'ArrowRight' || k === 'ArrowDown' || k === 'PageDown' || k === ' ') post({ t: 'step', d: 1, s: scrollKey });
+      else if (k === 'ArrowLeft' || k === 'ArrowUp' || k === 'PageUp' || k === 'Backspace') post({ t: 'step', d: -1, s: scrollKey });
+      else if (k === 'b' || k === 'B' || k === '.') post({ t: 'blank' });
+      else if (k === 'r' || k === 'R') post({ t: 'reset' });
       else return;
       ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation();
     };
@@ -57,7 +62,13 @@ export default function StudioPresenter() {
     return () => { sync.stop(); bc.close(); clearInterval(id); window.removeEventListener('keydown', key, true); window.removeEventListener('storage', theme); };
   }, []);
   useEffect(() => { if (st?.slides.some((s) => s.html.includes('class="katex') || s.notes.includes('class="katex'))) void ensureKatexCss(); }, [st]);
-  useEffect(() => { document.title = st ? `${st.i + 1} / ${st.slides.length} · Presenter` : 'Presenter'; }, [st]);
+  // tên bộ slide = tiêu đề đầu tiên của slide 1: người trình bày thấy ngay cửa sổ này đang bám vào bộ nào
+  const deck = useMemo(() => {
+    const h = st?.slides[0]?.html; if (!h) return '';
+    const d = document.createElement('div'); d.innerHTML = h;
+    return (d.querySelector('h1,h2,h3')?.textContent ?? d.textContent ?? '').trim().replace(/\s+/g, ' ').slice(0, 80);
+  }, [st?.slides[0]?.html]);
+  useEffect(() => { document.title = st ? `${st.i + 1} / ${st.slides.length}${deck ? ` · ${deck}` : ''} · Presenter` : 'Presenter'; }, [st, deck]);
 
   const cur = st?.slides[st.i];
   const next = st ? st.slides[st.i + 1] : undefined;
@@ -65,6 +76,7 @@ export default function StudioPresenter() {
     <div class="pr" lang="en">
       <div class="pr-bar" role="status">
         <span class="pr-count">{st ? `${st.i + 1} / ${st.slides.length}` : '- / -'}{st?.blank && <span class="pr-flag">BLANK</span>}</span>
+        {deck && <span class="pr-deck" title={deck}>{deck}</span>}
         <span class="pr-time" title="Elapsed">{st ? clock(now - st.t0) : '00:00'}</span>
         <label class="pr-goal"><span>Goal (min)</span><input type="number" min="0" max="600" step="5" value={goal || ''} placeholder="off" onInput={(e) => { const v = Math.max(0, Math.min(600, Math.floor(Number((e.currentTarget as HTMLInputElement).value) || 0))); setGoal(v); keep('mdprev-pr-goal', v); }} /></label>
         {goal > 0 && st && (() => { const rem = goal * 60000 - (now - st.t0); return <span class="pr-left" data-s={rem < 0 ? 'over' : rem < 120000 ? 'warn' : undefined} title="Time left of the goal">{clock(Math.abs(rem))} {rem < 0 ? 'over' : 'left'}</span>; })()}

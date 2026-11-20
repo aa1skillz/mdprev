@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'preact/hooks';
 import { splitSlides } from '../../lib/studio/slides';
 import { Icon } from './icons';
-import { clock, PRESENT_CHANNEL, PRESENTER_NAME, revealCount, scrollWithin, syncScroll, type PresentMsg } from '../../lib/studio/present';
+import { clock, newSession, PRESENT_CHANNEL, PRESENTER_NAME, revealCount, scrollWithin, sender, syncScroll, type PresentMsg, type Wire } from '../../lib/studio/present';
 
 /** Bảng phím tắt của màn chiếu (một nguồn cho nút ? và phím ?). Giữ khớp với onKey bên dưới. */
 const SHORTCUTS: [string, [string, string][]][] = [
@@ -39,7 +39,10 @@ export function StudioSlides({ html, start = 0, doc, dt, onClose, onPrint }: Pro
   const [t0, setT0] = useState(() => Date.now());
   const box = useRef<HTMLDivElement>(null);
   const gridEl = useRef<HTMLDivElement>(null);
-  const chan = useRef<BroadcastChannel | null>(null);
+  const chan = useRef<((m: PresentMsg) => void) | null>(null);
+  const sidRef = useRef('');
+  if (!sidRef.current) sidRef.current = newSession(); // mã phiên: mỗi lần mở màn chiếu một mã
+  const sid = sidRef.current;
   const n = useRef(slides.length);
   n.current = slides.length;
   const close = useRef(onClose);
@@ -77,9 +80,20 @@ export function StudioSlides({ html, start = 0, doc, dt, onClose, onPrint }: Pro
       else void el.requestFullscreen?.().catch(() => undefined);
     } catch { /* trình duyệt từ chối: giữ chế độ cửa sổ */ }
   };
-  const presenter = () => { window.open(url('/app/presenter/'), PRESENTER_NAME, 'popup,width=1100,height=720'); };
+  const presenter = () => { window.open(url('/app/presenter/') + '?s=' + encodeURIComponent(sid), PRESENTER_NAME, 'popup,width=1100,height=720'); };
   const openGrid = () => { setGsel(idx); setGrid(true); };
   // hàm mới nhất cho listener phím (đăng ký một lần)
+  const zoomBox = useRef<HTMLDivElement>(null);
+  // bảng phóng to: co/giãn vừa khung (tối đa 2,5 lần) bằng CSS zoom; trước đây giữ cỡ gốc nên nhỏ hơn cả trên slide
+  useLayoutEffect(() => {
+    const box = zoomBox.current, t = box?.querySelector<HTMLElement>('table');
+    if (!box || !t) return;
+    t.style.zoom = '1';
+    const r = t.getBoundingClientRect(), cs = getComputedStyle(box.parentElement as HTMLElement);
+    const aw = (box.parentElement as HTMLElement).clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const ah = (box.parentElement as HTMLElement).clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    if (r.width > 0 && r.height > 0) t.style.zoom = String(Math.max(0.3, Math.min(aw / r.width, ah / r.height, 2.5)));
+  }, [zoom]);
   const live = useRef({ toggleFs, presenter, openGrid, grid, gsel, buf, blank, idx, help, zoom, laser, reveal, rev, totals, toggleReveal });
   live.current = { toggleFs, presenter, openGrid, grid, gsel, buf, blank, idx, help, zoom, laser, reveal, rev, totals, toggleReveal };
 
@@ -164,20 +178,23 @@ export function StudioSlides({ html, start = 0, doc, dt, onClose, onPrint }: Pro
   useEffect(() => {
     let bc: BroadcastChannel;
     try { bc = new BroadcastChannel(PRESENT_CHANNEL); } catch { return; }
-    chan.current = bc;
-    const sync = syncScroll(bc, () => box.current, () => live.current.idx);
-    bc.onmessage = (e: MessageEvent<PresentMsg>) => {
+    const post = sender(bc, () => sid);
+    chan.current = post;
+    const sync = syncScroll(bc, () => sid, () => box.current, () => live.current.idx);
+    bc.onmessage = (e: MessageEvent<Wire>) => {
       const m = e.data;
+      if (!m || typeof m !== 'object') return;
+      if (m.sid !== sid && !(m.t === 'hello' && !m.sid)) return; // chỉ nhận tin của phiên này (presenter mở không kèm mã thì hỏi chung)
       sync.onMsg(m);
-      if (m.t === 'hello') bc.postMessage(state.current);
+      if (m.t === 'hello') post(state.current);
       else if (m.t === 'go') { setBlank(false); jump(m.i); }
       else if (m.t === 'step') { setBlank(false); step(m.d, !!m.s); } // cờ s: phím cuộn → hiện bullet/cuộn trong slide dài trước khi chuyển
       else if (m.t === 'blank') setBlank((b) => !b);
       else if (m.t === 'reset') setT0(Date.now());
     };
-    return () => { sync.stop(); try { bc.postMessage({ t: 'end' } satisfies PresentMsg); } catch { /* bỏ qua */ } bc.close(); chan.current = null; };
+    return () => { sync.stop(); try { post({ t: 'end' }); } catch { /* bỏ qua */ } bc.close(); chan.current = null; };
   }, []);
-  useEffect(() => { chan.current?.postMessage(state.current); }, [slides, idx, t0, blank, reveal, rev]);
+  useEffect(() => { chan.current?.(state.current); }, [slides, idx, t0, blank, reveal, rev]);
 
   const touch = useRef(0);
   const onClick = (ev: MouseEvent) => {
@@ -187,7 +204,11 @@ export function StudioSlides({ html, start = 0, doc, dt, onClose, onPrint }: Pro
     if (blank) { setBlank(false); return; }
     if (laser) return; // đang chỉ bằng laser: click không chuyển slide
     const fig = tg.closest('img,svg,table');
-    if (fig && fig.closest('.sl-slide')) { setZoom(fig.outerHTML); return; } // phóng to hình, sơ đồ, bảng
+    if (fig && fig.closest('.sl-slide')) { // phóng to hình, sơ đồ, bảng
+      const c = fig.cloneNode(true) as Element;
+      if (c.tagName.toLowerCase() === 'svg') { c.removeAttribute('style'); c.removeAttribute('width'); c.removeAttribute('height'); } // Mermaid gắn max-width/min-width cố định theo cột: bỏ để sơ đồ co giãn theo khung phóng to
+      setZoom(c.outerHTML); return;
+    }
     const r = (ev.currentTarget as HTMLElement).getBoundingClientRect();
     step(ev.clientX - r.left < r.width * 0.3 ? -1 : 1);
   };
@@ -220,7 +241,7 @@ export function StudioSlides({ html, start = 0, doc, dt, onClose, onPrint }: Pro
           {cur?.notes ? <div class="md-doc" dangerouslySetInnerHTML={{ __html: cur.notes }} /> : <p class="sl-nonote">No notes for this slide. Start a paragraph with Note: to add some.</p>}
         </section>
       )}
-      {zoom && <div class="sl-zoom" role="dialog" aria-label="Zoomed figure" onClick={() => setZoom('')}><div class="md-doc sl-zoom-body" dangerouslySetInnerHTML={{ __html: zoom }} /></div>}
+      {zoom && <div class="sl-zoom" role="dialog" aria-label="Zoomed figure" onClick={() => setZoom('')}><div class="md-doc sl-zoom-body" ref={zoomBox} dangerouslySetInnerHTML={{ __html: zoom }} /></div>}
       {help && (
         <div class="sl-help" role="dialog" aria-label="Slide shortcuts">
           <button type="button" class="sl-help-x" aria-label="Close shortcuts" onClick={() => setHelp(false)}><Icon n="x" /></button>

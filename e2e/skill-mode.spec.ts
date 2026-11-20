@@ -128,11 +128,6 @@ test.describe('chế độ skill', () => {
     });
   }
 
-  test('tên file: dấu đã lưu và ▾ nằm sát ngay sau tên (không trôi xa tên ngắn)', async ({ page }) => {
-    await editCopy(page);
-    const nm = (await page.locator('.pv-name').boundingBox())!, sv = (await page.locator('.pv-sv').boundingBox())!;
-    expect(sv.x - (nm.x + nm.width)).toBeLessThan(24);
-  });
 
   for (const theme of ['light', 'dark'] as const) {
     test(`axe sạch (${theme}) với Overview và Findings mở`, async ({ page }) => {

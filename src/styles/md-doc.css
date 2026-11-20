@@ -22,7 +22,7 @@
 .md-doc .task-list-item input:checked { background: var(--ink); box-shadow: inset 0 0 0 2px var(--bg); }
 .md-doc blockquote { margin: 0 0 1.1em; padding: 0 0 0 16px; border-left: 2px solid var(--ink); color: var(--sub); }
 .md-doc blockquote > :last-child { margin-bottom: 0; }
-.md-doc hr { border: 0; border-top: 1px solid var(--line); margin: 2em 0; }
+.md-doc hr { border: 0; border-top: 1px solid var(--line2); margin: 1.6em 0; }
 .md-doc img { max-width: 100%; height: auto; }
 .md-doc code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; background: var(--hover); padding: 1px 5px; }
 .md-doc table { width: 100%; border-collapse: collapse; margin: 0 0 1.4em; font-size: 15px; }
@@ -63,7 +63,7 @@
 .md-doc[data-doc='paper'] p { text-align: left; } /* canh đều hai bên tạo khoảng trắng loang ở cột hẹp của khung chia đôi; chỉ canh đều khi in */
 @media print { .md-doc[data-doc='paper'] p { text-align: justify; } }
 .md-doc[data-doc='paper'] blockquote { border-left-width: 1px; font-style: italic; }
-.md-doc[data-doc='paper'] hr { width: 30%; margin: 2.4em auto; }
+.md-doc[data-doc='paper'] hr { width: 30%; margin: 1.8em auto; }
 .md-doc[data-doc='paper'] table { font-size: 16px; }
 .md-doc[data-doc='compact'] { max-width: 880px; font-size: 14px; line-height: 1.55; }
 .md-doc[data-doc='compact'] h1, .md-doc[data-doc='compact'] [data-h1] { font-size: 24px; }
@@ -120,3 +120,23 @@
 .md-doc figure.mermaid svg .edgeLabel rect { fill: var(--bg) !important; opacity: 1; }
 /* Tiêu đề Footnotes là nhãn phụ: giữ nhỏ ở mọi kiểu tài liệu/theme (h2 của kiểu paper không được phóng nó lên) */
 .md-doc .footnotes h2 { font-size: 12px !important; font-family: 'JetBrains Mono', monospace !important; font-weight: 500; }
+
+/* ---- Chất lượng chữ và nhịp (rà soát tài liệu thử): chồng tiêu đề, danh sách rộng, bảng, đường kẻ, thẻ HTML được phép ---- */
+/* tiêu đề đứng liền sau tiêu đề: khe ngắn (trước đây H2 -> H3 hở bằng cả khoảng "mở mục" 1.9em, gần ngang khe trước H2) */
+.md-doc.md-doc :is(h1, h2, h3, h4, h5, h6, [data-h1]) + :is(h2, h3, h4, h5, h6) { margin-top: 0.9em; }
+/* mục danh sách "rộng" (có dòng trống giữa các mục) bọc chữ trong <p>: bỏ khe cuối của p để mục không giãn hơn mục sát nhau; khe giữa p và danh sách con vừa phải */
+.md-doc li > p { margin: 0 0 0.4em; }
+.md-doc li > p:last-child { margin-bottom: 0; }
+/* đường kẻ ngay trước tiêu đề: khe nằm ở phía hr, không cộng thêm khe "mở mục" của tiêu đề (trước đây ~90px quanh mỗi --- + ##) */
+.md-doc.md-doc hr + :is(h1, h2, h3, [data-h1]) { margin-top: 0; }
+/* cột cuối của bảng: chữ chạm đúng mép phải của đường kẻ (cột đầu đã chạm mép trái) */
+.md-doc:not([data-doc='compact']) :is(th, td):last-child { padding-right: 0; }
+.md-doc kbd { font: 500 0.82em 'JetBrains Mono', monospace; padding: 1px 6px 0; border: 1px solid var(--line2); border-bottom-width: 2px; background: var(--hover); color: var(--ink); white-space: nowrap; }
+.md-doc mark { background: color-mix(in oklch, var(--accent) 16%, transparent); color: inherit; padding: 0 2px; }
+.md-doc sub, .md-doc sup { font-size: 0.75em; line-height: 0; }
+.md-doc details { margin: 0 0 1.1em; padding: 0 16px; border: 1px solid var(--line); }
+.md-doc details > summary { cursor: pointer; padding: 10px 0; color: var(--ink); font-weight: 600; }
+.md-doc details > summary::marker { color: var(--dim); }
+.md-doc details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.md-doc details[open] > summary { border-bottom: 1px solid var(--line); margin-bottom: 0.8em; }
+.md-doc details > :last-child { margin-bottom: 1em; }

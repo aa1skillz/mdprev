@@ -8,6 +8,7 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import type { Definition, FootnoteDefinition, List, PhrasingContent, Root, RootContent, Table } from 'mdast';
 import { splitFrontMatter } from './frontmatter';
+import { normalizeMathDelims } from './mathdelim';
 import { CALLOUTS, parseCallout } from './callout';
 
 export interface LatexResult { tex: string; notes: string[] }
@@ -37,7 +38,7 @@ const PREAMBLE = `\\documentclass[11pt]{article}
 export function toLatex(src: string, opts: { title?: string } = {}): LatexResult {
   const { fm, body } = splitFrontMatter(src);
   const p = unified().use(remarkParse).use(remarkGfm).use(remarkMath);
-  const tree = p.runSync(p.parse(body)) as Root;
+  const tree = p.runSync(p.parse(normalizeMathDelims(body))) as Root;
 
   const defs = new Map<string, Definition>();
   const notesDef = new Map<string, FootnoteDefinition>();

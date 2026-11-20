@@ -1,7 +1,7 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFileSync } from 'node:fs';
-import { enterZenWrite, exportMenu, fileMenu, openInspector, ready, viewOptions, viewTab, newDocument } from './helpers';
+import { enterZenWrite, exportMenu, fileMenu, openInspector, ready, viewOptions, viewTab, newDocument, docName } from './helpers';
 
 const URL_ = '/app/';
 // Từ 2026-11-18 bài mặc định của /app/ là tờ giấy trống (thẻ chào); bài mẫu về buổi họp (src/lib/studio/sample.md) chỉ nạp khi khách bấm "Try a sample".
@@ -858,8 +858,7 @@ test.describe('studio nâng cấp', () => {
     // cuộn tới cuối: lề số dòng và lớp tô vẫn theo kịp
     await ta(page).evaluate((e: HTMLTextAreaElement) => { e.scrollTop = e.scrollHeight; });
     await expect(page.locator('.ed-hl .l').last()).toContainText('x');
-    const last = await page.locator('.ed-gutwin div').last().innerText();
-    expect(Number(last)).toBeGreaterThan(2900);
+    await expect.poll(async () => Number(await page.locator('.ed-gutwin div').last().innerText()), { timeout: 5000 }).toBeGreaterThan(2900); // cửa sổ dựng bám theo cuộn sau một khung hình
   });
 
   test('Enter tiếp tục danh sách, Tab thụt mục, Enter ở mục trống thoát, Ctrl+Z lùi từng bước', async ({ page }) => {
@@ -930,16 +929,13 @@ test.describe('studio nâng cấp', () => {
     await expect(ta(page)).toHaveValue('1a 2b\n');
   });
 
-  test('Restore previous: New rồi lấy lại, bấm lần nữa để quay lại', async ({ page }) => {
+  test('New mở tab mới; Alt+1 / Alt+2 đi lại giữa hai tài liệu', async ({ page }) => {
     await open(page, '# Keep me\n');
-    page.on('dialog', (d) => d.accept());
     await newDocument(page);
     await expect(ta(page)).toHaveValue('');
-    await page.getByRole('button', { name: 'Open menu', exact: true }).click();
-    await page.getByRole('button', { name: 'Restore previous' }).click();
+    await page.keyboard.press('Alt+1');
     await expect(ta(page)).toHaveValue('# Keep me\n');
-    await page.getByRole('button', { name: 'Open menu', exact: true }).click();
-    await page.getByRole('button', { name: 'Restore previous' }).click();
+    await page.keyboard.press('Alt+2');
     await expect(ta(page)).toHaveValue('');
   });
 
@@ -953,7 +949,7 @@ test.describe('studio nâng cấp', () => {
     await open(page);
     await page.getByRole('button', { name: 'Open menu', exact: true }).click();
     await page.getByRole('button', { name: 'Open…' }).click();
-    await expect(page.getByRole('textbox', { name: 'File name' })).toHaveValue('on-disk.md');
+    await expect(docName(page)).toContainText('on-disk');
     await expect(ta(page)).toHaveValue('# On disk\n\nhello\n');
     await expect(page.getByRole('img', { name: 'Unsaved changes' })).toHaveCount(0);
     await ta(page).evaluate((e: HTMLTextAreaElement) => { e.focus(); e.setSelectionRange(e.value.length, e.value.length); });
@@ -974,8 +970,7 @@ test.describe('studio nâng cấp', () => {
     await page.getByRole('alertdialog', { name: 'Open shared document' }).getByRole('button', { name: 'OPEN' }).click(); // hỏi trước khi thay bản đang soạn
     await expect(page.locator('.md-doc h1')).toHaveText('Shared doc');
     await expect(page).toHaveURL(/\/app\/$/); // hash đã được xoá
-    await page.getByRole('button', { name: 'Open menu', exact: true }).click();
-    await page.getByRole('button', { name: 'Restore previous' }).click(); // bản đang soạn trước đó vẫn còn
+    await page.locator('.pv-tabgo').first().click(); // bản đang soạn trước đó vẫn ở tab của nó
     await expect(page.locator('.md-doc h1')).toHaveText('Mine');
     await page.goto(`${URL_}#d=!!!bad`);
     await page.goto(`${URL_}#d=AAAA`);
@@ -1128,12 +1123,12 @@ test.describe('studio nâng cấp', () => {
     await open(page);
     await page.locator('input[type=file]').setInputFiles({ name: 'notes.md', mimeType: 'text/markdown', buffer: Buffer.from('# Something else\n\nbody\n') });
     await expect(page.locator('.md-doc h1')).toHaveText('Something else');
-    await expect(page.getByRole('textbox', { name: 'File name' })).toHaveValue('notes.md');
+    await expect(docName(page)).toContainText('notes');
     await exportMenu(page).click();
     const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'HTML (.html)' }).click()]);
     expect(dl.suggestedFilename()).toBe('notes.html');
     await page.reload();
-    await expect(page.getByRole('textbox', { name: 'File name' })).toHaveValue('notes.md');
+    await expect(docName(page)).toContainText('notes');
   });
 
   test('màn ≥1700px: cỡ dòng 25px từ CSS, lớp tô và lề số vẫn thẳng hàng', async ({ page }) => {
@@ -1398,7 +1393,7 @@ test.describe('studio: callout, math, mermaid, splitter, bài mặc định', ()
     await expect(page.locator('.md-doc .footnotes')).toHaveCount(1);
     await expect(page.locator('.md-doc .katex-display')).toHaveCount(1);
     await expect(page.locator('.md-doc .katex').first()).toBeVisible();
-    await page.locator('.md-doc .cb[data-mermaid]').scrollIntoViewIfNeeded(); // sơ đồ chỉ dựng khi cuộn tới
+    await page.locator('.md-doc .cb[data-mermaid]').scrollIntoViewIfNeeded({ timeout: 3000 }).catch(() => undefined); // sơ đồ chỉ dựng khi cuộn tới; nếu đã dựng xong trước đó thì khối chờ không còn (trước đây test này lỗi 3/4 lần khi chạy song song, cả trên bản đã deploy)
     await expect(page.locator('.md-doc figure.mermaid svg')).toHaveCount(1, { timeout: 20000 });
     await expect(page.locator('.pv-chk')).toContainText('No issues');
     await expect(page.getByRole('textbox', { name: 'File name' })).toHaveValue('better-meetings.md');

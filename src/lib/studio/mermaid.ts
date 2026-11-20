@@ -28,6 +28,7 @@ export function preloadMermaid(): Promise<Mermaid> {
 const base = (dark: boolean, labels = true): Config => ({
   startOnLoad: false, securityLevel: 'strict', theme: dark ? 'dark' : 'neutral', suppressErrorRendering: true,
   htmlLabels: labels, flowchart: { htmlLabels: labels },
+  gantt: { fontSize: 13, sectionFontSize: 13, barHeight: 22, barGap: 6 }, // mặc định 11px: sau khi co vào cột chỉ còn ~7px, không đọc được
   ...(dark ? { themeVariables: { edgeLabelBackground: '#3c3c3c' } } : {}), // nhãn cạnh: chữ #ccc trên nền mặc định #585858 chỉ đạt 4,43:1 (axe), nền tối hơn thì ≥ 7:1
 } as Config);
 
@@ -61,6 +62,50 @@ const gate = (line: string | null): Promise<void> => {
 /** Bản xem đổi nội dung: quên các cổng đã mở theo dòng (dòng có thể đã trỏ tới khối khác). */
 export function resetMermaidGates(): void { opened.clear(); }
 
+/**
+ * Gantt có `axisFormat` chỉ tới tháng/năm (không có ngày, tuần, giờ) mà không đặt `tickInterval` thì Mermaid vẫn đặt mốc theo tuần:
+ * nhãn lặp lại ("Jan 2026 Jan 2026 Jan 2026 Jan 2026 Feb 2026 ..."). Thêm `tickInterval 1month` cho đúng trường hợp đó. Tác giả đã đặt thì giữ nguyên.
+ */
+export function prepSource(source: string): string {
+  if (!/^\s*gantt\b/m.test(source) || /^\s*tickInterval\b/m.test(source)) return source;
+  return source.replace(/^([ \t]*axisFormat[ \t]+)(.*)$/m, (m, pre: string, fmt: string) => (/%[dejaAUWwuxXHIMSLpZc]/.test(fmt) ? m : `${m}\n${pre.replace(/axisFormat[ \t]+$/, '')}tickInterval 1month`));
+}
+
+/**
+ * Node có màu nền do tác giả đặt (`style X fill:…`, `classDef`) mà không đặt màu chữ: chữ lấy màu của theme (sáng ở giao diện tối, tối ở giao diện sáng)
+ * nên có thể gần như tàng hình trên nền pastel/đậm. Chọn chữ sáng hay tối theo độ sáng của nền, ở mọi theme.
+ * SVG chưa gắn vào trang nên đọc `fill` inline của hình (Mermaid ghi `style="fill:… !important"`), không dùng getComputedStyle.
+ */
+export function fixNodeContrast(fig: ParentNode): void {
+  const cx = document.createElement('canvas').getContext('2d');
+  if (!cx) return;
+  const rgb = (c: string): [number, number, number] | null => {
+    cx.fillStyle = '#010203'; cx.fillStyle = c;
+    const v = String(cx.fillStyle);
+    if (v === '#010203' && c.replace(/\s/g, '').toLowerCase() !== '#010203') return null; // màu không hợp lệ
+    const h = /^#([0-9a-f]{6})$/i.exec(v);
+    if (h) return [0, 2, 4].map((i) => parseInt(h[1]!.slice(i, i + 2), 16)) as [number, number, number];
+    const m = /^rgba?\(([^)]+)\)/.exec(v);
+    return m ? (m[1]!.split(',').slice(0, 3).map((x) => Number(x)) as [number, number, number]) : null;
+  };
+  const lum = ([r, g, b]: [number, number, number]) => { const f = (x: number) => { x /= 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
+  const ratio = (a: number, b: number) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  for (const node of fig.querySelectorAll<SVGGElement>('g.node')) {
+    const label = node.querySelector<SVGGElement>('g.label');
+    if (label?.style.color) continue; // tác giả đã đặt màu chữ
+    const shape = [...node.querySelectorAll<SVGElement>('rect, path, polygon, circle, ellipse')].find((e) => !e.closest('foreignObject') && e.style.fill && e.style.fill !== 'none');
+    if (!shape) continue;
+    const fill = rgb(shape.style.fill);
+    if (!fill) continue;
+    const L = lum(fill);
+    const ink = ratio(L, lum([26, 26, 26])) >= ratio(L, lum([245, 245, 245])) ? '#1a1a1a' : '#f5f5f5';
+    for (const t of node.querySelectorAll<HTMLElement | SVGElement>('span, p, div, text, tspan')) {
+      t.style.setProperty('color', ink, 'important');
+      if (t.tagName.toLowerCase() === 'text' || t.tagName.toLowerCase() === 'tspan') t.style.setProperty('fill', ink, 'important');
+    }
+  }
+}
+
 let chain: Promise<unknown> = Promise.resolve();
 /** Dựng lần lượt: Mermaid không chịu được hai lần render chồng nhau. */
 const errCache = new Map<string, string>(); // nguồn sơ đồ lỗi -> thông điệp ngắn
@@ -81,7 +126,12 @@ export async function upgradeMermaid(html: string, dark: boolean, opts: { stale:
   if (!all && matchMedia('(max-width: 640px)').matches && performance.now() < 5000) await new Promise<void>((r) => setTimeout(r, 5000 - performance.now()));
   if (opts.stale()) return;
   let mm: Mermaid;
-  try { mm = await preloadMermaid(); } catch { return; }
+  try { mm = await preloadMermaid(); } catch {
+    if (opts.stale()) return;
+    blocks.forEach((b) => b.setAttribute('data-mm-failed', '')); // không nạp được thư viện: bỏ chỗ giữ chỗ, hiện lại mã nguồn
+    const o1 = document.createElement('div'); o1.append(tpl.content.cloneNode(true)); opts.onUpdate(o1.innerHTML);
+    return;
+  }
   if (opts.stale()) return;
   await Promise.all(blocks.map(async (b) => {
     const source = b.querySelector('pre')?.textContent?.trim() ?? '';
@@ -97,7 +147,7 @@ export async function upgradeMermaid(html: string, dark: boolean, opts: { stale:
         await idle();
         if (opts.stale()) return undefined;
         mm.initialize(base(dark));
-        try { return (await mm.render(`mm-${++uid}`, source, sandbox())).svg; } catch (err) { document.getElementById(`dmm-${uid}`)?.remove(); errCache.set(key, shortWhy(err)); return undefined; }
+        try { return (await mm.render(`mm-${++uid}`, prepSource(source), sandbox())).svg; } catch (err) { document.getElementById(`dmm-${uid}`)?.remove(); errCache.set(key, shortWhy(err)); return undefined; }
       });
       if (svg === undefined) { if (opts.stale()) return; failed = errCache.get(key); }
       else {
@@ -114,6 +164,7 @@ export async function upgradeMermaid(html: string, dark: boolean, opts: { stale:
       note.setAttribute('role', 'note');
       note.textContent = 'Diagram error: ' + failed;
       b.before(note);
+      b.setAttribute('data-mm-failed', '');
       const o2 = document.createElement('div');
       o2.append(tpl.content.cloneNode(true));
       opts.onUpdate(o2.innerHTML);
@@ -123,6 +174,7 @@ export async function upgradeMermaid(html: string, dark: boolean, opts: { stale:
     fig.className = 'mermaid';
     if (line) fig.setAttribute('data-line', line);
     fig.innerHTML = svg;
+    fixNodeContrast(fig);
     // tên truy cập cho trình đọc màn hình: loại sơ đồ + các nhãn chữ trong hình; tabindex để cuộn ngang bằng bàn phím khi sơ đồ rộng hơn cột
     const kind = (source.split(/\s/, 1)[0] ?? '').replace(/-v\d+$/, '').replace(/^graph$/, 'flowchart');
     const labels = [...new Set([...fig.querySelectorAll('text, .nodeLabel, .edgeLabel')].map((t) => t.textContent?.trim() ?? '').filter(Boolean))];
@@ -130,7 +182,8 @@ export async function upgradeMermaid(html: string, dark: boolean, opts: { stale:
     fig.setAttribute('aria-label', `${kind} diagram${labels.length ? ': ' + labels.slice(0, 6).join(', ') + (labels.length > 6 ? `, and ${labels.length - 6} more` : '') : ''}`);
     fig.tabIndex = 0;
     const sv = fig.querySelector('svg'), vbw = Number(sv?.getAttribute('viewBox')?.split(/[\s,]+/)[2]);
-    if (sv && vbw > 480) sv.style.minWidth = '480px'; // sơ đồ vốn rộng thì cuộn ngang trong khung thay vì co chữ tới mức không đọc được; sơ đồ nhỏ giữ nguyên
+    if (sv && vbw > 480) { sv.style.setProperty('--mw-pv', Math.round(Math.min(vbw, Math.max(480, vbw * 0.75))) + 'px'); sv.style.minWidth = 'var(--mw, 480px)'; } // 480px mặc định (xuất/slide/in); bản xem trong app nâng lên 75% qua studio.css // sơ đồ vốn rộng thì cuộn ngang trong khung thay vì co chữ tới mức không đọc được (tối thiểu 75% cỡ tự nhiên, hoặc 480px); sơ đồ nhỏ giữ nguyên
+    if (vbw > 700) { fig.setAttribute('data-wide', ''); fig.style.setProperty('--w', Math.min(vbw, 960) + 'px'); } // sơ đồ rộng thoát khỏi cột chữ hẹp (CSS, chỉ ở bản xem) để giữ cỡ chữ gần tự nhiên
     b.replaceWith(fig);
     const out = document.createElement('div');
     out.append(tpl.content.cloneNode(true));
@@ -158,7 +211,7 @@ export async function mermaidSvgForExport(source: string): Promise<string | null
   try { mm = await preloadMermaid(); } catch { return null; }
   return serial(async () => {
     mm.initialize(base(false, false));
-    try { return (await mm.render(`mmx-${++uid}`, source.trim(), sandbox())).svg; } catch { document.getElementById(`dmmx-${uid}`)?.remove(); return null; } finally {
+    try { return (await mm.render(`mmx-${++uid}`, prepSource(source.trim()), sandbox())).svg; } catch { document.getElementById(`dmmx-${uid}`)?.remove(); return null; } finally {
       // initialize gộp cấu hình: trả nhãn HTML về như cũ để bản xem dựng sau đó không bị ảnh hưởng
       mm.initialize(base(isDarkNow()));
     }

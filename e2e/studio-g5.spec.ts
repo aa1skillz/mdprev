@@ -483,6 +483,45 @@ test.describe('studio g5: slides', () => {
     expect(f).toBeLessThan(1);
   });
 
+  test('presenter chỉ bám đúng màn chiếu đã mở nó: hai tab chiếu hai bộ khác nhau không lẫn nhau; hiện tên bộ', async ({ page, context }) => {
+    const deck = (n: number, tag: string) => Array.from({ length: n }, (_, i) => `# ${tag} slide ${i + 1}\n\ntext ${i}`).join('\n\n---\n\n');
+    await open(page, deck(9, 'NINE'));
+    await page.getByRole('button', { name: 'present' }).click();
+    const two = await context.newPage();
+    await two.goto(URL_); // tab thứ hai nạp bản nháp của tab đầu (cùng localStorage) ở chế độ chỉ đọc: Take over rồi ghi đè bằng bộ 14 slide
+    await two.getByRole('button', { name: 'Take over' }).click();
+    await expect(ta(two)).not.toHaveAttribute('readonly', '', { timeout: 15000 });
+    await ta(two).fill(deck(14, 'FOURTEEN'));
+    await ready(two);
+    await two.getByRole('button', { name: 'present' }).click();
+    const [pop] = await Promise.all([context.waitForEvent('page'), two.getByRole('button', { name: 'PRESENTER' }).click()]);
+    await expect(pop.locator('.pr-count')).toHaveText('1 / 14');
+    await expect(pop.locator('.pr-deck')).toHaveText('FOURTEEN slide 1');
+    await pop.keyboard.press('ArrowRight');
+    await expect(two.locator('.sl-count')).toHaveText('2 / 14');
+    await expect(page.locator('.sl-count')).toHaveText('1 / 9'); // tab kia không bị kéo theo
+    await page.keyboard.press('ArrowRight'); // tab kia tự chuyển: presenter không đổi sang bộ của nó
+    await expect(page.locator('.sl-count')).toHaveText('2 / 9');
+    await page.waitForTimeout(400);
+    await expect(pop.locator('.pr-count')).toHaveText('2 / 14');
+    await expect(pop).toHaveTitle(/FOURTEEN slide 1/);
+  });
+
+  test('presenter: vạch cuộn và mũi tên bám đúng khung slide (không bám cả ô chứa)', async ({ page, context }) => {
+    await open(page, '# Long\n\n' + Array.from({ length: 60 }, (_, i) => `- item ${i}`).join('\n') + '\n');
+    await page.getByRole('button', { name: 'present' }).click();
+    const [pop] = await Promise.all([context.waitForEvent('page'), page.getByRole('button', { name: 'PRESENTER' }).click()]);
+    await pop.setViewportSize({ width: 1100, height: 900 }); // ô chứa cao hơn khung 16:9: dải trống trên/dưới
+    await expect(pop.locator('.pr-cur .sv-more[data-on="1"]')).toHaveCount(1);
+    const d = await pop.evaluate(() => {
+      const f = document.querySelector('.pr-cur .sv-frame')!.getBoundingClientRect(), c = document.querySelector('.pr-cur .sv-canvas')!.getBoundingClientRect();
+      const m = document.querySelector('.pr-cur .sv-more')!.getBoundingClientRect();
+      return { top: Math.abs(f.top - c.top), bottom: Math.abs(f.bottom - c.bottom), left: Math.abs(f.left - c.left), right: Math.abs(f.right - c.right), arrowInside: m.bottom <= c.bottom + 1 && m.top >= c.top };
+    });
+    expect(Math.max(d.top, d.bottom, d.left, d.right)).toBeLessThan(2);
+    expect(d.arrowInside).toBe(true);
+  });
+
   test('slides: laser (l) chặn click chuyển slide; click bảng phóng to, Esc đóng phóng to trước', async ({ page }) => {
     await open(page, '# One\n\n| a | b |\n|---|---|\n| 1 | 2 |\n\n---\n\n# Two\n');
     await page.getByRole('button', { name: 'present' }).click();
@@ -804,5 +843,29 @@ test.describe('studio g8: Word', () => {
     expect(Object.keys(files).some((f) => f.startsWith('word/media/') && f.endsWith('.png'))).toBe(true);
     // bản xem vẫn dùng nhãn HTML sau khi xuất (cấu hình Mermaid được trả lại)
     await expect(page.locator('.pv-page figure.mermaid svg')).toBeVisible();
+  });
+});
+
+test.describe('trình chiếu: phóng to hình', () => {
+  const DOC = '# Intro\n\n---\n\n## Diagram\n\n```mermaid\nflowchart LR\n  A[Start] --> B{Check}\n  B -->|yes| C[Done]\n  B -->|no| D[Retry]\n  D --> B\n```\n\n---\n\n## Table\n\n| Name | Qty | Price |\n|---|---:|---:|\n| Alpha | 1 | $10 |\n| Beta | 22 | $200 |\n';
+  test('bấm vào sơ đồ/bảng: bản phóng to lớn hơn trên slide (không thu nhỏ), vừa khung, Esc đóng', async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('/app/');
+    await page.locator('.ed-ta').fill(DOC);
+    await page.getByRole('button', { name: 'present' }).click();
+    await page.waitForSelector('.sl-slide');
+    for (const [sel, zsel, min] of [['.sl-slide svg', '.sl-zoom-body svg', 1.15], ['.sl-slide table', '.sl-zoom-body table', 0.97]] as const) {
+      await page.keyboard.press('ArrowRight');
+      await expect(page.locator(sel).first()).toBeVisible({ timeout: 20000 });
+      const w0 = (await page.locator(sel).first().boundingBox())!.width;
+      await page.locator(sel).first().click({ force: true });
+      await expect(page.locator('.sl-zoom')).toBeVisible();
+      const z = (await page.locator(zsel).first().boundingBox())!;
+      expect(z.width, sel + ' phóng to phải rộng hơn trên slide').toBeGreaterThan(w0 * min);
+      expect(z.width).toBeLessThanOrEqual(1440 - 63);
+      expect(z.height).toBeLessThanOrEqual(900 - 63);
+      await page.keyboard.press('Escape');
+      await expect(page.locator('.sl-zoom')).toHaveCount(0);
+    }
   });
 });
