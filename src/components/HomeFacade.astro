@@ -1,0 +1,55 @@
+---
+import WelcomeCard from './WelcomeCard';
+
+/**
+ * Khung tĩnh của editor ở `/` và `/app/`: dựng lúc build, hiện ngay khi HTML tới, chiếm đúng chỗ của editor thật (không xô lệch
+ * bố cục) rồi biến mất khi editor thật lên. Nội dung là editor trống + trạng thái trống của bản xem, phủ bằng thẻ chào
+ * (WelcomeCard, cùng markup với bản trong editor). Không còn bài mẫu dựng sẵn: khách mới được một tờ giấy của riêng họ; khách quay
+ * lại không thấy khung này (xem script ở trang chủ). Khung không được thêm tiêu đề thật (h1..h6) vào trang.
+ */
+// `cta={false}`: dùng cho /app/ (chính là ứng dụng): không có hàng thanh tài liệu giữ chỗ phía trên
+const { cta = true } = Astro.props;
+---
+<div class={cta ? 'studio-facade' : 'studio-facade studio-facade--app'} data-nosnippet>
+  {cta && <div class="sf-cta" aria-hidden="true"></div>}
+  <div class="sf-ed" inert><div class="sf-ln"><i>1</i><span> </span></div></div>
+  <div class="sf-pv" inert>
+    <div class="sf-empty"><p>Nothing to preview yet. Write in the editor and the formatted page appears here.</p>
+      <span class="sf-empty-acts"><span>Load sample</span><span>Paste from clipboard</span><span>Open a file…</span></span></div>
+  </div>
+  <WelcomeCard />
+</div>
+<style is:global>
+  /* `/` chừa chỗ cho editor trước khi nó lên: --pv-top là chiều cao thanh trên (đo thật: 43.4px, điện thoại 39.4px) */
+  .home-tool { --pv-top: 43.4px; }
+  @media (max-width: 640px) { .home-tool { --pv-top: 39.4px; } }
+  /* cột minmax(0,1fr) và min-width:0: nếu thiếu, .pv (con của astro-island dạng display:contents) bị nội dung đẩy rộng tới ~860px trên điện thoại */
+  .pv-wrap:has(> .studio-facade) { display: grid; grid-template-columns: minmax(0, 1fr); }
+  /* astro-island là display:contents nên chính .pv mới là phần tử lưới: phải nhắm thẳng vào nó để xếp chồng lên khung tĩnh */
+  .pv-wrap:has(> .studio-facade) > .studio-facade, .pv-wrap:has(> .studio-facade) .pv { grid-area: 1 / 1; min-width: 0; }
+  /* /app/: khung tĩnh phải thấy được dù .pv-wrap đang ẩn chờ editor (studio.css), và cao đúng bằng .pv của /app/ */
+  .studio-facade.studio-facade--app { visibility: visible; grid-template-rows: minmax(0, 1fr); height: max(480px, calc(100dvh - 44px)); }
+  @media (max-width: 640px) { .studio-facade.studio-facade--app { height: max(480px, calc(100dvh - 39.4px)); } }
+  @media (max-height: 500px) { .studio-facade.studio-facade--app { height: max(260px, calc(100dvh - 44px)); } }
+  .home-tool .pv { background: var(--bg); position: relative; min-width: 0; }
+  /* --sf-h: chiều cao thanh tài liệu thật (.pv-bar: 34px, điện thoại 40px, đo 2026-11-18); --sf-b: thanh trạng thái ở đáy (.pv-mode: 28px, điện thoại 45px). Thẻ chào nằm trong phần giữa hai thanh nên trùng khít với thẻ của editor thật. */
+  .studio-facade { --sf-h: 34px; --sf-b: 28px; position: relative; height: max(480px, calc(100dvh - var(--pv-top) - var(--about-h, 36px))); display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: var(--sf-h) minmax(0, 1fr); border-top: 1px solid var(--line); overflow: hidden; user-select: none; cursor: text; }
+  /* hàng giữ chỗ của thanh tài liệu */
+  .sf-cta { grid-column: 1 / -1; height: var(--sf-h); box-sizing: border-box; border-bottom: 1px solid var(--line); background: var(--bg); }
+  .studio-facade--app { grid-template-rows: minmax(0, 1fr); }
+  html[data-studio='ready'] .studio-facade { display: none; }
+  /* khách quay lại: editor nạp ngay, khung tĩnh chỉ giữ chỗ (ẩn và không focus được) */
+  html[data-returning] .studio-facade { visibility: hidden; }
+  .sf-ed { border-right: 1px solid var(--line); padding: 22px 0; font: 400 14px/1.8 'JetBrains Mono', monospace; color: var(--body); overflow: hidden; }
+  .sf-ln { display: grid; grid-template-columns: 52px minmax(0, 1fr); padding-right: 28px; }
+  .sf-ln i { font-style: normal; text-align: right; padding-right: 18px; color: var(--dim); font-size: 12px; }
+  .sf-ln span { white-space: pre; overflow: hidden; }
+  .sf-pv { padding: 28px 40px; overflow: hidden; }
+  /* trạng thái trống của bản xem (hình của .pv-empty trong editor thật; class riêng để không trùng selector khi cả hai cùng có trong DOM) */
+  .sf-empty { margin: 48px 0 0; display: grid; gap: 14px; justify-items: center; text-align: center; font: 400 var(--t-base)/1.5 'Be Vietnam Pro', system-ui, sans-serif; color: var(--dim); }
+  .sf-empty p { margin: 0; }
+  .sf-empty-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .sf-empty-acts span { border: 1px solid var(--line2); padding: 7px 14px; }
+  @media (max-width: 959px) { .studio-facade { grid-template-columns: minmax(0, 1fr); } .sf-pv { display: none; } .sf-ed { border-right: 0; } }
+  @media (max-width: 640px) { .studio-facade { --sf-h: 40px; --sf-b: 45px; } }
+</style>

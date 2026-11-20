@@ -1,0 +1,158 @@
+/* Nội dung tĩnh của các trang công khai (phần giới thiệu dưới editor ở `/`, và các trang /skill-inspector/, /privacy/, /guides/). */
+.st { max-width: 1080px; margin: 0 auto; padding: 0 28px; color: var(--body); font-size: 14px; line-height: 1.65; }
+.st a { color: var(--ink); text-decoration-color: var(--line); text-underline-offset: 3px; }
+.st a:hover { text-decoration-color: var(--accent); }
+.st-lbl { font: 500 12px/1 'JetBrains Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sub); }
+.st-sec { padding: 56px 0; border-top: 1px solid var(--line); }
+.st-sec h2 { font: 400 clamp(28px, 3.2vw, 34px)/1.15 'Newsreader', serif; color: var(--ink); letter-spacing: -0.015em; margin: 10px 0 12px; max-width: 22em; }
+.st-intro { font: 400 18px/1.55 'Newsreader', serif; color: var(--sub); max-width: 36em; margin: 0 0 30px; }
+.st-cols { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--ink); }
+.st-col { padding: 18px 24px 4px 0; }
+.st-col + .st-col { padding-left: 24px; border-left: 1px solid var(--line); }
+.st-col h3 { font: 600 18px/1.25 'Newsreader', serif; color: var(--ink); margin: 0 0 6px; }
+.st-col p { margin: 0; font-size: 14px; }
+.st-col code { font: 400 13px 'JetBrains Mono', monospace; }
+.st-also { margin: 22px 0 0; max-width: 46em; }
+.st-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 48px; border-top: 1px solid var(--ink); padding: 0; margin: 0; }
+.st-list li { list-style: none; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 14px; display: grid; grid-template-columns: 130px 1fr; gap: 12px; }
+.st-list b { font-weight: 500; color: var(--ink); }
+.st-faq details { border-top: 1px solid var(--line); padding: 16px 0; }
+.st-faq details:last-child { border-bottom: 1px solid var(--line); }
+.st-faq summary { cursor: pointer; font: 600 18px/1.35 'Newsreader', serif; color: var(--ink); list-style: none; display: flex; justify-content: space-between; gap: 20px; }
+.st-faq summary::-webkit-details-marker { display: none; }
+.st-faq summary::after { content: '+'; font: 400 18px 'JetBrains Mono', monospace; color: var(--sub); }
+.st-faq details[open] summary::after { content: '–'; }
+.st-faq p { margin: 10px 0 0; max-width: 52em; font-size: 14px; }
+.st-foot { border-top: 1px solid var(--line); padding: 30px 0 48px; font-size: 13px; color: var(--sub); }
+.st-foot nav { display: flex; gap: 22px; flex-wrap: wrap; margin-bottom: 14px; }
+.st-foot nav a { color: var(--sub); text-decoration: none; }
+.st-foot nav a:hover { color: var(--ink); }
+.st-foot p { margin: 0; max-width: 62em; }
+
+/* thanh "What is mdprev?" dưới editor ở `/` */
+:root { --about-h: 36px; } /* chiều cao thanh "What is mdprev?": một chỗ, dùng cho cả khung tĩnh và editor của `/` */
+.about-bar { box-sizing: border-box; display: flex; align-items: center; justify-content: center; gap: 10px; height: var(--about-h); border-top: 1px solid var(--line); font-size: 13px; color: var(--sub); text-decoration: none; }
+.about-bar b { font-weight: 500; color: var(--ink); }
+.about-bar:hover { background: var(--hover); }
+/* `/` chừa chỗ cho thanh dưới: editor cao bằng phần còn lại của màn hình đầu */
+.home-tool .pv { height: max(480px, calc(100dvh - var(--pv-top, 150px) - var(--about-h))); }
+
+@media (min-width: 761px) {
+  .st-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .st-cols-2 .st-col:nth-child(odd) { padding-left: 0; border-left: 0; }
+}
+@media (max-width: 640px) { .about-long { display: none; } }
+@media (max-width: 760px) {
+  .st { padding: 0 18px; }
+  .st-cols { grid-template-columns: 1fr; }
+  .st-col, .st-col + .st-col { padding: 16px 0; border-left: 0; border-bottom: 1px solid var(--line); }
+  .st-list { grid-template-columns: 1fr; }
+  .st-list li { grid-template-columns: 1fr; gap: 2px; }
+}
+@media print { .about-bar, .about { display: none; } }
+
+/* ===== trang tĩnh: đầu trang, hero, bài viết ===== */
+.pg-hero { padding: 72px 0 40px; max-width: 760px; }
+.pg-hero h1 { font: 400 clamp(34px, 4.6vw, 56px)/1.06 'Newsreader', serif; color: var(--ink); letter-spacing: -0.02em; margin: 14px 0 18px; }
+.pg-lead { font: 400 18px/1.55 'Newsreader', serif; color: var(--sub); margin: 0 0 28px; max-width: 34em; }
+.pg-form { display: flex; border: 1px solid var(--ink); height: 50px; max-width: 680px; }
+.pg-form:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pg-form input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 0 14px; font: 400 14px 'JetBrains Mono', monospace; color: var(--ink); }
+.pg-form input:focus-visible { outline: none; }
+.pg-form button { padding: 0 22px; background: var(--ink); color: var(--bg); font: 500 14px 'Be Vietnam Pro', sans-serif; border: 0; cursor: pointer; }
+.pg-alt { margin: 12px 0 0; font-size: 13px; color: var(--sub); }
+.st-table { width: 100%; border-collapse: collapse; margin: 0 0 8px; font-size: 14px; }
+.st-table caption { text-align: left; padding: 0 0 10px; color: var(--sub); font-size: 14px; }
+.st-table th { text-align: left; font: 500 12px 'JetBrains Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; color: var(--sub); border-top: 1px solid var(--ink); padding: 10px 12px 10px 0; }
+.st-table td { border-top: 1px solid var(--line); padding: 10px 12px 10px 0; vertical-align: baseline; }
+.st-table .n { text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 13px; white-space: nowrap; }
+.st-table .nm { font: 500 13px 'JetBrains Mono', monospace; color: var(--ink); }
+.st-table tr:last-child td { border-bottom: 1px solid var(--line); }
+.st-tag { font: 500 12px 'JetBrains Mono', monospace; letter-spacing: 0.06em; color: var(--warn); }
+.art { max-width: 700px; margin: 0 auto; padding: 56px 0 72px; }
+.art h1 { font: 400 clamp(34px, 4.2vw, 46px)/1.1 'Newsreader', serif; color: var(--ink); letter-spacing: -0.02em; margin: 12px 0 14px; }
+.art .by { font-size: 13px; color: var(--sub); padding-bottom: 22px; border-bottom: 1px solid var(--line); margin-bottom: 26px; }
+.art p, .art li { font: 400 18px/1.7 'Newsreader', serif; color: var(--body); }
+.art p { margin: 0 0 18px; }
+.art ul, .art ol { margin: 0 0 18px; padding-left: 1.3em; }
+.art li { margin-bottom: 6px; }
+.art h2 { font: 600 28px/1.25 'Newsreader', serif; color: var(--ink); margin: 38px 0 10px; }
+.art pre { background: var(--code-bg); color: var(--code-fg); padding: 14px 16px; font: 400 13px/1.65 'JetBrains Mono', monospace; margin: 6px 0 20px; overflow: auto; }
+.art code { font: 400 0.82em 'JetBrains Mono', monospace; background: var(--hover); padding: 1px 5px; }
+.art pre code { background: none; padding: 0; font-size: inherit; }
+.art .callout { border-left: 2px solid var(--ink); background: var(--surface); padding: 12px 18px; margin: 8px 0 22px; }
+.art .callout p { font-size: 18px; line-height: 1.55; margin: 0; }
+.art .callout > b { display: block; font: 500 12px 'JetBrains Mono', monospace; letter-spacing: 0.08em; color: var(--sub); margin-bottom: 4px; }
+.art .st-table { font-size: 14px; }
+.art .src { font-size: 14px; color: var(--sub); }
+.guide-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--ink); }
+.guide-list li { padding: 20px 0; border-bottom: 1px solid var(--line); }
+.guide-list a { font: 600 22px/1.3 'Newsreader', serif; color: var(--ink); text-decoration: none; }
+.guide-list a:hover { text-decoration: underline; text-decoration-color: var(--accent); }
+.guide-list p { margin: 6px 0 0; max-width: 46em; font-size: 14px; }
+.guide-list time { font: 500 12px 'JetBrains Mono', monospace; letter-spacing: 0.06em; color: var(--sub); text-transform: uppercase; }
+@media (max-width: 760px) {
+  .pg-hero { padding: 44px 0 28px; }
+  .st-table { font-size: 13px; }
+  .st-table .hide-sm { display: none; }
+  .art { padding: 36px 0 56px; }
+}
+@media print { .st-foot { display: none; } .st { max-width: none; } }
+
+/* trang tĩnh: header và đường viền chạy hết bề ngang như header của app */
+body[data-view='page'] .frame { max-width: none; }
+@media (pointer: coarse) { details > summary { min-height: 44px; display: flex; align-items: center; } .cb-copy { min-width: 40px; min-height: 40px; } }
+@media (max-width: 640px) { .st-table { display: block; overflow-x: auto; } }
+
+/* Phần giới thiệu ở `/`: số mục, hình nét SVG, chip, hiện dần khi cuộn (chỉ CSS) */
+.about .st { counter-reset: sec; }
+.about .st-sec { counter-increment: sec; }
+.about .st-sec > .st-lbl::before, .about .st-top .st-lbl::before { content: counter(sec, decimal-leading-zero) ' /  '; content: counter(sec, decimal-leading-zero) ' /  ' / ''; color: var(--ink); }
+.st-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 360px); gap: 8px 56px; align-items: center; }
+.st-top .st-intro { margin-bottom: 30px; }
+.fig { width: 100%; height: auto; display: block; color: var(--ink); margin: 0 0 30px; overflow: visible; }
+.fig text { font: 400 12px/1 'JetBrains Mono', monospace; fill: var(--sub); }
+.fig .f-ink { fill: var(--ink); }
+.fig .f-serif { font: 400 18px/1 'Newsreader', serif; fill: var(--ink); }
+.f-card { fill: var(--paper); stroke: var(--line); stroke-width: 1.25; }
+.f-line, .f-grid { stroke: var(--line); stroke-width: 1; fill: none; }
+.f-ink-line { stroke: var(--ink); stroke-width: 1.25; fill: none; }
+.f-bar { stroke: var(--line); stroke-width: 5; stroke-linecap: round; fill: none; }
+.f-box { fill: none; stroke: var(--sub); stroke-width: 1.25; }
+.f-box.on { fill: var(--ink); stroke: var(--ink); }
+.f-tick, .f-icon { fill: none; stroke: var(--paper); stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
+.f-tip { fill: var(--hover); stroke: var(--line); }
+.f-caret { fill: var(--accent); }
+.f-chip { fill: var(--ink); }
+.f-track { fill: var(--hover); stroke: var(--line); stroke-width: 1; }
+.f-fill { fill: var(--ink); transform-box: fill-box; transform-origin: left center; }
+.f-b2 { fill: var(--sub); } .f-b3 { fill: var(--line); stroke: var(--sub); stroke-width: 1; }
+.f-tri { fill: var(--accent); stroke: var(--accent); stroke-width: 1.5; stroke-linejoin: round; }
+.f-dot { fill: var(--line); }
+.f-lock { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linecap: round; }
+.f-lockbody { fill: var(--ink); }
+.f-dash { stroke: var(--sub); stroke-width: 1.5; stroke-dasharray: 4 5; fill: none; }
+.f-cloud { fill: none; stroke: var(--sub); stroke-width: 1.5; stroke-linejoin: round; }
+@media (max-width: 859px) {
+  .st-top { grid-template-columns: 1fr; }
+  .st-top .st-intro { margin-bottom: 18px; }
+  .fig { max-width: 420px; margin-bottom: 26px; }
+}
+.st-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 20px 0 0; }
+.st-chips li { list-style: none; font: 500 12px/1 'JetBrains Mono', monospace; letter-spacing: 0.04em; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px; background: var(--paper); }
+@media (pointer: coarse) { .st-chips li { padding: 9px 13px; } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .f-caret { animation: figcaret 1.1s steps(1) infinite; }
+  @keyframes figcaret { 50% { opacity: 0; } }
+  @supports (animation-timeline: view()) {
+    .about .st-sec { animation-name: secin; animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view(); animation-range: entry 0% entry 38%; }
+    .about .st-sec .f-fill { animation-name: figgrow; animation-duration: 1ms; animation-timing-function: linear; animation-fill-mode: both; animation-timeline: view(); animation-range: entry 10% entry 70%; }
+    .about .st-sec .f-b2 { animation-range: entry 18% entry 78%; } .about .st-sec .f-b3 { animation-range: entry 26% entry 86%; }
+    .about .st-sec .f-dash { animation: figdash 1.4s linear infinite; }
+    @keyframes secin { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    @keyframes figgrow { from { transform: scaleX(0.04); } to { transform: none; } }
+    @keyframes figdash { to { stroke-dashoffset: -18; } }
+  }
+}
+@media print { .fig, .st-chips { display: none; } }

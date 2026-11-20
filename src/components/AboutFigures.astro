@@ -1,0 +1,75 @@
+---
+/** Ba hình nét cho phần giới thiệu ở `/`: SVG inline (không request, không JS), màu theo biến chủ đề nên tự đổi sáng/tối. Trang trí thuần túy: aria-hidden. */
+const { name } = Astro.props as { name: 'editor' | 'inspector' | 'privacy' };
+---
+{name === 'editor' && (
+  <svg class="fig" viewBox="0 0 360 220" aria-hidden="true" focusable="false">
+    <rect x="8" y="8" width="344" height="204" rx="8" class="f-card" />
+    <path d="M180 8v204" class="f-line" />
+    <g class="f-mono">
+      <text x="24" y="42" class="f-ink"># Better meetings</text>
+      <text x="24" y="70">- [x] Agenda</text>
+      <text x="24" y="92">- [ ] Notes</text>
+      <text x="24" y="122">&gt; TIP Start on time</text>
+      <text x="24" y="152">| Who | When |</text>
+      <rect x="24" y="170" width="7" height="14" class="f-caret" />
+    </g>
+    <text x="198" y="44" class="f-serif">Better meetings</text>
+    <path d="M198 54h132" class="f-ink-line" />
+    <rect x="198" y="64" width="12" height="12" rx="2.5" class="f-box on" />
+    <path d="m201 70 2.5 2.5L208 67" class="f-tick" />
+    <path d="M218 70h58" class="f-bar" />
+    <rect x="198" y="84" width="12" height="12" rx="2.5" class="f-box" />
+    <path d="M218 90h44" class="f-bar" />
+    <rect x="198" y="108" width="132" height="26" rx="4" class="f-tip" />
+    <path d="M208 121h82" class="f-bar" />
+    <path d="M198 148h132M198 164h132M198 180h132M198 148v32M242 148v32M286 148v32M330 148v32" class="f-grid" />
+    <g class="f-sync" transform="translate(168 98)">
+      <circle cx="12" cy="12" r="12" class="f-chip" />
+      <path d="M9 18V7M6.5 9.5 9 7l2.5 2.5M15 6v11M12.5 14.5 15 17l2.5-2.5" class="f-icon" />
+    </g>
+  </svg>
+)}
+{name === 'inspector' && (
+  <svg class="fig" viewBox="0 0 360 220" aria-hidden="true" focusable="false">
+    <path d="M24 44h26l8 10h64a6 6 0 0 1 6 6v24a6 6 0 0 1-6 6H24a6 6 0 0 1-6-6V50a6 6 0 0 1 6-6z" class="f-card" />
+    <text x="30" y="82" class="f-mono f-ink">SKILL.md</text>
+    <g class="f-mono">
+      <text x="24" y="122">always loaded</text>
+      <rect x="24" y="130" width="312" height="10" rx="5" class="f-track" />
+      <rect x="24" y="130" width="30" height="10" rx="5" class="f-fill f-b1" />
+      <text x="336" y="122" text-anchor="end" class="f-ink">~90</text>
+      <text x="24" y="159">when triggered</text>
+      <rect x="24" y="167" width="312" height="10" rx="5" class="f-track" />
+      <rect x="24" y="167" width="120" height="10" rx="5" class="f-fill f-b2" />
+      <text x="336" y="159" text-anchor="end" class="f-ink">~1.2k</text>
+      <text x="24" y="196">every file</text>
+      <rect x="24" y="204" width="312" height="10" rx="5" class="f-track" />
+      <rect x="24" y="204" width="270" height="10" rx="5" class="f-fill f-b3" />
+      <text x="336" y="196" text-anchor="end" class="f-ink">~6k</text>
+    </g>
+    <rect x="152" y="38" width="184" height="60" rx="6" class="f-card" />
+    <g class="f-warn" transform="translate(164 50)">
+      <path d="M12 3 22 21H2z" class="f-tri" />
+      <path d="M12 10v5M12 18h.01" class="f-icon" />
+    </g>
+    <path d="M200 56h100M200 74h70" class="f-bar" />
+  </svg>
+)}
+{name === 'privacy' && (
+  <svg class="fig" viewBox="0 0 360 220" aria-hidden="true" focusable="false">
+    <rect x="16" y="28" width="200" height="164" rx="8" class="f-card" />
+    <path d="M16 54h200" class="f-line" />
+    <circle cx="32" cy="41" r="3.5" class="f-dot" /><circle cx="44" cy="41" r="3.5" class="f-dot" /><circle cx="56" cy="41" r="3.5" class="f-dot" />
+    <g transform="translate(86 78)">
+      <path d="M12 10v-2a8 8 0 0 1 16 0v2" class="f-lock" />
+      <rect x="6" y="10" width="28" height="22" rx="4" class="f-lockbody" />
+      <path d="M20 18v6" class="f-icon" />
+    </g>
+    <path d="M44 138h104M44 154h140M44 170h84" class="f-bar" />
+    <path d="M216 110h56" class="f-dash" />
+    <circle cx="244" cy="110" r="11" class="f-chip" />
+    <path d="M239 105l10 10M249 105l-10 10" class="f-icon" />
+    <path d="M290 126h30a16 16 0 0 0 2-31.8A22 22 0 0 0 280 90a18 18 0 0 0 10 36z" class="f-cloud" />
+  </svg>
+)}

@@ -1,0 +1,131 @@
+---
+import '@fontsource/newsreader/latin-400.css';
+import '@fontsource/newsreader/vietnamese-400.css';
+import '@fontsource/newsreader/latin-400-italic.css';
+import '@fontsource/newsreader/vietnamese-400-italic.css';
+import '@fontsource/newsreader/latin-600.css';
+import '@fontsource/newsreader/vietnamese-600.css';
+import '../styles/md-doc.css';
+import '../styles/slides.css';
+import '../styles/studio.css';
+import '../styles/welcome.css';
+import '../styles/site.css';
+import nr400 from '@fontsource/newsreader/files/newsreader-latin-400-normal.woff2?url';
+import bv400 from '@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-400-normal.woff2?url';
+import bv500 from '@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-500-normal.woff2?url';
+import Base from '../layouts/Base.astro';
+import Section from '../components/Section.astro';
+import AppBar from '../components/AppBar.astro';
+import AppBarScript from '../components/AppBarScript.astro';
+import HomeFacade from '../components/HomeFacade.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import AboutFigures from '../components/AboutFigures.astro';
+import FeatureFigures from '../components/FeatureFigures.astro';
+import HomeStudio from '../components/islands/HomeStudio';
+import { HOME_FAQ } from '../lib/site/faq';
+import { faqPage, softwareApp, webSite } from '../lib/site/jsonld';
+import { url } from '../lib/url';
+
+const DESCRIPTION = 'Write Markdown in your browser, or check an agent skill from GitHub: spec, context cost and scripts worth reading. Free, no account, nothing uploaded.';
+const FEATURES: [string, string][] = [
+  ['Preview', 'GitHub-flavoured Markdown with tables, callouts, footnotes, KaTeX and Mermaid.'],
+  ['Export', 'Markdown, standalone HTML, PDF, Word, EPUB, LaTeX, TextPack and slides.'],
+  ['Share', 'A link that carries the document itself, with a password if you want one. No server copy.'],
+  ['Offline', 'Install it as an app. Writing and preview keep working without a network.'],
+  ['Slides', 'Present any document, with a presenter window and a timer.'],
+  ['Zen', 'One quiet column, with typewriter scroll and focus by paragraph or sentence.'],
+];
+---
+<Base view="app" title="Markdown editor and agent skill inspector" titleFull="mdprev: a quiet Markdown editor and agent skill inspector" description={DESCRIPTION} path="/" jsonLd={[webSite(Astro.site), softwareApp('/', Astro.site, DESCRIPTION), faqPage(HOME_FAQ)]}>
+  <Fragment slot="head">
+    {[bv400, bv500].map((f) => <link rel="preload" as="font" type="font/woff2" href={f} crossorigin="anonymous" />)}
+    {[nr400].map((f) => <link rel="preload" as="font" type="font/woff2" href={f} crossorigin="anonymous" />)}
+    <link rel="manifest" href={url('/app/manifest.webmanifest')} />
+    <meta name="theme-color" content="#f8f7f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#181613" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" href={url('/app/icons/apple-180.png')} />
+    <meta name="apple-mobile-web-app-title" content="mdprev" />
+    <script is:inline>
+      // Khách quay lại (đã có tài liệu riêng) hoặc mở link chia sẻ: không hiện bài mẫu của khung tĩnh, tránh nháy nội dung không phải của họ.
+      try { if (localStorage.getItem('mdprev-md') !== null || location.hash.indexOf('#d=') === 0) document.documentElement.dataset.returning = '1'; } catch (e) {}
+    </script>
+  </Fragment>
+  <AppBar variant="home" />
+  <AppBarScript />
+  <div class="home-tool">
+    <Section pad="0">
+      <div class="pv-wrap"><HomeFacade /><HomeStudio client:only="preact" /></div>
+      <noscript><p class="pv-dim">The editor needs JavaScript. It works in your browser and uploads nothing.</p></noscript>
+    </Section>
+  </div>
+  <a class="about-bar" href="#about" data-focus-hide><b>What is mdprev?</b> <span class="about-long">Free, private, and it also reads agent skills</span> <span aria-hidden="true">↓</span></a>
+
+  <div class="about" id="about" data-focus-hide>
+    <div class="st">
+      <section class="st-sec" aria-labelledby="h-editor">
+        <div class="st-top">
+          <div>
+            <span class="st-lbl">Markdown editor</span>
+            <h2 id="h-editor">A quiet place to write.</h2>
+            <p class="st-intro">Split preview, a serif reading view, and exports that look the way you meant them to.</p>
+          </div>
+          <AboutFigures name="editor" />
+        </div>
+        <ul class="st-list">{FEATURES.map(([k, v]) => <li><b>{k}</b><span>{v}</span></li>)}</ul>
+      </section>
+
+      <section class="st-sec" aria-labelledby="h-free">
+        <div class="st-top">
+          <div>
+            <span class="st-lbl">Free features</span>
+            <h2 id="h-free">What other editors charge for, free here.</h2>
+            <p class="st-intro">Two things usually sold in a paid plan, done in your browser with no account.</p>
+          </div>
+          <FeatureFigures name="grid" class="fig" />
+        </div>
+        <div class="st-cols st-cols-2">
+          <div class="st-col"><h3>Share with a password</h3><p>A <code>#e=</code> link, encrypted on your device with AES-GCM; the password is not in it and no server keeps a copy. Expiry is soft: it is checked on the reader’s clock, and a copy already made stays made. <a href={url('/guides/share-a-markdown-document-with-a-password/')}>How it works</a></p></div>
+          <div class="st-col"><h3>Publish a vault as a site</h3><p>Open a folder of notes with <code>[[wikilinks]]</code> and export a static site: one page per note, backlinks, link previews, broken links listed first. You host the folder. <a href={url('/guides/publish-a-markdown-vault-as-a-static-site/')}>Walk-through and limits</a></p></div>
+        </div>
+        <p class="st-also">Also new: Style Check and writing stats, authorship marks for pasted text, EPUB, LaTeX and TextPack export, and document themes. <a href={url('/features/')}>All six, compared with paid plans</a></p>
+      </section>
+
+      <section class="st-sec" id="skill-inspector" aria-labelledby="h-inspector" style="scroll-margin-top:56px">
+        <div class="st-top">
+          <div>
+            <span class="st-lbl">Skill inspector</span>
+            <h2 id="h-inspector">Know a skill before your agent does.</h2>
+            <p class="st-intro">Paste a GitHub link or open a zip for a plain report: no scores, no badges. Then edit a copy, review the diff and download it.</p>
+          </div>
+          <AboutFigures name="inspector" />
+        </div>
+        <div class="st-cols">
+          <div class="st-col"><h3>Does it follow the spec?</h3><p>Checks the frontmatter against the Agent Skills specification and flags a folder name that does not match.</p></div>
+          <div class="st-col"><h3>What does it cost?</h3><p>Estimates tokens at three levels: always loaded, loaded on trigger, and every file.</p></div>
+          <div class="st-col"><h3>What would it run?</h3><p>Lists scripts and flags patterns worth reading first, such as shell calls and recursive deletes. A static scan, not a guarantee. Nothing is run.</p></div>
+        </div>
+        <p style="margin-top:22px"><a href={url('/app/inspect/')}>Inspect a skill</a> · <a href={url('/skill-inspector/')}>How the inspector works</a></p>
+      </section>
+
+      <section class="st-sec" aria-labelledby="h-privacy">
+        <div class="st-top">
+          <div>
+            <span class="st-lbl">Privacy</span>
+            <h2 id="h-privacy">Your files stay with you.</h2>
+            <p class="st-intro" style="margin-bottom:0">Nothing you open is uploaded, and there is no analytics script. A skill read from GitHub goes straight from GitHub to your browser. <a href={url('/privacy/')}>What is stored, and where</a>.</p>
+            <ul class="st-chips" aria-label="At a glance"><li>No upload</li><li>No account</li><li>No analytics</li><li>Works offline</li></ul>
+          </div>
+          <AboutFigures name="privacy" />
+        </div>
+      </section>
+
+      <section class="st-sec st-faq" aria-labelledby="h-faq">
+        <span class="st-lbl">Questions</span>
+        <h2 id="h-faq">Common questions</h2>
+        {HOME_FAQ.map((f, i) => <details open={i === 0}><summary>{f.q}</summary><p>{f.a}</p></details>)}
+      </section>
+
+      <SiteFooter />
+    </div>
+  </div>
+</Base>

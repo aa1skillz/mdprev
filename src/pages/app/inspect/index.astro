@@ -1,0 +1,27 @@
+---
+import '@fontsource/newsreader/latin-400.css';
+import '@fontsource/newsreader/vietnamese-400.css';
+import '@fontsource/newsreader/latin-400-italic.css';
+import '@fontsource/newsreader/vietnamese-400-italic.css';
+import '@fontsource/newsreader/latin-600.css';
+import '@fontsource/newsreader/vietnamese-600.css';
+import '../../../styles/md-doc.css';
+import '../../../styles/inspect.css';
+import Base from '../../../layouts/Base.astro';
+import AppBar from '../../../components/AppBar.astro';
+import AppBarScript from '../../../components/AppBarScript.astro';
+import InspectApp from '../../../components/inspect/InspectApp';
+import { url } from '../../../lib/url';
+---
+<Base view="inspect" title="Skill inspector" description="Look at an agent skill before you install it: spec check, estimated context cost and scripts worth reading." path="/app/inspect/" noindex shell={false}>
+  <Fragment slot="head">
+    <link rel="manifest" href={url('/app/manifest.webmanifest')} />
+    <meta name="theme-color" content="#f8f7f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#181613" media="(prefers-color-scheme: dark)" />
+    <link rel="apple-touch-icon" href={url('/app/icons/apple-180.png')} />
+  </Fragment>
+  <AppBar variant="inspect" />
+  <AppBarScript />
+  <InspectApp client:only="preact" />
+  <noscript><p class="ix-noscript">The skill inspector needs JavaScript. It reads files in your browser and uploads nothing.</p></noscript>
+</Base>

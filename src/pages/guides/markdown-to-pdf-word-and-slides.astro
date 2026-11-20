@@ -1,0 +1,61 @@
+---
+import Page from '../../layouts/Page.astro';
+import { article, breadcrumbs } from '../../lib/site/jsonld';
+import { url } from '../../lib/url';
+
+const PATH = '/guides/markdown-to-pdf-word-and-slides/';
+const DESC = 'Turn a Markdown document into a PDF, a Word file, an HTML page, an EPUB e-book, LaTeX or a slide deck, in the browser, without uploading it anywhere.';
+const HEADLINE = 'From Markdown to PDF, Word and slides in your browser';
+---
+<Page title={HEADLINE} description={DESC} path={PATH} current="guides" ogType="article"
+  jsonLd={[article({ path: PATH, site: Astro.site, headline: HEADLINE, description: DESC, published: '2026-11-15', modified: '2026-11-17' }), breadcrumbs([{ name: 'mdprev', path: '/' }, { name: 'Guides', path: '/guides/' }, { name: HEADLINE, path: PATH }], Astro.site)]}>
+  <article class="art">
+    <span class="st-lbl">Guide</span>
+    <h1>{HEADLINE}</h1>
+    <p class="by">Updated 17 November 2026. Describes what the <a href={url('/app/')}>mdprev editor</a> does today; every step below can be tried on the built-in sample document.</p>
+
+    <div class="callout"><b>SHORT ANSWER</b><p>Open the <a href={url('/app/')}>editor</a>, write or paste Markdown, press <b>Export</b> and choose PDF (the print dialog, then “Save as PDF”), Word (.docx), HTML, EPUB, LaTeX (.tex), TextPack or a slide-deck PDF. Everything is made on your device; nothing is uploaded and there is no account.</p></div>
+
+    <p>One Markdown file can be a README, a one-page brief, a handout and a talk. mdprev renders the file next to your text and exports it in the format the reader needs. The document is rendered and exported on your device: nothing is uploaded, and there is no account.</p>
+
+    <h2>1. Write, and see the result as you type</h2>
+    <p>Open the <a href={url('/app/')}>editor</a>. <b>Edit</b> shows only the source, <b>Read</b> only the rendered page, <b>Split</b> both with the preview scrolling along. <b>Zen</b> is a quiet single column. It opens on the face you were using (writing from Edit, reading from Read or Split), and <kbd>Alt</kbd>+<kbd>V</kbd> switches between them.</p>
+    <p>Type <code>/</code> on an empty line for blocks such as a table, a code block, a callout, a footnote or a table of contents. Tables, task lists, footnotes, math with KaTeX and Mermaid diagrams render in the preview. A diagram that cannot be drawn shows a short note in place instead of an empty box.</p>
+
+    <h2>2. Choose a document style</h2>
+    <p>The gear button (<b>View options</b>) switches the rendered look between <b>Default</b>, a <b>Paper</b> style with a serif body and a <b>Compact</b> style for dense notes. PDF and HTML exports use the style you picked, so a PDF made from Paper looks like Paper. The Word file uses Word’s own styles instead.</p>
+    <p><b>View options → Theme…</b> goes further: colours, font, text size and page width, from a small set (Sepia, Newsprint, Slate, Night) or your own. A theme applies to the preview, printing and HTML export.</p>
+
+    <h2>3. Export</h2>
+    <p>The <b>Export</b> button offers these formats (on a phone, they are in the <b>File</b> menu).</p>
+    <table class="st-table">
+      <thead><tr><th scope="col">Format</th><th scope="col">Good for</th><th scope="col">What to know</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">PDF (print)</td><td>Sending a finished document</td><td>Uses your browser’s print dialog, so the paper size and margins are yours to set. Choose “Save as PDF”.</td></tr>
+        <tr><td class="nm">PDF with contents</td><td>Longer reports</td><td>Adds a table of contents built from your headings.</td></tr>
+        <tr><td class="nm">Word (.docx)</td><td>Colleagues who edit in Word</td><td>Keeps headings, lists and footnotes. Mermaid diagrams are drawn as pictures.</td></tr>
+        <tr><td class="nm">HTML (.html)</td><td>One file you can email or host</td><td>Styles and pasted images are inside the file, so it opens without extra files.</td></tr>
+        <tr><td class="nm">EPUB (.epub)</td><td>Reading on an e-reader or phone</td><td>An EPUB 3 e-book with a table of contents from your headings. Pasted images go inside the book and Mermaid diagrams become pictures.</td></tr>
+        <tr><td class="nm">LaTeX (.tex)</td><td>Journals, theses, a TeX workflow</td><td>A .tex file for XeLaTeX covering common Markdown. Images become their alt text, Mermaid stays as code and raw HTML is left out; the download message lists what was not converted.</td></tr>
+        <tr><td class="nm">TextPack (.textpack)</td><td>Moving to another Markdown app</td><td>The Markdown and its pasted images in one file: a zipped TextBundle, a format made for moving Markdown between apps. mdprev opens it again.</td></tr>
+        <tr><td class="nm">Slides PDF</td><td>Handing out a talk</td><td>One slide per page. See the next section.</td></tr>
+        <tr><td class="nm">Copy rich text</td><td>Pasting into an email or a doc editor</td><td>Pastes formatted text, with the Markdown as the fallback for plain editors.</td></tr>
+      </tbody>
+    </table>
+
+    <h2>4. Turn the same file into slides</h2>
+    <p>Press <kbd>S</kbd> (or <b>Present</b>) to present the document. How it is cut into slides depends on the file:</p>
+    <ul>
+      <li>If you separate slides with a line of three dashes (<code>---</code>), each part becomes one slide.</li>
+      <li>Without those lines, every top-level heading (<code>#</code> or <code>##</code>) starts a new slide, so an ordinary document is already a deck.</li>
+    </ul>
+    <p>In a deck cut by <code>---</code>, a paragraph that starts with <code>Note:</code> and everything after it in that slide becomes speaker notes and does not appear on screen. A slide that is too long is shrunk to a readable minimum and then scrolls, rather than being cut off.</p>
+
+    <h2>5. Keep your work safe</h2>
+    <p>The document is saved in this browser as you type. <b>Save as…</b> writes a real file where the browser allows it, and <b>Restore previous</b> and <b>Recent</b> bring back what you replaced. Because everything stays on the device, clearing site data removes it: export or save a file for anything you need to keep. The <a href={url('/privacy/')}>privacy page</a> lists exactly what is stored.</p>
+
+    <h2>Also in the box</h2>
+    <p>To send the document instead of a file, <a href={url('/guides/share-a-markdown-document-with-a-password/')}>share it as a link with a password</a>. For a whole folder of notes, <a href={url('/guides/publish-a-markdown-vault-as-a-static-site/')}>export a static site</a>. <a href={url('/features/')}>Everything free in mdprev, compared with paid plans</a>.</p>
+    <p>The same site can <a href={url('/skill-inspector/')}>inspect an agent skill</a> from a GitHub link and open it in the editor as a copy you can change; see <a href={url('/guides/what-is-inside-a-skill-md/')}>what is inside a SKILL.md</a> and <a href={url('/guides/install-a-skill-in-claude-code/')}>how to install a skill in Claude Code</a>.</p>
+  </article>
+</Page>

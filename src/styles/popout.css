@@ -1,0 +1,74 @@
+/* Cửa sổ phụ: /app/preview/ (pop-out) và /app/presenter/. Chrome dùng phông giao diện; mono chỉ cho số đếm, đồng hồ, trạng thái. */
+  body[data-view='markdown-popout'] .hdr, body[data-view='markdown-popout'] .ftr { display: none; }
+  body[data-view='markdown-popout'] .frame { max-width: none; }
+  .pop { display: flex; flex-direction: column; height: 100dvh; font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
+  .pop-bar { flex: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 20px; border-bottom: 1px solid var(--line); font-size: var(--t-base); color: var(--sub); }
+  .pop-r { display: flex; gap: 16px; align-items: center; }
+  .pop-out { flex: 1; min-height: 0; overflow: auto; background: var(--bg); outline-offset: -2px; scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+  .pop-wait { font-size: var(--t-md); line-height: 1.7; color: var(--sub); }
+  .pv-dim { color: var(--dim); }
+  .pv-page { max-width: 760px; padding: 32px 24px 64px; margin: 0 auto; }
+  .pv-props { width: 100%; margin: 0 0 28px; border-collapse: collapse; font-size: var(--t-sm); }
+  .pv-props th, .pv-props td { padding: 5px 16px 5px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  .pv-props th { width: 1%; white-space: nowrap; font-weight: 500; color: var(--sub); }
+  .pv-props td { color: var(--sub); }
+  .pv-props td div { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .pv-linkbtn { font: inherit; font-size: var(--t-base); padding: 0; border: 0; background: transparent; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .pv-flash { color: var(--accent); }
+  @media (min-width: 1700px) { .pop .md-doc { font-size: 17px; } }
+  @media print {
+    body[data-view='markdown-popout'] .pop { display: block; height: auto; }
+    body[data-view='markdown-popout'] .pop-bar { display: none; }
+    body[data-view='markdown-popout'] .pop-out { overflow: visible; }
+    body[data-view='markdown-popout'] .pv-page { max-width: none; padding: 0; }
+    body[data-view='markdown-popout'] .md-doc { font-size: 12pt; max-width: none; }
+    body[data-view='markdown-popout'] .md-doc .cb-copy { display: none; }
+  }
+
+  body[data-view='markdown-presenter'] .hdr, body[data-view='markdown-presenter'] .ftr { display: none; }
+  body[data-view='markdown-presenter'] .frame { max-width: none; }
+  .pr { display: flex; flex-direction: column; height: 100dvh; font-family: 'Be Vietnam Pro', system-ui, sans-serif; color: var(--body); background: var(--bg); }
+  .pr-bar { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding: 8px 20px; border-bottom: 1px solid var(--line); font-size: var(--t-base); }
+  .pr-count { color: var(--ink); font-family: 'JetBrains Mono', monospace; }
+  .pr-flag { margin-left: 10px; color: var(--accent); }
+  .pr-time { font: 400 var(--t-d1)/1 'JetBrains Mono', monospace; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .pr-btns { margin-left: auto; display: inline-flex; flex-wrap: wrap; gap: 8px; }
+  .pr-btns button { font: inherit; font-size: var(--t-base); padding: 5px 12px; border: 1px solid var(--line2); border-radius: 0; background: transparent; color: var(--ink); cursor: pointer; }
+  .pr-btns button:hover:not(:disabled) { background: var(--hover); }
+  .pr-btns button[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
+  .pr-btns button:disabled { color: var(--dim); cursor: default; }
+  .pr-btns button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pr-wait { margin: auto; max-width: 480px; padding: 24px; font-size: var(--t-md); line-height: 1.7; color: var(--sub); }
+  .pr-main { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); }
+  .pr-cur { position: relative; min-height: 0; border-right: 1px solid var(--line); }
+  .sv.pr-sv { position: absolute; inset: 16px; }
+  .pr-side { display: flex; flex-direction: column; min-height: 0; }
+  .pr-next { flex: none; max-height: 45%; overflow: hidden; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+  .pr-nv { position: relative; aspect-ratio: 16 / 9; max-height: 100%; border: 1px solid var(--line); }
+  .sv.pr-nsv { position: absolute; inset: 0; }
+  .pr-notes { flex: 1; min-height: 0; overflow: auto; padding: 16px 20px; }
+  .pr-notes .md-doc { font-size: var(--t-lg); max-width: none; }
+  .pr-h { margin: 0 0 10px; font-size: var(--t-sm); font-weight: 500; color: var(--sub); }
+  .pr-none { margin: 0; font-size: var(--t-sm); color: var(--sub); }
+  .pr .md-doc .cb-copy { display: none; }
+  .pr-cur, .pr-notes { scrollbar-width: thin; scrollbar-color: var(--line2) transparent; }
+  @media (max-width: 760px) { .pr-main { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(240px, 45vh) auto; overflow: auto; } .pr-cur { border-right: 0; border-bottom: 1px solid var(--line); } .pr-time { font-size: var(--t-lg); } }
+
+/* đếm ngược theo thời lượng dự kiến và cỡ chữ ghi chú */
+.pr-goal { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-sm); color: var(--sub); }
+.pr-goal input { width: 58px; padding: 3px 6px; font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line2); }
+.pr-goal input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pr-left { font: 400 var(--t-md) 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; color: var(--sub); }
+.pr-left[data-s='warn'] { color: var(--ink); font-weight: 600; }
+.pr-left[data-s='over'] { color: var(--err); font-weight: 600; }
+.pr-nh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.pr-nh .pr-h { margin: 0; }
+.pr-ns button { min-width: 30px; height: 26px; padding: 0 6px; font: inherit; font-size: var(--t-sm); color: var(--ink); background: transparent; border: 1px solid var(--line2); cursor: pointer; }
+.pr-ns button:hover:not(:disabled) { background: var(--hover); }
+.pr-ns button:disabled { color: var(--dim); cursor: default; }
+.pr-ns button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* nút icon của cửa sổ presenter và pop-out */
+.pr-btns button { width: 32px; height: 30px; padding: 0; display: inline-grid; place-items: center; }
+.pop-r .pv-linkbtn { width: 30px; height: 30px; padding: 0; display: inline-grid; place-items: center; text-decoration: none; color: var(--sub); border: 1px solid transparent; }
+.pop-r .pv-linkbtn:hover { color: var(--ink); border-color: var(--line2); }

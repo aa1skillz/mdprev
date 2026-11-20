@@ -1,0 +1,12 @@
+---
+interface Props { pad?: string; border?: boolean; id?: string }
+const { pad = '72px 32px 56px', border = false, id } = Astro.props;
+---
+<section id={id} class:list={['sec', { bt: border }]} style={`--pad:${pad}`}><slot /></section>
+<style>
+  .sec { display: grid; grid-template-columns: minmax(0, 1fr); padding: var(--pad); }
+  .bt { border-top: 1px solid var(--line); }
+  @media (min-width: 960px) { .sec { grid-template-columns: repeat(11, minmax(0, 1fr)); } }
+  .sec > :global(.main-col) { max-width: 780px; min-width: 0; }
+  @media (min-width: 960px) { .sec > :global(.main-col) { grid-column: 5 / -1; } .sec > :global(.side-col) { grid-column: 1 / span 4; } }
+</style>

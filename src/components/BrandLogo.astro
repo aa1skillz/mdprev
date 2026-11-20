@@ -1,0 +1,14 @@
+---
+import mark from './brand-mark.json';
+import wm from './brand-wordmark.json';
+/** Logo mdprev (V2): trang xanh mực (--accent) có vạch con trỏ soạn thảo và góc gập xanh nhạt (--brand-fold), tượng trưng "trang bạn xem trước"; chữ `md` mono + `prev` serif nghiêng (cùng màu mực; accent chỉ ở góc gập). Đường nét sinh từ phông thật bằng tools/make-brand.py nên không phụ thuộc phông nạp. Màu theo `currentColor` và `--accent`. */
+---
+<svg class="appbar-mark" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true" focusable="false">
+  <path d="M2 2h20l8 8v20H2z" fill="var(--accent)" />
+  <path d="M22 2v8h8z" fill="var(--brand-fold)" />
+  <path d={mark.cur} fill="var(--on-accent)" />
+</svg>
+<svg class="appbar-word" viewBox={`0 0 ${wm.w} ${wm.h}`} height="26" width={Math.round((wm.w / wm.h) * 26)} aria-hidden="true" focusable="false">
+  <path d={wm.md} fill="currentColor" />
+  <path d={wm.prev} fill="currentColor" />
+</svg>

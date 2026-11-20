@@ -1,0 +1,20 @@
+---
+import Page from '../../layouts/Page.astro';
+import { breadcrumbs } from '../../lib/site/jsonld';
+import { GUIDES } from '../../lib/site/guides';
+import { url } from '../../lib/url';
+
+const DESC = 'Short guides: publishing notes as a site, password share links, Markdown to PDF, Word and EPUB, and agent skills: installing one, what is inside, what it costs.';
+---
+<Page title="Guides: Markdown and agent skills" description={DESC} path="/guides/" current="guides"
+  jsonLd={[breadcrumbs([{ name: 'mdprev', path: '/' }, { name: 'Guides', path: '/guides/' }], Astro.site)]}>
+  <section class="pg-hero" style="padding-bottom:28px">
+    <span class="st-lbl">Guides</span>
+    <h1>Guides: Markdown and agent skills</h1>
+    <p class="pg-lead">Short and sourced. Each one says what it is based on and when it was last checked.</p>
+  </section>
+  <ul class="guide-list">
+    {GUIDES.map((g) => <li><time datetime={g.date}>{g.date}</time><br /><a href={url(g.path)}>{g.title}</a><p>{g.text}</p></li>)}
+  </ul>
+  <p class="pg-alt" style="margin:22px 0 56px">What else is free in the editor, and what it costs elsewhere: <a href={url('/features/')}>features compared with paid plans</a>.</p>
+</Page>

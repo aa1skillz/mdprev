@@ -1,0 +1,61 @@
+/* Slide trên khung logic cố định (SlideView): dùng chung cho màn chiếu, lưới, cửa sổ presenter và bản in slide. */
+.sv { position: relative; overflow: hidden; }
+.sv-canvas { position: absolute; left: 50%; top: 50%; transform-origin: 50% 50%; overflow: hidden; background: var(--bg); }
+.sv-canvas[data-overflow='1'] { overflow-y: auto; overscroll-behavior: contain; scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: transparent transparent; transition: scrollbar-color .3s; }
+.sv-canvas[data-overflow='1'][data-scrolling] { scrollbar-color: var(--line2) transparent; }
+.sv-fixed .sv-canvas { position: relative; left: 0; top: 0; }
+.sv .sl-hid { visibility: hidden; } /* hiện từng bullet: ẩn mà vẫn giữ chỗ */
+/* chỉ báo vị trí cuộn của slide dài: vạch mảnh bên phải, ngoài vùng cuộn nên không bị mờ; không có ở ô thu nhỏ và bản in */
+.sv-pos { display: none; position: absolute; z-index: 2; right: 8px; top: 12px; bottom: 12px; width: 4px; background: linear-gradient(var(--dim), var(--dim)) 0 var(--p, 0%) / 100% var(--s, 20%) no-repeat, var(--line); pointer-events: none; }
+.sv-pos[data-on='1'] { display: block; }
+/* mũi tên "còn nữa" ở giữa đáy, nằm trong dải chừa nên không đè chữ; biến mất khi chạm đáy */
+.sv-more { display: none; position: absolute; z-index: 2; left: 50%; bottom: 6px; margin-left: -11px; width: 22px; height: 22px; color: var(--sub); pointer-events: none; }
+.sv-more[data-on='1'] { display: block; }
+@media (prefers-reduced-motion: no-preference) { .sv-more[data-on='1'] { animation: sv-bob 1.6s ease-in-out infinite; } }
+@keyframes sv-bob { 50% { transform: translateY(3px); } }
+.sv.sv-fixed .sv-pos, .sv.sl-tsv .sv-pos, .sv.pr-nsv .sv-pos, .sv.sv-fixed .sv-more, .sv.sl-tsv .sv-more, .sv.pr-nsv .sv-more { display: none; }
+
+/* Cỡ chữ của slide: lớn, mọi cỡ con theo em; độ ưu tiên cao hơn md-doc.css và kiểu paper/compact */
+.sv .md-doc.sl-doc { position: absolute; left: 56px; top: 56px; margin: 0; max-width: none; transform-origin: 0 0; font-size: 32px; line-height: 1.5; }
+.sv .md-doc.sl-doc[data-doc='compact'] { font-size: 28px; line-height: 1.45; }
+.sv .md-doc.sl-doc[data-doc='paper'] { font-size: 38px; /* Newsreader có hộp chữ thấp hơn Be Vietnam Pro ở cùng cỡ: 34px chỉ cho chữ cao ~20px trên màn hình, dưới ngưỡng đọc được (22px) */ }
+.sv .md-doc.sl-doc > :first-child { margin-top: 0; }
+.sv .md-doc.sl-doc h1 { font-size: 2em; padding-bottom: 0.3em; margin-bottom: 0.5em; }
+.sv .md-doc.sl-doc h2 { font-size: 1.5em; padding-bottom: 0.25em; margin: 1.2em 0 0.5em; }
+.sv .md-doc.sl-doc h3 { font-size: 1.2em; margin: 1.1em 0 0.4em; }
+.sv .md-doc.sl-doc h4 { font-size: 1.05em; }
+.sv .md-doc.sl-doc h5, .sv .md-doc.sl-doc h6 { font-size: 0.75em; }
+.sv .md-doc.sl-doc p, .sv .md-doc.sl-doc ul, .sv .md-doc.sl-doc ol, .sv .md-doc.sl-doc blockquote { margin-bottom: 0.7em; }
+.sv .md-doc.sl-doc li { margin: 0.15em 0; }
+.sv .md-doc.sl-doc code { font-size: 0.85em; }
+.sv .md-doc.sl-doc pre { font-size: 0.68em; line-height: 1.55; padding: 0.8em 1em; }
+.sv .md-doc.sl-doc .cb { margin-bottom: 0.8em; }
+.sv .md-doc.sl-doc .cb-h { font-size: 0.42em; }
+.sv .md-doc.sl-doc .cb-copy { display: none; }
+.sv .md-doc.sl-doc table { font-size: 0.8em; }
+.sv .md-doc.sl-doc th { font-size: 0.6em; }
+.sv .md-doc.sl-doc th, .sv .md-doc.sl-doc td { padding: 0.35em 0.8em 0.35em 0; }
+.sv .md-doc.sl-doc .callout { padding: 0.4em 0.8em; }
+.sv .md-doc.sl-doc .callout-t { font-size: 0.5em; }
+.sv .md-doc.sl-doc .footnotes { font-size: 0.6em; }
+.sv .md-doc.sl-doc .task-list-item input { width: 0.6em; height: 0.6em; }
+.sv .md-doc.sl-doc .katex { font-size: 1em; }
+.sv .md-doc.sl-doc img { max-height: 560px; }
+
+/* In slide ra PDF: mỗi slide một trang 16:9 */
+.slp { position: fixed; left: -20000px; top: 0; visibility: hidden; pointer-events: none; } /* ngoài màn hình nhưng vẫn dàn trang để đo fit */
+.slp-page .sv { width: 1280px; height: 720px; }
+@page slides { size: 1280px 720px; margin: 0; @bottom-right { content: none; } }
+@media print {
+  :root[data-slprint] body > :not(.slp) { display: none !important; }
+  :root[data-slprint] body { margin: 0; background: var(--bg); }
+  :root[data-slprint] .slp { position: static; visibility: visible; }
+  .slp-page { page: slides; width: 1280px; height: 720px; break-after: page; overflow: hidden; }
+  .slp-page:last-child { break-after: auto; }
+}
+
+/* danh sách dài (từ 5 mục, không lồng nhau) chia hai cột để slide mở đầu kiểu "mục lục" vừa khung thay vì phải cuộn */
+.sv .md-doc.sl-doc > ul:has(> li:nth-child(5)):not(:has(ul, ol)), .sv .md-doc.sl-doc > ol:has(> li:nth-child(5)):not(:has(ul, ol)) { column-count: 2; column-gap: 1.5em; }
+.sv .md-doc.sl-doc > ul:has(> li:nth-child(5)) > li, .sv .md-doc.sl-doc > ol:has(> li:nth-child(5)) > li { break-inside: avoid; }
+
+/* Slide dài hơn khung và phải cuộn: dấu nhắc nhỏ ở đáy (không nằm trong vùng cuộn, không chắn nội dung) */

@@ -1,0 +1,16 @@
+---
+import '@fontsource/newsreader/latin-400.css';
+import '@fontsource/newsreader/vietnamese-400.css';
+import '@fontsource/newsreader/latin-400-italic.css';
+import '@fontsource/newsreader/vietnamese-400-italic.css';
+import '@fontsource/newsreader/latin-600.css';
+import '@fontsource/newsreader/vietnamese-600.css';
+import '../../styles/md-doc.css';
+import '../../styles/slides.css';
+import '../../styles/popout.css';
+import Base from '../../layouts/Base.astro';
+import StudioPresenter from '../../components/islands/StudioPresenter';
+---
+<Base view="markdown-presenter" title="Presenter" description="Presenter window for mdprev slides." path="/app/presenter/" noindex>
+  <StudioPresenter client:only="preact" />
+</Base>

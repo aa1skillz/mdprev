@@ -1,0 +1,41 @@
+---
+import '@fontsource/newsreader/latin-400.css';
+import '@fontsource/newsreader/vietnamese-400.css';
+import '@fontsource/newsreader/latin-400-italic.css';
+import '@fontsource/newsreader/vietnamese-400-italic.css';
+import '@fontsource/newsreader/latin-600.css';
+import '@fontsource/newsreader/vietnamese-600.css';
+import '../../styles/md-doc.css';
+import '../../styles/slides.css';
+import '../../styles/studio.css';
+import '../../styles/welcome.css';
+import nr400 from '@fontsource/newsreader/files/newsreader-latin-400-normal.woff2?url';
+import bv400 from '@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-400-normal.woff2?url';
+import bv500 from '@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-500-normal.woff2?url';
+import Base from '../../layouts/Base.astro';
+import Section from '../../components/Section.astro';
+import AppBar from '../../components/AppBar.astro';
+import AppBarScript from '../../components/AppBarScript.astro';
+import HomeFacade from '../../components/HomeFacade.astro';
+import MarkdownStudio from '../../components/islands/MarkdownStudio';
+import { url } from '../../lib/url';
+---
+<Base view="app" title="Editor" description="Write Markdown and see a clean rendered document." path="/app/" noindex>
+  <Fragment slot="head">
+    {[bv400, bv500, nr400].map((f) => <link rel="preload" as="font" type="font/woff2" href={f} crossorigin="anonymous" />)}
+    <link rel="manifest" href={url('/app/manifest.webmanifest')} />
+    <meta name="theme-color" content="#f8f7f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#181613" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-title" content="mdprev" />
+    <script is:inline>
+      // Khách quay lại (đã có tài liệu riêng) hoặc mở link chia sẻ: không hiện bài mẫu của khung tĩnh (xem HomeFacade).
+      try { if (localStorage.getItem('mdprev-md') !== null || location.hash.indexOf('#d=') === 0) document.documentElement.dataset.returning = '1'; } catch (e) {}
+    </script>
+  </Fragment>
+  <AppBar />
+  <AppBarScript />
+  <Section pad="0">
+    <div class="pv-wrap"><HomeFacade cta={false} /><MarkdownStudio client:only="preact" /></div>
+    <noscript><p class="pv-dim">mdprev needs JavaScript.</p></noscript>
+  </Section>
+</Base>

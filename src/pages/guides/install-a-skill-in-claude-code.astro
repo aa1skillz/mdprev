@@ -1,0 +1,70 @@
+---
+import Page from '../../layouts/Page.astro';
+import { article, breadcrumbs } from '../../lib/site/jsonld';
+import { url } from '../../lib/url';
+
+const PATH = '/guides/install-a-skill-in-claude-code/';
+const DESC = 'Install an agent skill in Claude Code by copying its folder: where it goes, how to check it loaded, and what it costs. Tested on Claude Code 2.1.323.';
+const HEADLINE = 'How to install an agent skill in Claude Code';
+---
+<Page title={HEADLINE} description={DESC} path={PATH} current="guides" ogType="article"
+  jsonLd={[article({ path: PATH, site: Astro.site, headline: HEADLINE, description: DESC, published: '2026-11-16', modified: '2026-11-16' }), breadcrumbs([{ name: 'mdprev', path: '/' }, { name: 'Guides', path: '/guides/' }, { name: HEADLINE, path: PATH }], Astro.site)]}>
+  <article class="art">
+    <span class="st-lbl">Guide</span>
+    <h1>{HEADLINE}</h1>
+    <p class="by">Updated 16 November 2026. Every step was run on Claude Code 2.1.323 on Linux that day, and the numbers are from that run. Token counts are estimates (characters divided by four). Claude Code changes often; if something differs, its own documentation wins.</p>
+
+    <div class="callout"><b>SHORT ANSWER</b><p>Copy the skill’s folder into <code>~/.claude/skills/</code> to use it in every project, or into <code>.claude/skills/</code> inside one project. The folder name must match the <code>name</code> in its SKILL.md. Then start a new session and ask Claude for the skill by name.</p></div>
+
+    <h2>1. Read it before you install it</h2>
+    <p>A skill is instructions plus, often, scripts that your agent may run with your permissions. Before you copy anything, open it in the <a href={url('/skill-inspector/')}>skill inspector</a>: paste the GitHub link and read the spec check, the estimated context cost and the scripts it points at. Nothing is run and nothing is uploaded. <a href={url('/guides/what-is-inside-a-skill-md/')}>What is inside a SKILL.md</a> explains what the report is checking.</p>
+
+    <h2>2. Choose where it goes</h2>
+    <table class="st-table">
+      <thead><tr><th scope="col">Folder</th><th scope="col">Available in</th><th scope="col">Good for</th></tr></thead>
+      <tbody>
+        <tr><td class="nm"><code>~/.claude/skills/&lt;name&gt;/</code></td><td>Every project on your machine</td><td>Skills you use everywhere</td></tr>
+        <tr><td class="nm"><code>&lt;project&gt;/.claude/skills/&lt;name&gt;/</code></td><td>That project only</td><td>Skills a team shares by committing them</td></tr>
+      </tbody>
+    </table>
+
+    <h2>3. Copy the folder</h2>
+    <p>The folder you copy is the one that holds <code>SKILL.md</code>, not the repository around it. For a skill called <code>release-notes</code>:</p>
+    <pre tabindex="0"><code># for every project
+mkdir -p ~/.claude/skills
+cp -r ./release-notes ~/.claude/skills/
+
+# or for one project
+mkdir -p .claude/skills
+cp -r ./release-notes .claude/skills/</code></pre>
+    <p>The specification requires the folder’s name to match the <code>name</code> field, in lowercase letters, digits and hyphens. The inspector flags a mismatch.</p>
+
+    <h2>4. Check that it loaded</h2>
+    <p>Start a new session in the project and ask for the skill by name. This is the test we ran: a folder with <code>.claude/skills/release-notes/SKILL.md</code>, and an identical empty folder beside it, each asked the same question.</p>
+    <pre tabindex="0"><code>claude -p "Is there a skill named release-notes available to you?
+Answer yes or no, then the skill's description if yes."</code></pre>
+    <table class="st-table">
+      <thead><tr><th scope="col">Folder</th><th scope="col">Answer</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">With the skill</td><td>“Yes”, followed by the exact description from the SKILL.md</td></tr>
+        <tr><td class="nm">Without it</td><td>“No.”</td></tr>
+      </tbody>
+    </table>
+    <p>If the answer is no, check three things: that SKILL.md sits directly inside <code>release-notes/</code>, that the <code>name</code> matches the folder, and that the frontmatter is valid YAML. The inspector reports the last two. We did not test these failure cases.</p>
+
+    <h2>5. What it cost</h2>
+    <p>The test skill had a 141-character description and a 341-byte SKILL.md. By the same estimate the inspector uses:</p>
+    <ul>
+      <li><b>Always loaded:</b> name plus description, 154 characters, about <b>39 tokens</b>.</li>
+      <li><b>Loaded when it triggers:</b> the whole file, about <b>86 tokens</b>.</li>
+    </ul>
+    <p>We also tried to see that in the session’s own token usage. One short prompt used 43,441 input tokens without the skill and 43,363 with it (this machine also loads a long instruction file, other skills and several tool servers, so those totals are not a baseline for Claude Code). The difference is smaller than the variation between runs, so a single small skill cannot be seen in a session total, and a measurement of one skill that claimed otherwise would be noise. The cost is real but small, and it adds up across skills.</p>
+    <p>For scale, the 18 skills installed in the personal folder on the machine used for this guide add up to an estimated <b>2.9k tokens</b> at startup, about 164 each. Their SKILL.md files range from about 570 to 12.5k tokens, with a median of 3.7k, and each of those is paid only in a session where the skill triggers. <a href={url('/guides/how-much-context-does-a-skill-cost/')}>How much context does a skill cost?</a> has the same measurement for 20 public skills.</p>
+
+    <h2>6. Change it or remove it</h2>
+    <p>To remove a skill, delete its folder and start a new session. To change one, the skill inspector can open it as a copy, with the checks beside the editor and a diff against the original; then download your version and replace the folder. mdprev never writes to GitHub or to your disk without you saving a file.</p>
+
+    <h2>What this guide does not cover</h2>
+    <p>Skills can also arrive inside plugins, and other agents read skills from their own folders; this guide covers only the manual copy above, which is the one we ran. For the current rules in Claude Code, see <a href="https://code.claude.com/docs/en/skills">its documentation on skills</a>.</p>
+  </article>
+</Page>

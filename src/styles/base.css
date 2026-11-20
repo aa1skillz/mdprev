@@ -1,0 +1,99 @@
+/* Nền tảng: reset nhẹ, focus, chế độ tập trung. */
+* {
+  transition-property:background-color,border-color,color;
+  transition-duration:.2s
+}
+@media (prefers-reduced-motion:reduce) {
+  * {
+  transition:none!important;
+  animation:none!important;
+  scroll-behavior:auto!important
+}
+
+}
+:root[data-focus] [data-focus-hide] {
+  display:none!important
+}
+html {
+  scroll-behavior:smooth
+}
+body {
+  margin:0;
+  background:var(--bg);
+  color:var(--ink)
+}
+a {
+  color:var(--link);
+  text-underline-offset:3px
+}
+a:hover {
+  color:var(--link-h)
+}
+::selection {
+  background:color-mix(in oklch, var(--accent) 22%, var(--bg))
+}
+a:focus {
+  outline:none
+}
+a:focus-visible,button:focus-visible {
+  outline:2px solid var(--accent);
+  outline-offset:3px
+}
+input::placeholder {
+  color:var(--dim)
+}
+
+/* alive: calm tắt mọi chuyển động (cùng tác dụng với prefers-reduced-motion). */
+:root[data-alive=calm] * { transition:none!important; animation:none!important; scroll-behavior:auto!important }
+
+/* ===== Palette lệnh (Shell): đúng ngôn ngữ của app: góc vuông, kẻ 1px, bóng cứng, chữ giao diện, phím là <kbd> ===== */
+.pal-scrim { position: fixed; inset: 0; z-index: 50; background: var(--scrim); display: flex; justify-content: center; align-items: flex-start; padding: 10vh 20px 20px; }
+.pal { width: 100%; max-width: 680px; max-height: 80vh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--ink); box-shadow: var(--shadow-hard); font-family: 'Be Vietnam Pro', system-ui, sans-serif; color: var(--ink); }
+.pal-head { display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 48px; border-bottom: 1px solid var(--line); }
+.pal-ic { color: var(--sub); display: grid; }
+.pal-head input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: var(--t-md); color: var(--ink); }
+.pal-head input::placeholder { color: var(--dim); }
+.pal-count { font-size: var(--t-xs); color: var(--dim); white-space: nowrap; }
+.pal kbd { font: 400 var(--t-xs)/1 'JetBrains Mono', monospace; color: var(--sub); border: 1px solid var(--line2); padding: 3px 6px; background: transparent; }
+.pal-list { position: relative; overflow-y: auto; overscroll-behavior: contain; max-height: 60vh; min-width: 0; padding: 4px 0; }
+.pal-group { padding: 10px 16px 4px; font: 500 var(--t-xs)/1 'JetBrains Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+.pal-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1px 14px; align-items: baseline; padding: 8px 16px; color: var(--ink); text-decoration: none; border-left: 2px solid transparent; }
+.pal-row.on { background: var(--hover); border-left-color: var(--accent); }
+.pal-t { font-size: var(--t-md); line-height: 1.4; white-space: pre-wrap; min-width: 0; }
+.pal-hl { background: color-mix(in oklch, var(--accent) 22%, transparent); font-weight: 500; }
+.pal-k { font: 400 var(--t-xs) 'JetBrains Mono', monospace; color: var(--dim); white-space: nowrap; }
+.pal-d { grid-column: 1 / -1; font-size: var(--t-sm); color: var(--sub); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.pal-none { padding: 24px 16px; font-size: var(--t-base); color: var(--sub); }
+.pal-foot { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 8px 16px; border-top: 1px solid var(--line); font-size: var(--t-xs); color: var(--dim); }
+.pal-foot span { display: inline-flex; align-items: center; gap: 4px; }
+
+/* ===== Bảng phím tắt (?) ===== */
+.hp-scrim { position: fixed; inset: 0; z-index: 75; background: var(--scrim); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.hp { width: 100%; max-width: 760px; max-height: min(90vh, calc(100dvh - 40px)); min-height: 0; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--ink); box-shadow: var(--shadow-hard); font-family: 'Be Vietnam Pro', system-ui, sans-serif; color: var(--ink); }
+.hp-head { display: flex; align-items: center; justify-content: space-between; padding: 0 8px 0 20px; height: 48px; border-bottom: 1px solid var(--line); }
+.hp-head h2 { margin: 0; font: 500 var(--t-md) 'Be Vietnam Pro', system-ui, sans-serif; }
+.hp-x { width: 32px; height: 32px; display: grid; place-items: center; color: var(--sub); background: transparent; border: 0; cursor: pointer; }
+.hp-x:hover { color: var(--ink); background: var(--hover); }
+.hp-body { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 8px 20px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0 36px; }
+.hp-body section { min-width: 0; }
+.hp-body h3 { margin: 18px 0 4px; font: 500 var(--t-xs)/1 'JetBrains Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+.hp-row { display: grid; grid-template-columns: minmax(110px, auto) 1fr; gap: 14px; align-items: baseline; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: var(--t-base); }
+.hp-k { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.hp kbd { font: 400 var(--t-xs)/1 'JetBrains Mono', monospace; color: var(--ink); border: 1px solid var(--line2); background: var(--bg); padding: 3px 6px; }
+.hp-sep { color: var(--dim); font-size: var(--t-sm); }
+.hp-d { color: var(--sub); }
+
+/* ===== Tooltip chung (thay cho tooltip gốc của trình duyệt ở thanh, nút và icon) ===== */
+.tip { position: fixed; z-index: 200; max-width: 280px; padding: 6px 9px; font: 500 var(--t-sm)/1.3 'Be Vietnam Pro', system-ui, sans-serif; color: var(--bg); background: var(--ink); box-shadow: 3px 3px 0 var(--line2); pointer-events: none; white-space: normal; }
+@media print { .tip { display: none; } }
+.hp-bar { display: inline-block; width: 14px; height: 3px; }
+.hp-add { background: var(--ok); } .hp-chg { background: var(--accent); } .hp-warn { background: var(--warn); }
+
+.pal-foot .pal-x { display: none; margin-left: auto; min-height: 44px; padding: 0 14px; font: inherit; border: 1px solid var(--line2); background: transparent; color: var(--ink); }
+@media (pointer: coarse) { .pal-foot span { display: none; } .pal-foot .pal-x { display: inline-flex; align-items: center; width: 100%; justify-content: center; margin: 0; } .pal-scrim { padding-top: 5dvh; } }
+@media (pointer: coarse) { .pal-head .pal-esc, .pal-head .pal-count, .pal-k { display: none; } }
+@media (pointer: coarse) { input:not([type='checkbox']):not([type='radio']):not([type='range']), select, textarea { font-size: 1rem; } } /* iOS Safari tự phóng to khi ô nhập <16px: mọi trang */
+
+/* Find gốc của trình duyệt (Ctrl/⌘+F ở chế độ Read) và chạm trên Android: không để lọt màu vàng/cam mặc định */
+::search-text { background-color: color-mix(in oklch, var(--accent) 22%, transparent); color: inherit; }
+button, a, summary, [role='button'] { -webkit-tap-highlight-color: transparent; }

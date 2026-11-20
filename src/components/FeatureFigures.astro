@@ -1,0 +1,167 @@
+---
+/**
+ * Hình nét cho trang tính năng, hai guide mới và phần "Free features" ở `/`. SVG inline (không request, không JS), màu lấy từ
+ * token nên tự đổi sáng/tối; góc vuông, nét 1.25px, một màu nhấn (--accent) cho thứ là link/khoá. Không có thông tin nào chỉ nằm
+ * trong hình: chữ trên trang luôn nói đủ. Hình có nghĩa thì role="img" + <title>; `grid` là trang trí (aria-hidden).
+ */
+interface Props { name: 'share' | 'vault' | 'hover' | 'grid'; class?: string }
+const { name, class: cls } = Astro.props;
+/** Trang có góc gập (cùng dáng với logo): thân và nếp gập. */
+const pg = (x: number, y: number, w: number, h: number) => `M${x} ${y}h${w - 10}l10 10v${h - 10}h${-w}z`;
+const fold = (x: number, y: number, w: number) => `M${x + w - 10} ${y}v10h10`;
+/** Mũi tên ngang từ x1 tới x2 ở độ cao y. */
+const arrow = (x1: number, x2: number, y: number) => `M${x1} ${y}H${x2}M${x2 - 5} ${y - 4}l5 4-5 4`;
+const GLYPHS = ['PASSWORD LINK', 'VAULT TO SITE', 'STYLE CHECK', 'AUTHORSHIP', 'EXPORT', 'THEMES'];
+---
+{name === 'share' && (
+  <svg class:list={['ff', cls]} viewBox="0 0 520 220" width="520" height="220" role="img" aria-labelledby="ff-share-t">
+    <title id="ff-share-t">The document is encrypted in your browser and travels inside the link; the reader decrypts it with the password in theirs. No server in between.</title>
+    <text x="0" y="16">YOUR BROWSER</text>
+    <rect x="0.5" y="28.5" width="200" height="150" class="zone" />
+    <path d={pg(20, 62, 58, 76)} class="pg" /><path d={fold(20, 62, 58)} class="rule" />
+    <path d="M30 84h36M30 96h28M30 108h36M30 120h20" class="bar" />
+    <path d={arrow(86, 112, 100)} class="rule" />
+    <path d="M124 94v-8a10 10 0 0 1 20 0v8" class="acc" />
+    <rect x="118" y="94" width="32" height="26" class="accf" />
+    <rect x="132.5" y="102" width="3" height="9" class="hole" />
+    <text x="134" y="146" text-anchor="middle">AES-GCM</text>
+    <path d={arrow(156, 212, 100)} class="rule mv" />
+    <rect x="214.5" y="86.5" width="90" height="28" class="pg" />
+    <text x="259.5" y="105" text-anchor="middle" class="t-ink">#e=…</text>
+    <path d={arrow(306, 334, 100)} class="rule mv" />
+    <path d="M259.5 116v34" class="zone" />
+    <rect x="252.5" y="126.5" width="14" height="14" class="chip" />
+    <path d="M256 130l7 7M263 130l-7 7" class="x" />
+    <rect x="239.5" y="152.5" width="40" height="12" class="srv" /><rect x="239.5" y="168.5" width="40" height="12" class="srv" />
+    <path d="M245 158.5h4M245 174.5h4" class="x" />
+    <text x="259.5" y="200" text-anchor="middle">NO SERVER</text>
+    <text x="520" y="16" text-anchor="end">THEIR BROWSER</text>
+    <rect x="319.5" y="28.5" width="200" height="150" class="zone" />
+    <rect x="340.5" y="86.5" width="70" height="28" class="pg" />
+    <path d="M350 98.5h5v5h-5zM360 98.5h5v5h-5zM370 98.5h5v5h-5zM380 98.5h5v5h-5zM390 98.5h5v5h-5z" class="dots" />
+    <text x="375.5" y="146" text-anchor="middle">PASSWORD</text>
+    <path d={arrow(414, 436, 100)} class="rule" />
+    <path d={pg(442, 62, 58, 76)} class="pg" /><path d={fold(442, 62, 58)} class="rule" />
+    <path d="M452 84h36M452 96h28M452 108h36M452 120h20" class="bar" />
+  </svg>
+)}
+{name === 'vault' && (
+  <svg class:list={['ff', cls]} viewBox="0 0 520 230" width="520" height="230" role="img" aria-labelledby="ff-vault-t">
+    <title id="ff-vault-t">A folder of notes linked with wikilinks becomes a set of web pages; each page lists the notes that link to it.</title>
+    <text x="0" y="16">VAULT/</text>
+    <path d="M0.5 28.5v170" class="ln" />
+    {['Home.md', 'Roadmap.md', 'Retro.md', 'Risks.md', 'Budget.md'].map((n, i) => (
+      <g>
+        <path d={`M0.5 ${48.5 + i * 34}h12`} class="ln" />
+        <path d={pg(18, 40 + i * 34, 12, 16)} class="pg sm" />
+        <text x="38" y={53 + i * 34} class="t-ink">{n}</text>
+      </g>
+    ))}
+    <path d="M124 48c26 0 26 34 0 34M134 82c26 0 26 34 0 34M124 48c52 0 52 102 6 102" class="acc" />
+    <path d="M128 78l-4 4 4 4M138 112l-4 4 4 4M134 146l-4 4 4 4" class="acc" />
+    <text x="176" y="106">[[ ]]</text>
+    <path d={arrow(206, 252, 112)} class="rule mv" />
+    <text x="229" y="134" text-anchor="middle">EXPORT</text>
+    <path d={pg(304, 4, 196, 180)} class="pg back" />
+    <path d={pg(288, 20, 204, 190)} class="pg back" />
+    <path d={pg(272.5, 36.5, 210, 190)} class="pg" /><path d={fold(272.5, 36.5, 210)} class="rule" />
+    <text x="290" y="68" class="t-serif">Roadmap</text>
+    <path d="M290 84h150M290 98h120" class="bar" />
+    <path d="M290 112h40" class="bar" /><path d="M336 112h46" class="acc lk" /><path d="M388 112h60" class="bar" />
+    <path d="M290 126h96" class="bar" />
+    <path d="M290.5 150.5h176" class="ln" />
+    <text x="290" y="168">BACKLINKS</text>
+    <path d="M290 184h52M290 198h40" class="acc lk" />
+  </svg>
+)}
+{name === 'hover' && (
+  <svg class:list={['ff', cls]} viewBox="0 0 400 200" width="400" height="200" role="img" aria-labelledby="ff-hover-t">
+    <title id="ff-hover-t">Pointing at a link on the exported site shows a short preview of the note it leads to.</title>
+    <path d={pg(0.5, 0.5, 280, 190)} class="pg" /><path d={fold(0.5, 0.5, 280)} class="rule" />
+    <path d="M20 30h200M20 46h170M20 62h60" class="bar" />
+    <text x="88" y="66" class="t-acc">Retro</text>
+    <path d="M88 70.5h38" class="acc" />
+    <path d="M134 62h70M20 78h180M20 94h130M20 110h190" class="bar" />
+    <path d="M120 64l0 15 4-4 3 7 3-1.5-3-7 6 0z" class="cur" />
+    <rect x="152" y="94" width="232" height="100" class="shadow" />
+    <rect x="148.5" y="90.5" width="232" height="100" class="card" />
+    <text x="164" y="118" class="t-serif">Retro</text>
+    <path d="M164 134h180M164 148h196M164 162h150M164 176h90" class="bar" />
+  </svg>
+)}
+{name === 'grid' && (
+  <svg class:list={['ff', cls]} viewBox="0 0 360 214" width="360" height="214" aria-hidden="true" focusable="false">
+    {GLYPHS.map((label, i) => {
+      const x = (i % 3) * 124, y = Math.floor(i / 3) * 112;
+      return (
+        <g transform={`translate(${x} ${y})`}>
+          <rect x="0.5" y="0.5" width="112" height="72" class="cell" />
+          <text x="0" y="92">{label}</text>
+        </g>
+      );
+    })}
+    <g transform="translate(0 0)">
+      <path d="M44 34v-7a9 9 0 0 1 18 0v7" class="acc" />
+      <rect x="39" y="34" width="28" height="22" class="accf" /><rect x="51.5" y="40" width="3" height="9" class="hole" />
+      <path d="M71 45h22" class="zone" />
+    </g>
+    <g transform="translate(124 0)">
+      <path d="M18 24h14l4 5h20v26H18z" class="rule" />
+      <path d={arrow(62, 76, 40)} class="rule" />
+      <path d={pg(80, 22, 18, 34)} class="pg" /><path d="M85 34h8M85 41h5" class="acc lk" />
+    </g>
+    <g transform="translate(248 0)">
+      <path d="M20 22h72M20 34h56M20 58h48" class="bar" />
+      <path d="M20 46h40" class="bar" />
+      <path d="M20 51l4 3 4-3 4 3 4-3 4 3 4-3 4 3 4-3 4 3 4-3" class="acc wave" />
+    </g>
+    <g transform="translate(0 112)">
+      <path d="M20 22h72M20 58h52" class="bar" />
+      <rect x="20" y="33" width="58" height="14" class="mark" /><path d="M20.75 33v14" class="acc" />
+      <path d="M26 40h46" class="bar" />
+    </g>
+    <g transform="translate(124 112)">
+      <path d={pg(44.5, 14.5, 32, 42)} class="pg back" />
+      <path d={pg(36.5, 18.5, 32, 42)} class="pg" /><path d={fold(36.5, 18.5, 32)} class="rule" />
+      <path d="M52.5 30v18M46.5 42l6 6 6-6" class="acc" />
+    </g>
+    <g transform="translate(248 112)">
+      <rect x="22.5" y="22.5" width="20" height="28" class="pg" />
+      <rect x="46.5" y="22.5" width="20" height="28" class="ink" />
+      <rect x="70.5" y="22.5" width="20" height="28" class="accf" />
+    </g>
+  </svg>
+)}
+<style>
+  .ff { display: block; width: 100%; height: auto; overflow: visible; }
+  .ff text { font: 400 12px/1 'JetBrains Mono', monospace; letter-spacing: 0.06em; fill: var(--sub); }
+  .ff .t-ink { fill: var(--ink); letter-spacing: 0; }
+  .ff .t-acc { fill: var(--accent); letter-spacing: 0; }
+  .ff .t-serif { font: 400 18px/1 'Newsreader', serif; letter-spacing: 0; fill: var(--ink); }
+  .ff .pg { fill: var(--paper); stroke: var(--ink); stroke-width: 1.25; stroke-linejoin: miter; }
+  .ff .pg.back { stroke: var(--line2); }
+  .ff .pg.sm { stroke-width: 1; }
+  .ff .rule { fill: none; stroke: var(--ink); stroke-width: 1.25; }
+  .ff .ln { fill: none; stroke: var(--line2); stroke-width: 1; }
+  .ff .bar { fill: none; stroke: var(--line2); stroke-width: 4; }
+  .ff .acc { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+  .ff .acc.lk { stroke-width: 4; }
+  .ff .accf { fill: var(--accent); }
+  .ff .ink { fill: var(--ink); }
+  .ff .hole { fill: var(--paper); }
+  .ff .zone { fill: none; stroke: var(--sub); stroke-width: 1; stroke-dasharray: 3 4; }
+  .ff .chip { fill: var(--paper); stroke: var(--sub); stroke-width: 1; }
+  .ff .x { fill: none; stroke: var(--sub); stroke-width: 1.5; }
+  .ff .srv { fill: none; stroke: var(--sub); stroke-width: 1; }
+  .ff .dots { fill: var(--ink); }
+  .ff .cell { fill: none; stroke: var(--line); stroke-width: 1; }
+  .ff .mark { fill: var(--accent-bg); }
+  .ff .card { fill: var(--surface); stroke: var(--ink); stroke-width: 1.25; }
+  .ff .shadow { fill: var(--line2); }
+  .ff .cur { fill: var(--surface); stroke: var(--ink); stroke-width: 1; stroke-linejoin: round; }
+  @media (prefers-reduced-motion: no-preference) {
+    .ff .mv { stroke-dasharray: 4 3; animation: ff-flow 1.6s linear infinite; }
+    @keyframes ff-flow { to { stroke-dashoffset: -14; } }
+  }
+  @media print { .ff { display: none; } }
+</style>

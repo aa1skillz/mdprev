@@ -1,0 +1,3271 @@
+{
+ "meta": {
+  "bash": "GNU bash, version 5.2.21(1)-release (aarch64-unknown-linux-gnu)",
+  "ls": "ls (GNU coreutils) 9.4",
+  "grep": "grep (GNU grep) 3.11",
+  "sed": "/usr/bin/sed (GNU sed) 4.9",
+  "find": "find (GNU findutils) 4.9.0",
+  "locale": "C.UTF-8",
+  "tz": "UTC"
+ },
+ "cases": [
+  {
+   "cmd": "ls",
+   "out": "lab\nposts\ntmp\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls lab",
+   "out": "access.log\napp.log\nempty-dir\nempty.txt\nfruits.csv\nnames.txt\nnoeol.txt\nnotes\nnumbers.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -a lab",
+   "out": ".\n..\n.hidden\naccess.log\napp.log\nempty-dir\nempty.txt\nfruits.csv\nnames.txt\nnoeol.txt\nnotes\nnumbers.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -A lab",
+   "out": ".hidden\naccess.log\napp.log\nempty-dir\nempty.txt\nfruits.csv\nnames.txt\nnoeol.txt\nnotes\nnumbers.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -l lab",
+   "out": "total 48\n-rw-r--r-- 1 cris cris 2271 Feb  4  2025 access.log\n-rw-r--r-- 1 cris cris  711 Feb  7  2025 app.log\ndrwxr-xr-x 2 cris cris 4096 Jan 23  2025 empty-dir\n-rw-r--r-- 1 cris cris    0 Feb 19  2025 empty.txt\n-rw-r--r-- 1 cris cris  124 Jan 29  2025 fruits.csv\n-rw-r--r-- 1 cris cris   47 Jan 26  2025 names.txt\n-rw-r--r-- 1 cris cris   33 Feb 22  2025 noeol.txt\ndrwxr-xr-x 2 cris cris 4096 Jan 11  2025 notes\n-rw-r--r-- 1 cris cris   26 Feb  1  2025 numbers.txt\n-rw-r--r-- 1 cris cris   99 Feb 16  2025 spaces.txt\ndrwxr-xr-x 3 cris cris 4096 Jan 14  2025 src\n-rw-r--r-- 1 cris cris  174 Feb 10  2025 todo.md\n-rw-r--r-- 1 cris cris  110 Feb 13  2025 vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -la lab",
+   "out": "total 60\ndrwxr-xr-x 5 cris cris 4096 Jan  8  2025 .\ndrwxr-xr-x 5 cris cris 4096 Jan  4  2025 ..\n-rw-r--r-- 1 cris cris   10 Feb 25  2025 .hidden\n-rw-r--r-- 1 cris cris 2271 Feb  4  2025 access.log\n-rw-r--r-- 1 cris cris  711 Feb  7  2025 app.log\ndrwxr-xr-x 2 cris cris 4096 Jan 23  2025 empty-dir\n-rw-r--r-- 1 cris cris    0 Feb 19  2025 empty.txt\n-rw-r--r-- 1 cris cris  124 Jan 29  2025 fruits.csv\n-rw-r--r-- 1 cris cris   47 Jan 26  2025 names.txt\n-rw-r--r-- 1 cris cris   33 Feb 22  2025 noeol.txt\ndrwxr-xr-x 2 cris cris 4096 Jan 11  2025 notes\n-rw-r--r-- 1 cris cris   26 Feb  1  2025 numbers.txt\n-rw-r--r-- 1 cris cris   99 Feb 16  2025 spaces.txt\ndrwxr-xr-x 3 cris cris 4096 Jan 14  2025 src\n-rw-r--r-- 1 cris cris  174 Feb 10  2025 todo.md\n-rw-r--r-- 1 cris cris  110 Feb 13  2025 vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -lh lab",
+   "out": "total 48K\n-rw-r--r-- 1 cris cris 2.3K Feb  4  2025 access.log\n-rw-r--r-- 1 cris cris  711 Feb  7  2025 app.log\ndrwxr-xr-x 2 cris cris 4.0K Jan 23  2025 empty-dir\n-rw-r--r-- 1 cris cris    0 Feb 19  2025 empty.txt\n-rw-r--r-- 1 cris cris  124 Jan 29  2025 fruits.csv\n-rw-r--r-- 1 cris cris   47 Jan 26  2025 names.txt\n-rw-r--r-- 1 cris cris   33 Feb 22  2025 noeol.txt\ndrwxr-xr-x 2 cris cris 4.0K Jan 11  2025 notes\n-rw-r--r-- 1 cris cris   26 Feb  1  2025 numbers.txt\n-rw-r--r-- 1 cris cris   99 Feb 16  2025 spaces.txt\ndrwxr-xr-x 3 cris cris 4.0K Jan 14  2025 src\n-rw-r--r-- 1 cris cris  174 Feb 10  2025 todo.md\n-rw-r--r-- 1 cris cris  110 Feb 13  2025 vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -lt lab",
+   "out": "total 48\n-rw-r--r-- 1 cris cris   33 Feb 22  2025 noeol.txt\n-rw-r--r-- 1 cris cris    0 Feb 19  2025 empty.txt\n-rw-r--r-- 1 cris cris   99 Feb 16  2025 spaces.txt\n-rw-r--r-- 1 cris cris  110 Feb 13  2025 vi.txt\n-rw-r--r-- 1 cris cris  174 Feb 10  2025 todo.md\n-rw-r--r-- 1 cris cris  711 Feb  7  2025 app.log\n-rw-r--r-- 1 cris cris 2271 Feb  4  2025 access.log\n-rw-r--r-- 1 cris cris   26 Feb  1  2025 numbers.txt\n-rw-r--r-- 1 cris cris  124 Jan 29  2025 fruits.csv\n-rw-r--r-- 1 cris cris   47 Jan 26  2025 names.txt\ndrwxr-xr-x 2 cris cris 4096 Jan 23  2025 empty-dir\ndrwxr-xr-x 3 cris cris 4096 Jan 14  2025 src\ndrwxr-xr-x 2 cris cris 4096 Jan 11  2025 notes\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -ltr lab",
+   "out": "total 48\ndrwxr-xr-x 2 cris cris 4096 Jan 11  2025 notes\ndrwxr-xr-x 3 cris cris 4096 Jan 14  2025 src\ndrwxr-xr-x 2 cris cris 4096 Jan 23  2025 empty-dir\n-rw-r--r-- 1 cris cris   47 Jan 26  2025 names.txt\n-rw-r--r-- 1 cris cris  124 Jan 29  2025 fruits.csv\n-rw-r--r-- 1 cris cris   26 Feb  1  2025 numbers.txt\n-rw-r--r-- 1 cris cris 2271 Feb  4  2025 access.log\n-rw-r--r-- 1 cris cris  711 Feb  7  2025 app.log\n-rw-r--r-- 1 cris cris  174 Feb 10  2025 todo.md\n-rw-r--r-- 1 cris cris  110 Feb 13  2025 vi.txt\n-rw-r--r-- 1 cris cris   99 Feb 16  2025 spaces.txt\n-rw-r--r-- 1 cris cris    0 Feb 19  2025 empty.txt\n-rw-r--r-- 1 cris cris   33 Feb 22  2025 noeol.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -1 lab/notes",
+   "out": "a.txt\nb.txt\nc.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -F lab",
+   "out": "access.log\napp.log\nempty-dir/\nempty.txt\nfruits.csv\nnames.txt\nnoeol.txt\nnotes/\nnumbers.txt\nspaces.txt\nsrc/\ntodo.md\nvi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -d lab/notes",
+   "out": "lab/notes\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -d lab/*",
+   "out": "lab/access.log\nlab/app.log\nlab/empty-dir\nlab/empty.txt\nlab/fruits.csv\nlab/names.txt\nlab/noeol.txt\nlab/notes\nlab/numbers.txt\nlab/spaces.txt\nlab/src\nlab/todo.md\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls lab/*.txt",
+   "out": "lab/empty.txt\nlab/names.txt\nlab/noeol.txt\nlab/numbers.txt\nlab/spaces.txt\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls lab/nope",
+   "out": "",
+   "err": "ls: cannot access 'lab/nope': No such file or directory\n",
+   "status": 2
+  },
+  {
+   "cmd": "ls lab nope",
+   "out": "lab:\naccess.log\napp.log\nempty-dir\nempty.txt\nfruits.csv\nnames.txt\nnoeol.txt\nnotes\nnumbers.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n",
+   "err": "ls: cannot access 'nope': No such file or directory\n",
+   "status": 2
+  },
+  {
+   "cmd": "ls lab lab/notes",
+   "out": "lab:\naccess.log\napp.log\nempty-dir\nempty.txt\nfruits.csv\nnames.txt\nnoeol.txt\nnotes\nnumbers.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n\nlab/notes:\na.txt\nb.txt\nc.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls lab/names.txt lab/notes",
+   "out": "lab/names.txt\n\nlab/notes:\na.txt\nb.txt\nc.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -l lab/names.txt",
+   "out": "-rw-r--r-- 1 cris cris 47 Jan 26  2025 lab/names.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -l posts",
+   "out": "total 8\n-r--r--r-- 1 cris cris 150 Mar 24  2025 hook-chan-lenh.md\n-r--r--r-- 1 cris cris 150 Mar 27  2025 pkill-tu-giet.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -z",
+   "out": "",
+   "err": "ls: invalid option -- 'z'\nTry 'ls --help' for more information.\n",
+   "status": 2
+  },
+  {
+   "cmd": "cat lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat -n lab/todo.md",
+   "out": "     1\t# Việc cần làm\n     2\t\n     3\t- [x] viết bài về terminal\n     4\t- [ ] đọc man page của find\n     5\t- [ ] dọn thư mục lab\n     6\t- [x] sao lưu ghi chú\n     7\t\n     8\tGhi chú: làm từng việc một.\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat -n lab/spaces.txt",
+   "out": "     1\tdòng có khoảng trắng cuối   \n     2\t\n     3\t\n     4\tsau hai dòng trống\n     5\t\tcó tab đầu dòng\n     6\tbình thường\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat lab/names.txt lab/numbers.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n10\n9\n100\n2\n33\n2\n-5\n1000\n7\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat nope",
+   "out": "",
+   "err": "cat: nope: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "cat lab",
+   "out": "",
+   "err": "cat: lab: Is a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "cat lab/noeol.txt",
+   "out": "một\nhai\nba không xuống dòng",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat -n lab/noeol.txt",
+   "out": "     1\tmột\n     2\thai\n     3\tba không xuống dòng",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo hi | cat -",
+   "out": "hi\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat -b lab/spaces.txt",
+   "out": "     1\tdòng có khoảng trắng cuối   \n\n\n     2\tsau hai dòng trống\n     3\t\tcó tab đầu dòng\n     4\tbình thường\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo hello",
+   "out": "hello\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo -n hi; echo there",
+   "out": "hithere\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo -e 'a\\tb\\nc'",
+   "out": "a\tb\nc\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo \"a  b\" c   d",
+   "out": "a  b c d\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'single $HOME'",
+   "out": "single $HOME\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo \"dq $HOME\"",
+   "out": "dq /home/cris\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo ~",
+   "out": "/home/cris\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a\\ b",
+   "out": "a b\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo {a,b,c}",
+   "out": "a b c\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo file{1..3}.txt",
+   "out": "file1.txt file2.txt file3.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo {1..3}{a,b}",
+   "out": "1a 1b 2a 2b 3a 3b\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo lab/*.txt",
+   "out": "lab/empty.txt lab/names.txt lab/noeol.txt lab/numbers.txt lab/spaces.txt lab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo lab/n*",
+   "out": "lab/names.txt lab/noeol.txt lab/notes lab/numbers.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo *nomatch*",
+   "out": "*nomatch*\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo \"*\"",
+   "out": "*\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo $?",
+   "out": "0\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "false; echo $?",
+   "out": "1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "true && echo yes",
+   "out": "yes\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "false || echo no",
+   "out": "no\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "false && echo never; echo after",
+   "out": "after\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf '%s\\n' a b c",
+   "out": "a\nb\nc\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf '%d items\\n' 3",
+   "out": "3 items\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf '%05d|%-5s|%5s|\\n' 42 ab cd",
+   "out": "00042|ab   |   cd|\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf '%.2f\\n' 3.14159",
+   "out": "3.14\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf '%x %o\\n' 255 8",
+   "out": "ff 10\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf '%s %s\\n' a",
+   "out": "a \n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf 'no newline'",
+   "out": "no newline",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf '%d\\n' abc",
+   "out": "0\n",
+   "err": "bash: printf: abc: invalid number\n",
+   "status": 1
+  },
+  {
+   "cmd": "pwd",
+   "out": "/home/cris\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd lab; pwd",
+   "out": "/home/cris/lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd lab/notes && pwd && cd .. && pwd",
+   "out": "/home/cris/lab/notes\n/home/cris/lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd nope",
+   "out": "",
+   "err": "bash: cd: nope: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "cd lab/names.txt",
+   "out": "",
+   "err": "bash: cd: lab/names.txt: Not a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "cd lab; cd -; pwd",
+   "out": "/home/cris\n/home/cris\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd ~; pwd",
+   "out": "/home/cris\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd lab; ls ..",
+   "out": "lab\nposts\ntmp\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd lab/src/deep/nest; cat x.txt; cd ../../..; pwd",
+   "out": "x\n/home/cris/lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mkdir tmp/a && ls tmp",
+   "out": "a\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mkdir tmp/a tmp/b; ls tmp",
+   "out": "a\nb\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mkdir tmp/a; mkdir tmp/a",
+   "out": "",
+   "err": "mkdir: cannot create directory ‘tmp/a’: File exists\n",
+   "status": 1
+  },
+  {
+   "cmd": "mkdir -p tmp/x/y/z && find tmp | sort",
+   "out": "tmp\ntmp/x\ntmp/x/y\ntmp/x/y/z\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mkdir -p tmp/x; mkdir -p tmp/x; echo $?",
+   "out": "0\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mkdir nope/child",
+   "out": "",
+   "err": "mkdir: cannot create directory ‘nope/child’: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "mkdir",
+   "out": "",
+   "err": "mkdir: missing operand\nTry 'mkdir --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "mkdir -v tmp/v",
+   "out": "mkdir: created directory 'tmp/v'\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mkdir -p lab/names.txt/x",
+   "out": "",
+   "err": "mkdir: cannot create directory ‘lab/names.txt’: Not a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "mkdir posts/new",
+   "out": "",
+   "err": "mkdir: cannot create directory ‘posts/new’: Permission denied\n",
+   "status": 1
+  },
+  {
+   "cmd": "mkdir lab",
+   "out": "",
+   "err": "mkdir: cannot create directory ‘lab’: File exists\n",
+   "status": 1
+  },
+  {
+   "cmd": "rmdir lab/empty-dir; ls lab",
+   "out": "access.log\napp.log\nempty.txt\nfruits.csv\nnames.txt\nnoeol.txt\nnotes\nnumbers.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "rmdir lab",
+   "out": "",
+   "err": "rmdir: failed to remove 'lab': Directory not empty\n",
+   "status": 1
+  },
+  {
+   "cmd": "rmdir nope",
+   "out": "",
+   "err": "rmdir: failed to remove 'nope': No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "rmdir lab/names.txt",
+   "out": "",
+   "err": "rmdir: failed to remove 'lab/names.txt': Not a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "rmdir",
+   "out": "",
+   "err": "rmdir: missing operand\nTry 'rmdir --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "mkdir tmp/q; rmdir -v tmp/q",
+   "out": "rmdir: removing directory, 'tmp/q'\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "touch tmp/new; ls tmp",
+   "out": "new\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "touch tmp/a tmp/b; ls tmp",
+   "out": "a\nb\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "touch nope/x",
+   "out": "",
+   "err": "touch: cannot touch 'nope/x': No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "touch",
+   "out": "",
+   "err": "touch: missing file operand\nTry 'touch --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "touch posts/x",
+   "out": "",
+   "err": "touch: cannot touch 'posts/x': Permission denied\n",
+   "status": 1
+  },
+  {
+   "cmd": "touch -c tmp/nothing; ls tmp",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "rm lab/names.txt; ls lab",
+   "out": "access.log\napp.log\nempty-dir\nempty.txt\nfruits.csv\nnoeol.txt\nnotes\nnumbers.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "rm nope",
+   "out": "",
+   "err": "rm: cannot remove 'nope': No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "rm -f nope; echo $?",
+   "out": "0\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "rm lab/notes",
+   "out": "",
+   "err": "rm: cannot remove 'lab/notes': Is a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "rm -r lab/notes; ls lab",
+   "out": "access.log\napp.log\nempty-dir\nempty.txt\nfruits.csv\nnames.txt\nnoeol.txt\nnumbers.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "rm -rf lab; ls",
+   "out": "posts\ntmp\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "rm -v lab/empty.txt",
+   "out": "removed 'lab/empty.txt'\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "rm posts/hook-chan-lenh.md",
+   "out": "",
+   "err": "rm: cannot remove 'posts/hook-chan-lenh.md': Permission denied\n",
+   "status": 1
+  },
+  {
+   "cmd": "rm -r posts; ls posts",
+   "out": "hook-chan-lenh.md\npkill-tu-giet.md\n",
+   "err": "rm: cannot remove 'posts/hook-chan-lenh.md': Permission denied\nrm: cannot remove 'posts/pkill-tu-giet.md': Permission denied\n",
+   "status": 0
+  },
+  {
+   "cmd": "rm",
+   "out": "",
+   "err": "rm: missing operand\nTry 'rm --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "rm -f",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "rm -r .",
+   "out": "",
+   "err": "rm: refusing to remove '.' or '..' directory: skipping '.'\n",
+   "status": 1
+  },
+  {
+   "cmd": "rm .",
+   "out": "",
+   "err": "rm: cannot remove '.': Is a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp lab/names.txt tmp/n.txt; cat tmp/n.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cp lab/names.txt lab/numbers.txt tmp; ls tmp",
+   "out": "names.txt\nnumbers.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cp lab/names.txt tmp/; ls tmp",
+   "out": "names.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cp lab/notes tmp",
+   "out": "",
+   "err": "cp: -r not specified; omitting directory 'lab/notes'\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp -r lab/notes tmp; find tmp | sort",
+   "out": "tmp\ntmp/notes\ntmp/notes/a.txt\ntmp/notes/b.txt\ntmp/notes/c.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cp -r lab/notes tmp/nn; find tmp | sort",
+   "out": "tmp\ntmp/nn\ntmp/nn/a.txt\ntmp/nn/b.txt\ntmp/nn/c.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cp nope tmp",
+   "out": "",
+   "err": "cp: cannot stat 'nope': No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp lab/names.txt",
+   "out": "",
+   "err": "cp: missing destination file operand after 'lab/names.txt'\nTry 'cp --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp",
+   "out": "",
+   "err": "cp: missing file operand\nTry 'cp --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp lab/names.txt lab/names.txt",
+   "out": "",
+   "err": "cp: 'lab/names.txt' and 'lab/names.txt' are the same file\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp -r lab lab/x",
+   "out": "",
+   "err": "cp: cannot copy a directory, 'lab', into itself, 'lab/x'\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp lab/names.txt nope/x",
+   "out": "",
+   "err": "cp: cannot create regular file 'nope/x': No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp lab/names.txt posts",
+   "out": "",
+   "err": "cp: cannot create regular file 'posts/names.txt': Permission denied\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp -v lab/names.txt tmp",
+   "out": "'lab/names.txt' -> 'tmp/names.txt'\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cp lab/names.txt lab/numbers.txt lab/vi.txt",
+   "out": "",
+   "err": "cp: target 'lab/vi.txt': Not a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "cp lab/names.txt lab/notes",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cp -r lab/notes lab/names.txt",
+   "out": "",
+   "err": "cp: cannot overwrite non-directory 'lab/names.txt' with directory 'lab/notes'\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv lab/names.txt tmp; ls tmp lab",
+   "out": "lab:\naccess.log\napp.log\nempty-dir\nempty.txt\nfruits.csv\nnoeol.txt\nnotes\nnumbers.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n\ntmp:\nnames.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mv lab/names.txt lab/renamed.txt; ls lab",
+   "out": "access.log\napp.log\nempty-dir\nempty.txt\nfruits.csv\nnoeol.txt\nnotes\nnumbers.txt\nrenamed.txt\nspaces.txt\nsrc\ntodo.md\nvi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mv lab/notes tmp; ls tmp",
+   "out": "notes\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mv lab/names.txt lab/numbers.txt tmp; ls tmp",
+   "out": "names.txt\nnumbers.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mv nope tmp",
+   "out": "",
+   "err": "mv: cannot stat 'nope': No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv lab/names.txt",
+   "out": "",
+   "err": "mv: missing destination file operand after 'lab/names.txt'\nTry 'mv --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv",
+   "out": "",
+   "err": "mv: missing file operand\nTry 'mv --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv lab/names.txt lab/names.txt",
+   "out": "",
+   "err": "mv: 'lab/names.txt' and 'lab/names.txt' are the same file\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv lab lab/x",
+   "out": "",
+   "err": "mv: cannot move 'lab' to a subdirectory of itself, 'lab/x'\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv lab/names.txt nope/x",
+   "out": "",
+   "err": "mv: cannot move 'lab/names.txt' to 'nope/x': No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv posts/hook-chan-lenh.md tmp",
+   "out": "",
+   "err": "mv: cannot move 'posts/hook-chan-lenh.md' to 'tmp/hook-chan-lenh.md': Permission denied\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv lab/names.txt posts",
+   "out": "",
+   "err": "mv: cannot move 'lab/names.txt' to 'posts/names.txt': Permission denied\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv -v lab/names.txt tmp",
+   "out": "renamed 'lab/names.txt' -> 'tmp/names.txt'\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "mv lab/names.txt lab/numbers.txt lab/vi.txt",
+   "out": "",
+   "err": "mv: target 'lab/vi.txt': Not a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv lab/notes lab/names.txt",
+   "out": "",
+   "err": "mv: cannot overwrite non-directory 'lab/names.txt' with directory 'lab/notes'\n",
+   "status": 1
+  },
+  {
+   "cmd": "mv lab/names.txt lab/notes; ls lab/notes",
+   "out": "a.txt\nb.txt\nc.md\nnames.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -n 3 lab/names.txt",
+   "out": "mai\nLan\nbao\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -3 lab/names.txt",
+   "out": "mai\nLan\nbao\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -n 0 lab/names.txt",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -n -2 lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -n 2 lab/names.txt lab/numbers.txt",
+   "out": "==> lab/names.txt <==\nmai\nLan\n\n==> lab/numbers.txt <==\n10\n9\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -c 5 lab/names.txt",
+   "out": "mai\nL",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head nope",
+   "out": "",
+   "err": "head: cannot open 'nope' for reading: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "head lab",
+   "out": "",
+   "err": "head: error reading 'lab': Is a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "head -n x lab/names.txt",
+   "out": "",
+   "err": "head: invalid number of lines: ‘x’\n",
+   "status": 1
+  },
+  {
+   "cmd": "head lab/noeol.txt",
+   "out": "một\nhai\nba không xuống dòng",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -n 2 lab/noeol.txt",
+   "out": "một\nhai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -n 9 lab/noeol.txt",
+   "out": "một\nhai\nba không xuống dòng",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -q -n 1 lab/names.txt lab/numbers.txt",
+   "out": "mai\n10\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -v -n 1 lab/names.txt",
+   "out": "==> lab/names.txt <==\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat lab/names.txt | head -n 2",
+   "out": "mai\nLan\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "head -c 7 lab/vi.txt",
+   "out": "Xin ch�",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail lab/app.log",
+   "out": "2026-11-10 08:15:55 INFO  retrying connection\n2026-11-10 08:18:06 INFO  connection restored\n2026-11-10 08:21:17 WARN  slow query: 1.8s\n2026-11-10 08:24:28 ERROR cannot write /var/tmp/cache: permission denied\n2026-11-10 08:27:39 INFO  GET /login 302\n2026-11-10 08:30:50 INFO  user an logged in\n2026-11-10 08:33:01 ERROR job 42 failed: exit code 1\n2026-11-10 08:36:12 INFO  job 43 done\n2026-11-10 08:39:23 WARN  disk at 91%\n2026-11-10 08:42:34 INFO  shutdown requested\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail -n 3 lab/names.txt",
+   "out": "Dung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail -3 lab/names.txt",
+   "out": "Dung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail -n +10 lab/names.txt",
+   "out": "Dung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail -n 0 lab/names.txt",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail -n 2 lab/names.txt lab/numbers.txt",
+   "out": "==> lab/names.txt <==\nAn\nHoa\n\n==> lab/numbers.txt <==\n1000\n7\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail -c 5 lab/names.txt",
+   "out": "\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail nope",
+   "out": "",
+   "err": "tail: cannot open 'nope' for reading: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "tail lab/noeol.txt",
+   "out": "một\nhai\nba không xuống dòng",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail -n 2 lab/noeol.txt",
+   "out": "hai\nba không xuống dòng",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail -n +3 lab/noeol.txt",
+   "out": "ba không xuống dòng",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat lab/numbers.txt | tail -n 2",
+   "out": "1000\n7\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tail -n x lab/names.txt",
+   "out": "",
+   "err": "tail: invalid number of lines: ‘x’\n",
+   "status": 1
+  },
+  {
+   "cmd": "wc lab/names.txt",
+   "out": "12 12 47 lab/names.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc -l lab/names.txt",
+   "out": "12 lab/names.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc -w lab/vi.txt",
+   "out": "21 lab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc -c lab/vi.txt",
+   "out": "110 lab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc -m lab/vi.txt",
+   "out": "84 lab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc lab/names.txt lab/numbers.txt",
+   "out": "12 12 47 lab/names.txt\n 9  9 26 lab/numbers.txt\n21 21 73 total\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc -l lab/names.txt lab/numbers.txt",
+   "out": "12 lab/names.txt\n 9 lab/numbers.txt\n21 total\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc nope",
+   "out": "",
+   "err": "wc: nope: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "wc lab",
+   "out": "      0       0       0 lab\n",
+   "err": "wc: lab: Is a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "cat lab/names.txt | wc -l",
+   "out": "12\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat lab/vi.txt | wc",
+   "out": "      5      21     110\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc lab/empty.txt",
+   "out": "0 0 0 lab/empty.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc lab/noeol.txt",
+   "out": " 2  6 33 lab/noeol.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc -lw lab/vi.txt",
+   "out": "  5  21 lab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc -lc lab/access.log",
+   "out": "  30 2271 lab/access.log\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc lab/access.log",
+   "out": "  30  300 2271 lab/access.log\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort lab/names.txt",
+   "out": "An\nAn\nChi\nDung\nHoa\nLan\nbao\nbao\nlan\nmai\nmai\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -r lab/names.txt",
+   "out": "mai\nmai\nmai\nlan\nbao\nbao\nLan\nHoa\nDung\nChi\nAn\nAn\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -u lab/names.txt",
+   "out": "An\nChi\nDung\nHoa\nLan\nbao\nlan\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -f lab/names.txt",
+   "out": "An\nAn\nbao\nbao\nChi\nDung\nHoa\nLan\nlan\nmai\nmai\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -fu lab/names.txt",
+   "out": "An\nbao\nChi\nDung\nHoa\nLan\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -n lab/numbers.txt",
+   "out": "-5\n2\n2\n7\n9\n10\n33\n100\n1000\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -nr lab/numbers.txt",
+   "out": "1000\n100\n33\n10\n9\n7\n2\n2\n-5\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -nu lab/numbers.txt",
+   "out": "-5\n2\n7\n9\n10\n33\n100\n1000\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -t, -k2 -n lab/fruits.csv",
+   "out": "name,qty,price\ndurian,1,9.50\napple,3,1.20\nmango,4,1.75\nGrape,7,2.00\nlemon,9,0.40\nbanana,12,0.25\nfig,25,0.80\ncherry,100,0.10\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -t, -k2,2n lab/fruits.csv",
+   "out": "name,qty,price\ndurian,1,9.50\napple,3,1.20\nmango,4,1.75\nGrape,7,2.00\nlemon,9,0.40\nbanana,12,0.25\nfig,25,0.80\ncherry,100,0.10\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -t, -k3 -nr lab/fruits.csv",
+   "out": "durian,1,9.50\nGrape,7,2.00\nmango,4,1.75\napple,3,1.20\nfig,25,0.80\nlemon,9,0.40\nbanana,12,0.25\ncherry,100,0.10\nname,qty,price\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -k2 lab/fruits.csv",
+   "out": "Grape,7,2.00\napple,3,1.20\nbanana,12,0.25\ncherry,100,0.10\ndurian,1,9.50\nfig,25,0.80\nlemon,9,0.40\nmango,4,1.75\nname,qty,price\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -t, -k1,1 lab/fruits.csv",
+   "out": "Grape,7,2.00\napple,3,1.20\nbanana,12,0.25\ncherry,100,0.10\ndurian,1,9.50\nfig,25,0.80\nlemon,9,0.40\nmango,4,1.75\nname,qty,price\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -t, -k1,1f lab/fruits.csv",
+   "out": "apple,3,1.20\nbanana,12,0.25\ncherry,100,0.10\ndurian,1,9.50\nfig,25,0.80\nGrape,7,2.00\nlemon,9,0.40\nmango,4,1.75\nname,qty,price\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort lab/vi.txt",
+   "out": "Hà Nội mùa thu\nXin chào thế giới\ncà phê sữa đá\nxin chào lần nữa\nĐây là dòng thứ hai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort nope",
+   "out": "",
+   "err": "sort: cannot read: nope: No such file or directory\n",
+   "status": 2
+  },
+  {
+   "cmd": "sort lab/names.txt lab/numbers.txt",
+   "out": "-5\n10\n100\n1000\n2\n2\n33\n7\n9\nAn\nAn\nChi\nDung\nHoa\nLan\nbao\nbao\nlan\nmai\nmai\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort lab/noeol.txt",
+   "out": "ba không xuống dòng\nhai\nmột\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -s -f lab/names.txt",
+   "out": "An\nAn\nbao\nbao\nChi\nDung\nHoa\nLan\nlan\nmai\nmai\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -b lab/spaces.txt",
+   "out": "\n\nbình thường\n\tcó tab đầu dòng\ndòng có khoảng trắng cuối   \nsau hai dòng trống\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort lab/spaces.txt",
+   "out": "\n\n\tcó tab đầu dòng\nbình thường\ndòng có khoảng trắng cuối   \nsau hai dòng trống\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -t, -k2n,2 lab/fruits.csv",
+   "out": "name,qty,price\ndurian,1,9.50\napple,3,1.20\nmango,4,1.75\nGrape,7,2.00\nlemon,9,0.40\nbanana,12,0.25\nfig,25,0.80\ncherry,100,0.10\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "uniq lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort lab/names.txt | uniq",
+   "out": "An\nChi\nDung\nHoa\nLan\nbao\nlan\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort lab/names.txt | uniq -c",
+   "out": "      2 An\n      1 Chi\n      1 Dung\n      1 Hoa\n      1 Lan\n      2 bao\n      1 lan\n      3 mai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort lab/names.txt | uniq -d",
+   "out": "An\nbao\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort lab/names.txt | uniq -u",
+   "out": "Chi\nDung\nHoa\nLan\nlan\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort -f lab/names.txt | uniq -ic",
+   "out": "      2 An\n      2 bao\n      1 Chi\n      1 Dung\n      1 Hoa\n      2 Lan\n      3 mai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort lab/names.txt | uniq -c | sort -nr",
+   "out": "      3 mai\n      2 bao\n      2 An\n      1 lan\n      1 Lan\n      1 Hoa\n      1 Dung\n      1 Chi\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "uniq nope",
+   "out": "",
+   "err": "uniq: nope: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "uniq lab/numbers.txt",
+   "out": "10\n9\n100\n2\n33\n2\n-5\n1000\n7\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -d, -f1 lab/fruits.csv",
+   "out": "name\napple\nbanana\ncherry\ndurian\nfig\nGrape\nlemon\nmango\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -d, -f2,3 lab/fruits.csv",
+   "out": "qty,price\n3,1.20\n12,0.25\n100,0.10\n1,9.50\n25,0.80\n7,2.00\n9,0.40\n4,1.75\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -d, -f2- lab/fruits.csv",
+   "out": "qty,price\n3,1.20\n12,0.25\n100,0.10\n1,9.50\n25,0.80\n7,2.00\n9,0.40\n4,1.75\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -d, -f-2 lab/fruits.csv",
+   "out": "name,qty\napple,3\nbanana,12\ncherry,100\ndurian,1\nfig,25\nGrape,7\nlemon,9\nmango,4\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -c1-3 lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDun\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -c2 lab/names.txt",
+   "out": "a\na\na\na\nn\na\nh\na\na\nu\nn\no\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -b1-4 lab/vi.txt",
+   "out": "Xin \nĐâ\ncà \nHà \nxin \n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -c1-4 lab/vi.txt",
+   "out": "Xin \nĐâ\ncà \nHà \nxin \n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -f1 lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -s -f1 lab/names.txt",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -d' ' -f2 lab/vi.txt",
+   "out": "chào\nlà\nphê\nNội\nchào\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut lab/names.txt",
+   "out": "",
+   "err": "cut: you must specify a list of bytes, characters, or fields\nTry 'cut --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "cut -f0 lab/names.txt",
+   "out": "",
+   "err": "cut: fields are numbered from 1\nTry 'cut --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "cut -d, lab/fruits.csv",
+   "out": "",
+   "err": "cut: you must specify a list of bytes, characters, or fields\nTry 'cut --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "cut -d,, -f1 lab/fruits.csv",
+   "out": "",
+   "err": "cut: the delimiter must be a single character\nTry 'cut --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "cut -f 1,1 lab/fruits.csv",
+   "out": "name,qty,price\napple,3,1.20\nbanana,12,0.25\ncherry,100,0.10\ndurian,1,9.50\nfig,25,0.80\nGrape,7,2.00\nlemon,9,0.40\nmango,4,1.75\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -d: -f1,3 nope",
+   "out": "",
+   "err": "cut: nope: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "grep hook lab/notes/a.txt",
+   "out": "hook chặn lệnh phá huỷ\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep hook lab/notes/*.txt",
+   "out": "lab/notes/a.txt:hook chặn lệnh phá huỷ\nlab/notes/b.txt:hook lần hai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -n hook lab/notes/b.txt",
+   "out": "3:hook lần hai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -c hook lab/notes/a.txt lab/notes/b.txt",
+   "out": "lab/notes/a.txt:1\nlab/notes/b.txt:1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -l hook lab/notes/*",
+   "out": "lab/notes/a.txt\nlab/notes/b.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -i LAN lab/names.txt",
+   "out": "Lan\nlan\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -v a lab/names.txt",
+   "out": "An\nChi\nDung\nAn\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -w an lab/names.txt",
+   "out": "",
+   "err": "",
+   "status": 1
+  },
+  {
+   "cmd": "grep -x mai lab/names.txt",
+   "out": "mai\nmai\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -o '[0-9]*' lab/numbers.txt",
+   "out": "10\n9\n100\n2\n33\n2\n5\n1000\n7\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -o 'o[a-z]*' lab/vi.txt",
+   "out": "o\no\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -E 'ERROR|WARN' lab/app.log",
+   "out": "2026-11-10 08:06:22 WARN  config key 'cache' is deprecated\n2026-11-10 08:12:44 ERROR db timeout after 30s\n2026-11-10 08:21:17 WARN  slow query: 1.8s\n2026-11-10 08:24:28 ERROR cannot write /var/tmp/cache: permission denied\n2026-11-10 08:33:01 ERROR job 42 failed: exit code 1\n2026-11-10 08:39:23 WARN  disk at 91%\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep 'ERROR\\|WARN' lab/app.log",
+   "out": "2026-11-10 08:06:22 WARN  config key 'cache' is deprecated\n2026-11-10 08:12:44 ERROR db timeout after 30s\n2026-11-10 08:21:17 WARN  slow query: 1.8s\n2026-11-10 08:24:28 ERROR cannot write /var/tmp/cache: permission denied\n2026-11-10 08:33:01 ERROR job 42 failed: exit code 1\n2026-11-10 08:39:23 WARN  disk at 91%\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -E '^2026.* (ERROR)' lab/app.log",
+   "out": "2026-11-10 08:12:44 ERROR db timeout after 30s\n2026-11-10 08:24:28 ERROR cannot write /var/tmp/cache: permission denied\n2026-11-10 08:33:01 ERROR job 42 failed: exit code 1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -F 'a.b' lab/names.txt",
+   "out": "",
+   "err": "",
+   "status": 1
+  },
+  {
+   "cmd": "grep -E 'a+n' lab/names.txt",
+   "out": "Lan\nlan\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep 'a\\+n' lab/names.txt",
+   "out": "Lan\nlan\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -E '(ma|ba)i?' lab/names.txt",
+   "out": "mai\nbao\nmai\nbao\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -e mai -e lan lab/names.txt",
+   "out": "mai\nmai\nlan\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep '^[A-Z]' lab/names.txt",
+   "out": "Lan\nAn\nChi\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep '[[:upper:]]' lab/names.txt",
+   "out": "Lan\nAn\nChi\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep '[[:digit:]]\\{3\\}' lab/numbers.txt",
+   "out": "100\n1000\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -E '[0-9]{3}' lab/numbers.txt",
+   "out": "100\n1000\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -E '404|500' lab/access.log",
+   "out": "192.168.1.5 - - [10/Nov/2026:08:07:49 +0700] \"GET /missing HTTP/1.1\" 404 379\n172.16.0.9 - - [10/Nov/2026:08:09:03 +0700] \"GET /api/items HTTP/1.1\" 500 453\n192.168.1.5 - - [10/Nov/2026:08:17:59 +0700] \"GET /missing HTTP/1.1\" 404 749\n172.16.0.9 - - [10/Nov/2026:08:19:13 +0700] \"GET /api/items HTTP/1.1\" 500 823\n192.168.1.5 - - [10/Nov/2026:08:27:09 +0700] \"GET /missing HTTP/1.1\" 404 1119\n172.16.0.9 - - [10/Nov/2026:08:29:23 +0700] \"GET /api/items HTTP/1.1\" 500 1193\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -c ' 200 ' lab/access.log",
+   "out": "15\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep nope lab/names.txt; echo $?",
+   "out": "1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep x nope; echo $?",
+   "out": "2\n",
+   "err": "grep: nope: No such file or directory\n",
+   "status": 0
+  },
+  {
+   "cmd": "grep -s x nope; echo $?",
+   "out": "2\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep x lab",
+   "out": "",
+   "err": "grep: lab: Is a directory\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep -q mai lab/names.txt; echo $?",
+   "out": "0\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -q zzz lab/names.txt; echo $?",
+   "out": "1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep",
+   "out": "",
+   "err": "Usage: grep [OPTION]... PATTERNS [FILE]...\nTry 'grep --help' for more information.\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep -E '(' lab/names.txt",
+   "out": "",
+   "err": "grep: Unmatched ( or \\(\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep '\\(' lab/names.txt",
+   "out": "",
+   "err": "grep: Unmatched ( or \\(\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep '[' lab/names.txt",
+   "out": "",
+   "err": "grep: Invalid regular expression\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep -E '[' lab/names.txt",
+   "out": "",
+   "err": "grep: Invalid regular expression\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep '[a' lab/names.txt",
+   "out": "",
+   "err": "grep: Unmatched [, [^, [:, [., or [=\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep -E 'a{' lab/names.txt",
+   "out": "",
+   "err": "",
+   "status": 1
+  },
+  {
+   "cmd": "grep -E '*a' lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nlan\nbao\nmai\nHoa\n",
+   "err": "grep: warning: * at start of expression\n",
+   "status": 0
+  },
+  {
+   "cmd": "grep '*a' lab/names.txt",
+   "out": "",
+   "err": "",
+   "status": 1
+  },
+  {
+   "cmd": "grep -E 'a**' lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -e",
+   "out": "",
+   "err": "grep: option requires an argument -- 'e'\nUsage: grep [OPTION]... PATTERNS [FILE]...\nTry 'grep --help' for more information.\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep -A x a lab/names.txt",
+   "out": "",
+   "err": "grep: x: invalid context length argument\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep --nope a",
+   "out": "",
+   "err": "grep: unrecognized option '--nope'\nUsage: grep [OPTION]... PATTERNS [FILE]...\nTry 'grep --help' for more information.\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep '\\' lab/names.txt",
+   "out": "",
+   "err": "grep: Trailing backslash\n",
+   "status": 2
+  },
+  {
+   "cmd": "grep -E 'a|' lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -c 'a\\|' lab/names.txt",
+   "out": "12\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -rn TODO lab | sort",
+   "out": "lab/src/main.js:4:// TODO: thêm test\nlab/src/util.js:2:// TODO: thêm sub\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -r TODO lab/src | sort",
+   "out": "lab/src/main.js:// TODO: thêm test\nlab/src/util.js:// TODO: thêm sub\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -rl hook lab | sort",
+   "out": "lab/notes/a.txt\nlab/notes/b.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -r nothing-here lab; echo $?",
+   "out": "1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd lab && grep -r TODO . | sort",
+   "out": "./src/main.js:// TODO: thêm test\n./src/util.js:// TODO: thêm sub\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd lab && grep -rn TODO | sort",
+   "out": "src/main.js:4:// TODO: thêm test\nsrc/util.js:2:// TODO: thêm sub\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -A1 ERROR lab/app.log",
+   "out": "2026-11-10 08:12:44 ERROR db timeout after 30s\n2026-11-10 08:15:55 INFO  retrying connection\n--\n2026-11-10 08:24:28 ERROR cannot write /var/tmp/cache: permission denied\n2026-11-10 08:27:39 INFO  GET /login 302\n--\n2026-11-10 08:33:01 ERROR job 42 failed: exit code 1\n2026-11-10 08:36:12 INFO  job 43 done\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -B1 'job 42' lab/app.log",
+   "out": "2026-11-10 08:30:50 INFO  user an logged in\n2026-11-10 08:33:01 ERROR job 42 failed: exit code 1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -C1 'disk' lab/app.log",
+   "out": "2026-11-10 08:36:12 INFO  job 43 done\n2026-11-10 08:39:23 WARN  disk at 91%\n2026-11-10 08:42:34 INFO  shutdown requested\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -n -A1 -B1 'ERROR db' lab/app.log",
+   "out": "4-2026-11-10 08:09:33 INFO  GET /api/items 200\n5:2026-11-10 08:12:44 ERROR db timeout after 30s\n6-2026-11-10 08:15:55 INFO  retrying connection\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -m2 INFO lab/app.log",
+   "out": "2026-11-10 08:00:00 INFO  server started on :8080\n2026-11-10 08:03:11 INFO  loaded 3 plugins\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -ho 'hook' lab/notes/*.txt",
+   "out": "hook\nhook\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -H hook lab/notes/a.txt",
+   "out": "lab/notes/a.txt:hook chặn lệnh phá huỷ\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -h hook lab/notes/*.txt",
+   "out": "hook chặn lệnh phá huỷ\nhook lần hai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep xin lab/vi.txt",
+   "out": "xin chào lần nữa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -i xin lab/vi.txt",
+   "out": "Xin chào thế giới\nxin chào lần nữa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -i 'XIN CHÀO' lab/vi.txt",
+   "out": "Xin chào thế giới\nxin chào lần nữa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -ci chào lab/vi.txt",
+   "out": "2\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep '' lab/noeol.txt",
+   "out": "một\nhai\nba không xuống dòng\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -c '' lab/noeol.txt",
+   "out": "3\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat lab/names.txt | grep -c mai",
+   "out": "3\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat lab/app.log | grep ERROR | wc -l",
+   "out": "3\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -v '^$' lab/spaces.txt",
+   "out": "dòng có khoảng trắng cuối   \nsau hai dòng trống\n\tcó tab đầu dòng\nbình thường\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -E 'a{2,}' lab/names.txt",
+   "out": "",
+   "err": "",
+   "status": 1
+  },
+  {
+   "cmd": "grep -n '' lab/empty.txt",
+   "out": "",
+   "err": "",
+   "status": 1
+  },
+  {
+   "cmd": "find lab | sort",
+   "out": "lab\nlab/.hidden\nlab/access.log\nlab/app.log\nlab/empty-dir\nlab/empty.txt\nlab/fruits.csv\nlab/names.txt\nlab/noeol.txt\nlab/notes\nlab/notes/a.txt\nlab/notes/b.txt\nlab/notes/c.md\nlab/numbers.txt\nlab/spaces.txt\nlab/src\nlab/src/README.md\nlab/src/deep\nlab/src/deep/nest\nlab/src/deep/nest/x.txt\nlab/src/main.js\nlab/src/util.js\nlab/todo.md\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -type f | sort",
+   "out": "lab/.hidden\nlab/access.log\nlab/app.log\nlab/empty.txt\nlab/fruits.csv\nlab/names.txt\nlab/noeol.txt\nlab/notes/a.txt\nlab/notes/b.txt\nlab/notes/c.md\nlab/numbers.txt\nlab/spaces.txt\nlab/src/README.md\nlab/src/deep/nest/x.txt\nlab/src/main.js\nlab/src/util.js\nlab/todo.md\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -type d | sort",
+   "out": "lab\nlab/empty-dir\nlab/notes\nlab/src\nlab/src/deep\nlab/src/deep/nest\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -name '*.txt' | sort",
+   "out": "lab/empty.txt\nlab/names.txt\nlab/noeol.txt\nlab/notes/a.txt\nlab/notes/b.txt\nlab/numbers.txt\nlab/spaces.txt\nlab/src/deep/nest/x.txt\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -name '*.TXT' | sort",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -iname '*.TXT' | sort",
+   "out": "lab/empty.txt\nlab/names.txt\nlab/noeol.txt\nlab/notes/a.txt\nlab/notes/b.txt\nlab/numbers.txt\nlab/spaces.txt\nlab/src/deep/nest/x.txt\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -name 'n*' | sort",
+   "out": "lab/names.txt\nlab/noeol.txt\nlab/notes\nlab/numbers.txt\nlab/src/deep/nest\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -maxdepth 1 | sort",
+   "out": "lab\nlab/.hidden\nlab/access.log\nlab/app.log\nlab/empty-dir\nlab/empty.txt\nlab/fruits.csv\nlab/names.txt\nlab/noeol.txt\nlab/notes\nlab/numbers.txt\nlab/spaces.txt\nlab/src\nlab/todo.md\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -maxdepth 1 -type f | sort",
+   "out": "lab/.hidden\nlab/access.log\nlab/app.log\nlab/empty.txt\nlab/fruits.csv\nlab/names.txt\nlab/noeol.txt\nlab/numbers.txt\nlab/spaces.txt\nlab/todo.md\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -mindepth 2 | sort",
+   "out": "lab/notes/a.txt\nlab/notes/b.txt\nlab/notes/c.md\nlab/src/README.md\nlab/src/deep\nlab/src/deep/nest\nlab/src/deep/nest/x.txt\nlab/src/main.js\nlab/src/util.js\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -mindepth 1 -maxdepth 1 -type d | sort",
+   "out": "lab/empty-dir\nlab/notes\nlab/src\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -empty | sort",
+   "out": "lab/empty-dir\nlab/empty.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -type f -empty | sort",
+   "out": "lab/empty.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -size +1k | sort",
+   "out": "lab\nlab/access.log\nlab/empty-dir\nlab/notes\nlab/src\nlab/src/deep\nlab/src/deep/nest\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -size -1k -type f | sort",
+   "out": "lab/empty.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -size 0 | sort",
+   "out": "lab/empty.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -name '*.js' -o -name '*.md' | sort",
+   "out": "lab/notes/c.md\nlab/src/README.md\nlab/src/main.js\nlab/src/util.js\nlab/todo.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -type f -name '*.md' | sort",
+   "out": "lab/notes/c.md\nlab/src/README.md\nlab/todo.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab ! -name '*.txt' -type f | sort",
+   "out": "lab/.hidden\nlab/access.log\nlab/app.log\nlab/fruits.csv\nlab/notes/c.md\nlab/src/README.md\nlab/src/main.js\nlab/src/util.js\nlab/todo.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -not -type d | sort",
+   "out": "lab/.hidden\nlab/access.log\nlab/app.log\nlab/empty.txt\nlab/fruits.csv\nlab/names.txt\nlab/noeol.txt\nlab/notes/a.txt\nlab/notes/b.txt\nlab/notes/c.md\nlab/numbers.txt\nlab/spaces.txt\nlab/src/README.md\nlab/src/deep/nest/x.txt\nlab/src/main.js\nlab/src/util.js\nlab/todo.md\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -path '*/src/*' | sort",
+   "out": "lab/src/README.md\nlab/src/deep\nlab/src/deep/nest\nlab/src/deep/nest/x.txt\nlab/src/main.js\nlab/src/util.js\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -path '*deep*' -type f | sort",
+   "out": "lab/src/deep/nest/x.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find nope",
+   "out": "",
+   "err": "find: ‘nope’: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "find lab nope | sort",
+   "out": "lab\nlab/.hidden\nlab/access.log\nlab/app.log\nlab/empty-dir\nlab/empty.txt\nlab/fruits.csv\nlab/names.txt\nlab/noeol.txt\nlab/notes\nlab/notes/a.txt\nlab/notes/b.txt\nlab/notes/c.md\nlab/numbers.txt\nlab/spaces.txt\nlab/src\nlab/src/README.md\nlab/src/deep\nlab/src/deep/nest\nlab/src/deep/nest/x.txt\nlab/src/main.js\nlab/src/util.js\nlab/todo.md\nlab/vi.txt\n",
+   "err": "find: ‘nope’: No such file or directory\n",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -name",
+   "out": "",
+   "err": "find: missing argument to `-name'\n",
+   "status": 1
+  },
+  {
+   "cmd": "find lab -type x",
+   "out": "",
+   "err": "find: Unknown argument to -type: x\n",
+   "status": 1
+  },
+  {
+   "cmd": "find lab -foo",
+   "out": "",
+   "err": "find: unknown predicate `-foo'\n",
+   "status": 1
+  },
+  {
+   "cmd": "find lab -maxdepth x",
+   "out": "",
+   "err": "find: Expected a positive decimal integer argument to -maxdepth, but got ‘x’\n",
+   "status": 1
+  },
+  {
+   "cmd": "find . -maxdepth 1 | sort",
+   "out": ".\n./lab\n./posts\n./tmp\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab/ | sort",
+   "out": "lab/\nlab/.hidden\nlab/access.log\nlab/app.log\nlab/empty-dir\nlab/empty.txt\nlab/fruits.csv\nlab/names.txt\nlab/noeol.txt\nlab/notes\nlab/notes/a.txt\nlab/notes/b.txt\nlab/notes/c.md\nlab/numbers.txt\nlab/spaces.txt\nlab/src\nlab/src/README.md\nlab/src/deep\nlab/src/deep/nest\nlab/src/deep/nest/x.txt\nlab/src/main.js\nlab/src/util.js\nlab/todo.md\nlab/vi.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab/src -name '*.js' -exec cat {} \\; | sort",
+   "out": "\n// TODO: thêm sub\n// TODO: thêm test\nconsole.log(add(1, 2));\nexport const add = (a, b) => a + b;\nexport const sub = (a, b) => a - b;\nimport { add } from './util.js';\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab/notes -name '*.txt' -exec grep -l hook {} \\; | sort",
+   "out": "lab/notes/a.txt\nlab/notes/b.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab/notes -type f -exec echo f: {} \\; | sort",
+   "out": "f: lab/notes/a.txt\nf: lab/notes/b.txt\nf: lab/notes/c.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab/notes -type f -exec echo {} + | tr ' ' '\\n' | sort",
+   "out": "lab/notes/a.txt\nlab/notes/b.txt\nlab/notes/c.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -name '*.md' -print | sort",
+   "out": "lab/notes/c.md\nlab/src/README.md\nlab/todo.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -name '*.md' -exec false \\;",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find tmp -empty -print",
+   "out": "tmp\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab/src -type f | sort | xargs wc -l",
+   "out": "  3 lab/src/README.md\n  1 lab/src/deep/nest/x.txt\n  4 lab/src/main.js\n  3 lab/src/util.js\n 11 total\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -name '*.txt' | xargs grep -l hook | sort",
+   "out": "lab/notes/a.txt\nlab/notes/b.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab/notes -name '*.txt' -delete; ls lab/notes",
+   "out": "c.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find tmp/nothing",
+   "out": "",
+   "err": "find: ‘tmp/nothing’: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "find lab -name 'x.txt'",
+   "out": "lab/src/deep/nest/x.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "find lab -type f -size +0 -name '*.md' | sort",
+   "out": "lab/notes/c.md\nlab/src/README.md\nlab/todo.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'hello world' | tr a-z A-Z",
+   "out": "HELLO WORLD\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'hello' | tr -d l",
+   "out": "heo\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'aabbcc' | tr -s abc",
+   "out": "abc\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'hello world' | tr -s ' ' '\\n'",
+   "out": "hello\nworld\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'hello' | tr el ip",
+   "out": "hippo\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'Hello World' | tr '[:upper:]' '[:lower:]'",
+   "out": "hello world\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'a1b2c3' | tr -d '[:digit:]'",
+   "out": "abc\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'a1b2c3' | tr -cd '[:digit:]'",
+   "out": "123",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'abc' | tr abc x",
+   "out": "xxx\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'abc' | tr a-c A-C",
+   "out": "ABC\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'a  b' | tr -s ' '",
+   "out": "a b\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tr",
+   "out": "",
+   "err": "tr: missing operand\nTry 'tr --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "tr a",
+   "out": "",
+   "err": "tr: missing operand after ‘a’\nTwo strings must be given when translating.\nTry 'tr --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "echo hi | tr -d a b",
+   "out": "",
+   "err": "tr: extra operand ‘b’\nOnly one string may be given when deleting without squeezing repeats.\nTry 'tr --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "echo 'a b' | tr ' ' '_'",
+   "out": "a_b\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf 'a\\tb\\n' | tr '\\t' ' '",
+   "out": "a b\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo abc | tr 'a-c' 'x'",
+   "out": "xxx\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo hello | tr -d '\\n'",
+   "out": "hello",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tr a-z A-Z < lab/names.txt",
+   "out": "MAI\nLAN\nBAO\nMAI\nAN\nLAN\nCHI\nBAO\nMAI\nDUNG\nAN\nHOA\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/mai/MAI/' lab/names.txt",
+   "out": "MAI\nLan\nbao\nMAI\nAn\nlan\nChi\nbao\nMAI\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/a/A/g' lab/names.txt",
+   "out": "mAi\nLAn\nbAo\nmAi\nAn\nlAn\nChi\nbAo\nmAi\nDung\nAn\nHoA\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/A/x/2' lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n '2p' lab/names.txt",
+   "out": "Lan\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n '2,4p' lab/names.txt",
+   "out": "Lan\nbao\nmai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n '$p' lab/names.txt",
+   "out": "Hoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n '/ERROR/p' lab/app.log",
+   "out": "2026-11-10 08:12:44 ERROR db timeout after 30s\n2026-11-10 08:24:28 ERROR cannot write /var/tmp/cache: permission denied\n2026-11-10 08:33:01 ERROR job 42 failed: exit code 1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed '/ERROR/d' lab/app.log",
+   "out": "2026-11-10 08:00:00 INFO  server started on :8080\n2026-11-10 08:03:11 INFO  loaded 3 plugins\n2026-11-10 08:06:22 WARN  config key 'cache' is deprecated\n2026-11-10 08:09:33 INFO  GET /api/items 200\n2026-11-10 08:15:55 INFO  retrying connection\n2026-11-10 08:18:06 INFO  connection restored\n2026-11-10 08:21:17 WARN  slow query: 1.8s\n2026-11-10 08:27:39 INFO  GET /login 302\n2026-11-10 08:30:50 INFO  user an logged in\n2026-11-10 08:36:12 INFO  job 43 done\n2026-11-10 08:39:23 WARN  disk at 91%\n2026-11-10 08:42:34 INFO  shutdown requested\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed '1d' lab/names.txt",
+   "out": "Lan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed '2,4d' lab/names.txt",
+   "out": "mai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed '$d' lab/names.txt",
+   "out": "mai\nLan\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n '/db/,/restored/p' lab/app.log",
+   "out": "2026-11-10 08:12:44 ERROR db timeout after 30s\n2026-11-10 08:15:55 INFO  retrying connection\n2026-11-10 08:18:06 INFO  connection restored\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -E 's/([a-z]+),([0-9]+),.*/\\2 \\1/' lab/fruits.csv",
+   "out": "name,qty,price\n3 apple\n12 banana\n100 cherry\n1 durian\n25 fig\nG7 rape\n9 lemon\n4 mango\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/\\(.*\\),\\(.*\\),\\(.*\\)/\\3|\\2|\\1/' lab/fruits.csv",
+   "out": "price|qty|name\n1.20|3|apple\n0.25|12|banana\n0.10|100|cherry\n9.50|1|durian\n0.80|25|fig\n2.00|7|Grape\n0.40|9|lemon\n1.75|4|mango\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/[aeiou]/_/g' lab/names.txt",
+   "out": "m__\nL_n\nb__\nm__\nAn\nl_n\nCh_\nb__\nm__\nD_ng\nAn\nH__\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/.*/\"&\"/' lab/names.txt",
+   "out": "\"mai\"\n\"Lan\"\n\"bao\"\n\"mai\"\n\"An\"\n\"lan\"\n\"Chi\"\n\"bao\"\n\"mai\"\n\"Dung\"\n\"An\"\n\"Hoa\"\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's|/|-|g' lab/app.log",
+   "out": "2026-11-10 08:00:00 INFO  server started on :8080\n2026-11-10 08:03:11 INFO  loaded 3 plugins\n2026-11-10 08:06:22 WARN  config key 'cache' is deprecated\n2026-11-10 08:09:33 INFO  GET -api-items 200\n2026-11-10 08:12:44 ERROR db timeout after 30s\n2026-11-10 08:15:55 INFO  retrying connection\n2026-11-10 08:18:06 INFO  connection restored\n2026-11-10 08:21:17 WARN  slow query: 1.8s\n2026-11-10 08:24:28 ERROR cannot write -var-tmp-cache: permission denied\n2026-11-10 08:27:39 INFO  GET -login 302\n2026-11-10 08:30:50 INFO  user an logged in\n2026-11-10 08:33:01 ERROR job 42 failed: exit code 1\n2026-11-10 08:36:12 INFO  job 43 done\n2026-11-10 08:39:23 WARN  disk at 91%\n2026-11-10 08:42:34 INFO  shutdown requested\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -e 's/a/1/' -e 's/n/2/' lab/names.txt",
+   "out": "m1i\nL12\nb1o\nm1i\nA2\nl12\nChi\nb1o\nm1i\nDu2g\nA2\nHo1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/a/1/;s/n/2/' lab/names.txt",
+   "out": "m1i\nL12\nb1o\nm1i\nA2\nl12\nChi\nb1o\nm1i\nDu2g\nA2\nHo1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n 's/^2026-11-10 \\(..:..\\).*ERROR.*/\\1/p' lab/app.log",
+   "out": "08:12\n08:24\n08:33\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/mai/&&/' lab/names.txt",
+   "out": "maimai\nLan\nbao\nmaimai\nAn\nlan\nChi\nbao\nmaimai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/mai/\\&/' lab/names.txt",
+   "out": "&\nLan\nbao\n&\nAn\nlan\nChi\nbao\n&\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/ *$//' lab/spaces.txt",
+   "out": "dòng có khoảng trắng cuối\n\n\nsau hai dòng trống\n\tcó tab đầu dòng\nbình thường\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/^/> /' lab/names.txt",
+   "out": "> mai\n> Lan\n> bao\n> mai\n> An\n> lan\n> Chi\n> bao\n> mai\n> Dung\n> An\n> Hoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/x*/-/g' lab/names.txt",
+   "out": "-m-a-i-\n-L-a-n-\n-b-a-o-\n-m-a-i-\n-A-n-\n-l-a-n-\n-C-h-i-\n-b-a-o-\n-m-a-i-\n-D-u-n-g-\n-A-n-\n-H-o-a-\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/mai/X/I' lab/names.txt",
+   "out": "X\nLan\nbao\nX\nAn\nlan\nChi\nbao\nX\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 'y/abc/ABC/' lab/names.txt",
+   "out": "mAi\nLAn\nBAo\nmAi\nAn\nlAn\nChi\nBAo\nmAi\nDung\nAn\nHoA\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n '=' lab/names.txt",
+   "out": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed '3q' lab/names.txt",
+   "out": "mai\nLan\nbao\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed",
+   "out": "",
+   "err": "Usage: sed [OPTION]... {script-only-if-no-other-script} [input-file]...\n\n  -n, --quiet, --silent\n                 suppress automatic printing of pattern space\n      --debug\n                 annotate program execution\n  -e script, --expression=script\n                 add the script to the commands to be executed\n  -f script-file, --file=script-file\n                 add the contents of script-file to the commands to be executed\n  --follow-symlinks\n                 follow symlinks when processing in place\n  -i[SUFFIX], --in-place[=SUFFIX]\n                 edit files in place (makes backup if SUFFIX supplied)\n  -l N, --line-length=N\n                 specify the desired line-wrap length for the `l' command\n  --posix\n                 disable all GNU extensions.\n  -E, -r, --regexp-extended\n                 use extended regular expressions in the script\n                 (for portability use POSIX -E).\n  -s, --separate\n                 consider files as separate rather than as a single,\n                 continuous long stream.\n      --sandbox\n                 operate in sandbox mode (disable e/r/w commands).\n  -u, --unbuffered\n                 load minimal amounts of data from the input files and flush\n                 the output buffers more often\n  -z, --null-data\n                 separate lines by NUL characters\n      --help     display this help and exit\n      --version  output version information and exit\n\nIf no -e, --expression, -f, or --file option is given, then the first\nnon-option argument is taken as the sed script to interpret.  All\nremaining arguments are names of input files; if no input files are\nspecified, then the standard input is read.\n\nGNU sed home page: <https://www.gnu.org/software/sed/>.\nGeneral help using GNU software: <https://www.gnu.org/gethelp/>.\n",
+   "status": 1
+  },
+  {
+   "cmd": "sed s/a/b/ nope",
+   "out": "",
+   "err": "sed: can't read nope: No such file or directory\n",
+   "status": 2
+  },
+  {
+   "cmd": "sed 's/a/b' lab/names.txt",
+   "out": "",
+   "err": "sed: -e expression #1, char 5: unterminated `s' command\n",
+   "status": 1
+  },
+  {
+   "cmd": "sed 'k' lab/names.txt",
+   "out": "",
+   "err": "sed: -e expression #1, char 1: unknown command: `k'\n",
+   "status": 1
+  },
+  {
+   "cmd": "sed -n '2p' lab/noeol.txt lab/names.txt",
+   "out": "hai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n '3p' lab/noeol.txt",
+   "out": "ba không xuống dòng",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/ba/BA/' lab/noeol.txt",
+   "out": "một\nhai\nBA không xuống dòng",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat lab/names.txt | sed -n '1p'",
+   "out": "mai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -i 's/mai/MAI/' lab/names.txt; cat lab/names.txt",
+   "out": "MAI\nLan\nbao\nMAI\nAn\nlan\nChi\nbao\nMAI\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -i '1d' lab/names.txt; head -n 2 lab/names.txt",
+   "out": "Lan\nbao\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n '2!p' lab/names.txt",
+   "out": "mai\nbao\nmai\nAn\nlan\nChi\nbao\nmai\nDung\nAn\nHoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed 's/\\t/TAB/' lab/spaces.txt",
+   "out": "dòng có khoảng trắng cuối   \n\n\nsau hai dòng trống\nTABcó tab đầu dòng\nbình thường\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -E 's/(a|b)+/<&>/g' lab/names.txt",
+   "out": "m<a>i\nL<a>n\n<ba>o\nm<a>i\nAn\nl<a>n\nChi\n<ba>o\nm<a>i\nDung\nAn\nHo<a>\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed '/^$/d' lab/spaces.txt",
+   "out": "dòng có khoảng trắng cuối   \nsau hai dòng trống\n\tcó tab đầu dòng\nbình thường\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sed -n '/^$/=' lab/spaces.txt",
+   "out": "2\n3\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "tee tmp/out.txt < lab/names.txt | head -n 2; wc -l tmp/out.txt",
+   "out": "mai\nLan\n12 tmp/out.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a | tee tmp/t1 tmp/t2; cat tmp/t1 tmp/t2",
+   "out": "a\na\na\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a | tee -a lab/names.txt > /dev/null; tail -n 1 lab/names.txt",
+   "out": "a\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a | tee nope/x",
+   "out": "a\n",
+   "err": "tee: nope/x: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "echo a | tee posts/x",
+   "out": "a\n",
+   "err": "tee: posts/x: Permission denied\n",
+   "status": 1
+  },
+  {
+   "cmd": "basename lab/names.txt",
+   "out": "names.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "basename lab/names.txt .txt",
+   "out": "names\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "basename /usr/bin/",
+   "out": "bin\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "basename /",
+   "out": "/\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "basename a b",
+   "out": "a\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "basename -a a/x b/y",
+   "out": "x\ny\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "basename -s .txt lab/names.txt lab/numbers.txt",
+   "out": "names\nnumbers\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "basename",
+   "out": "",
+   "err": "basename: missing operand\nTry 'basename --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "basename lab/names.txt names.txt",
+   "out": "names.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "dirname lab/names.txt",
+   "out": "lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "dirname lab/",
+   "out": ".\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "dirname /",
+   "out": "/\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "dirname name",
+   "out": ".\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "dirname a/b/c a/d",
+   "out": "a/b\na\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "dirname",
+   "out": "",
+   "err": "dirname: missing operand\nTry 'dirname --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "dirname /a",
+   "out": "/\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq 3",
+   "out": "1\n2\n3\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq 2 4",
+   "out": "2\n3\n4\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq 1 2 9",
+   "out": "1\n3\n5\n7\n9\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq 5 -1 1",
+   "out": "5\n4\n3\n2\n1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq -s, 3",
+   "out": "1,2,3\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq -w 8 10",
+   "out": "08\n09\n10\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq 0",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq 1 0",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq",
+   "out": "",
+   "err": "seq: missing operand\nTry 'seq --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "seq a",
+   "out": "",
+   "err": "seq: invalid floating point argument: ‘a’\nTry 'seq --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "seq 1 1 1",
+   "out": "1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq 1 0 3",
+   "out": "",
+   "err": "seq: invalid Zero increment value: ‘0’\nTry 'seq --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "seq 1.5 0.5 3",
+   "out": "1.5\n2.0\n2.5\n3.0\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'a b c' | xargs",
+   "out": "a b c\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'a b c' | xargs -n1",
+   "out": "a\nb\nc\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'a b c' | xargs -n 2",
+   "out": "a b\nc\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf 'a\\nb\\n' | xargs -I{} echo item {}",
+   "out": "item a\nitem b\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "printf 'a\\0b\\0' | xargs -0 echo",
+   "out": "a b\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo '' | xargs echo x",
+   "out": "x\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo '' | xargs -r echo x",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo 'x y' | xargs nope",
+   "out": "",
+   "err": "xargs: nope: No such file or directory\n",
+   "status": 127
+  },
+  {
+   "cmd": "echo \"a 'b c' d\" | xargs -n1",
+   "out": "a\nb c\nd\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a | xargs false; echo $?",
+   "out": "123\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo lab/names.txt | xargs wc -l",
+   "out": "12 lab/names.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a | xargs -n x",
+   "out": "",
+   "err": "xargs: invalid number \"x\" for -n option\nTry 'xargs --help' for more information.\n",
+   "status": 1
+  },
+  {
+   "cmd": "xargs echo < lab/names.txt",
+   "out": "mai Lan bao mai An lan Chi bao mai Dung An Hoa\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "seq 5 | xargs -n2 echo",
+   "out": "1 2\n3 4\n5\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls lab | head -n 3",
+   "out": "access.log\napp.log\nempty-dir\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls lab | wc -l",
+   "out": "13\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat lab/names.txt | sort | uniq -c | sort -nr | head -n 3",
+   "out": "      3 mai\n      2 bao\n      2 An\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep ERROR lab/app.log | cut -d' ' -f2",
+   "out": "08:12:44\n08:24:28\n08:33:01\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cut -d' ' -f1 lab/access.log | sort | uniq -c | sort -nr",
+   "out": "     12 10.0.0.1\n      6 192.168.1.5\n      6 172.16.0.9\n      6 10.0.0.2\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls | grep lab",
+   "out": "lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat lab/access.log | cut -d'\"' -f3 | cut -d' ' -f2 | sort | uniq -c",
+   "out": "     15 200\n      3 201\n      3 302\n      3 403\n      3 404\n      3 500\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "grep -c . lab/*.txt",
+   "out": "lab/empty.txt:0\nlab/names.txt:12\nlab/noeol.txt:3\nlab/numbers.txt:9\nlab/spaces.txt:4\nlab/vi.txt:5\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a > tmp/r1; cat tmp/r1",
+   "out": "a\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a > tmp/r1; echo b >> tmp/r1; cat tmp/r1",
+   "out": "a\nb\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a > tmp/r1; echo b > tmp/r1; cat tmp/r1",
+   "out": "b\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls nope 2> tmp/err; cat tmp/err",
+   "out": "ls: cannot access 'nope': No such file or directory\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls nope 2>&1 | wc -l",
+   "out": "1\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls nope lab/names.txt 2>/dev/null",
+   "out": "lab/names.txt\n",
+   "err": "",
+   "status": 2
+  },
+  {
+   "cmd": "ls lab/names.txt nope > tmp/o 2>&1; cat tmp/o",
+   "out": "ls: cannot access 'nope': No such file or directory\nlab/names.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls nope > tmp/o 2>&1; cat tmp/o",
+   "out": "ls: cannot access 'nope': No such file or directory\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls nope 2>&1 > tmp/o; cat tmp/o",
+   "out": "ls: cannot access 'nope': No such file or directory\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat < lab/names.txt | head -n 1",
+   "out": "mai\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cat < nope",
+   "out": "",
+   "err": "bash: nope: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "echo x > nope/y",
+   "out": "",
+   "err": "bash: nope/y: No such file or directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "echo x > lab",
+   "out": "",
+   "err": "bash: lab: Is a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "echo x > posts/y",
+   "out": "",
+   "err": "bash: posts/y: Permission denied\n",
+   "status": 1
+  },
+  {
+   "cmd": "echo x > lab/names.txt; cat lab/names.txt",
+   "out": "x\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo x >> lab/names.txt; tail -n 2 lab/names.txt",
+   "out": "Hoa\nx\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "sort < lab/numbers.txt | head -n 2",
+   "out": "-5\n10\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "> tmp/touched; ls tmp",
+   "out": "touched\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a > tmp/*.zz; ls tmp",
+   "out": "*.zz\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a > posts/hook-chan-lenh.md",
+   "out": "",
+   "err": "bash: posts/hook-chan-lenh.md: Permission denied\n",
+   "status": 1
+  },
+  {
+   "cmd": "cat lab/names.txt > tmp/c; wc -l < tmp/c",
+   "out": "12\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "wc -l < lab/names.txt",
+   "out": "12\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a b > tmp/x y; ls tmp",
+   "out": "x\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "nope",
+   "out": "",
+   "err": "bash: nope: command not found\n",
+   "status": 127
+  },
+  {
+   "cmd": "nope arg",
+   "out": "",
+   "err": "bash: nope: command not found\n",
+   "status": 127
+  },
+  {
+   "cmd": "ls | nope",
+   "out": "",
+   "err": "bash: nope: command not found\n",
+   "status": 127
+  },
+  {
+   "cmd": "echo 'unterminated",
+   "out": "",
+   "err": "bash: unexpected EOF while looking for matching `''\n",
+   "status": 2
+  },
+  {
+   "cmd": "echo \"unterminated",
+   "out": "",
+   "err": "bash: unexpected EOF while looking for matching `\"'\n",
+   "status": 2
+  },
+  {
+   "cmd": "ls |",
+   "out": "",
+   "err": "bash: syntax error: unexpected end of file\n",
+   "status": 2
+  },
+  {
+   "cmd": "| ls",
+   "out": "",
+   "err": "bash: syntax error near unexpected token `|'\n",
+   "status": 2
+  },
+  {
+   "cmd": "ls ||",
+   "out": "",
+   "err": "bash: syntax error: unexpected end of file\n",
+   "status": 2
+  },
+  {
+   "cmd": "; ls",
+   "out": "",
+   "err": "bash: syntax error near unexpected token `;'\n",
+   "status": 2
+  },
+  {
+   "cmd": "ls;;ls",
+   "out": "",
+   "err": "bash: syntax error near unexpected token `;;'\n",
+   "status": 2
+  },
+  {
+   "cmd": "echo a &&",
+   "out": "",
+   "err": "bash: syntax error: unexpected end of file\n",
+   "status": 2
+  },
+  {
+   "cmd": "echo a && && echo b",
+   "out": "",
+   "err": "bash: syntax error near unexpected token `&&'\n",
+   "status": 2
+  },
+  {
+   "cmd": "ls >",
+   "out": "",
+   "err": "bash: syntax error near unexpected token `newline'\n",
+   "status": 2
+  },
+  {
+   "cmd": "echo a > ",
+   "out": "",
+   "err": "bash: syntax error near unexpected token `newline'\n",
+   "status": 2
+  },
+  {
+   "cmd": "ls | | cat",
+   "out": "",
+   "err": "bash: syntax error near unexpected token `|'\n",
+   "status": 2
+  },
+  {
+   "cmd": "echo ${HOME}",
+   "out": "/home/cris\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo $HOME/lab",
+   "out": "/home/cris/lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo $USER",
+   "out": "cris\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo $NOPE.",
+   "out": ".\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo [a-c]*",
+   "out": "[a-c]*\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo lab/[a-n]*.txt",
+   "out": "lab/empty.txt lab/names.txt lab/noeol.txt lab/numbers.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo lab/?umbers.txt",
+   "out": "lab/numbers.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo \\* \\? \\[",
+   "out": "* ? [\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo '*' lab/*.nope",
+   "out": "* lab/*.nope\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls lab/names.txt/x",
+   "out": "",
+   "err": "ls: cannot access 'lab/names.txt/x': Not a directory\n",
+   "status": 2
+  },
+  {
+   "cmd": "cat lab/names.txt/x",
+   "out": "",
+   "err": "cat: lab/names.txt/x: Not a directory\n",
+   "status": 1
+  },
+  {
+   "cmd": "ls ''",
+   "out": "",
+   "err": "ls: cannot access '': No such file or directory\n",
+   "status": 2
+  },
+  {
+   "cmd": "echo ''",
+   "out": "\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo '' ''",
+   "out": " \n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a''b",
+   "out": "ab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo \"a\"'b'c",
+   "out": "abc\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo \\\\",
+   "out": "\\\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo \"\\\\ \\$ \\\"\"",
+   "out": "\\ $ \"\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo \"\\n\"",
+   "out": "\\n\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a  # comment",
+   "out": "a\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo a#b",
+   "out": "a#b\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo ~/lab",
+   "out": "/home/cris/lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo ~x",
+   "out": "~x\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "echo \"~\"",
+   "out": "~\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd ~/lab; pwd",
+   "out": "/home/cris/lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd ''; pwd",
+   "out": "/home/cris\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "cd lab extra",
+   "out": "",
+   "err": "bash: cd: too many arguments\n",
+   "status": 1
+  },
+  {
+   "cmd": "cd -- lab; pwd",
+   "out": "/home/cris/lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -l -a lab/notes",
+   "out": "total 20\ndrwxr-xr-x 2 cris cris 4096 Jan 11  2025 .\ndrwxr-xr-x 5 cris cris 4096 Jan  8  2025 ..\n-rw-r--r-- 1 cris cris   41 Feb 28  2025 a.txt\n-rw-r--r-- 1 cris cris   45 Mar  3  2025 b.txt\n-rw-r--r-- 1 cris cris   18 Mar  6  2025 c.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -al lab/notes",
+   "out": "total 20\ndrwxr-xr-x 2 cris cris 4096 Jan 11  2025 .\ndrwxr-xr-x 5 cris cris 4096 Jan  8  2025 ..\n-rw-r--r-- 1 cris cris   41 Feb 28  2025 a.txt\n-rw-r--r-- 1 cris cris   45 Mar  3  2025 b.txt\n-rw-r--r-- 1 cris cris   18 Mar  6  2025 c.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -lA lab/notes",
+   "out": "total 12\n-rw-r--r-- 1 cris cris 41 Feb 28  2025 a.txt\n-rw-r--r-- 1 cris cris 45 Mar  3  2025 b.txt\n-rw-r--r-- 1 cris cris 18 Mar  6  2025 c.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -- -l",
+   "out": "",
+   "err": "ls: cannot access '-l': No such file or directory\n",
+   "status": 2
+  },
+  {
+   "cmd": "ls --all lab/notes",
+   "out": ".\n..\na.txt\nb.txt\nc.md\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls --nope",
+   "out": "",
+   "err": "ls: unrecognized option '--nope'\nTry 'ls --help' for more information.\n",
+   "status": 2
+  },
+  {
+   "cmd": "ls -l lab/empty-dir",
+   "out": "total 0\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls lab/empty-dir",
+   "out": "",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -a lab/empty-dir",
+   "out": ".\n..\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -ld lab",
+   "out": "drwxr-xr-x 5 cris cris 4096 Jan  8  2025 lab\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -ld lab/names.txt",
+   "out": "-rw-r--r-- 1 cris cris 47 Jan 26  2025 lab/names.txt\n",
+   "err": "",
+   "status": 0
+  },
+  {
+   "cmd": "ls -r lab",
+   "out": "vi.txt\ntodo.md\nsrc\nspaces.txt\nnumbers.txt\nnotes\nnoeol.txt\nnames.txt\nfruits.csv\nempty.txt\nempty-dir\napp.log\naccess.log\n",
+   "err": "",
+   "status": 0
+  }
+ ]
+}

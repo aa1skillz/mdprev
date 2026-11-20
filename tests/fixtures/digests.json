@@ -1,0 +1,1475 @@
+{
+ "scene": {
+  "|orange": {
+   "n": 51,
+   "sha": "18da81d39da7772f"
+  },
+  "|green": {
+   "n": 51,
+   "sha": "cc564a7c927d124c"
+  },
+  "|blue": {
+   "n": 51,
+   "sha": "55c50a6b93bef2a9"
+  },
+  "a|orange": {
+   "n": 56,
+   "sha": "020e5fc34b4f761f"
+  },
+  "a|green": {
+   "n": 56,
+   "sha": "e2a478c665c0d2c7"
+  },
+  "a|blue": {
+   "n": 56,
+   "sha": "092363eed75c7711"
+  },
+  "Tiêu đề rất dài để thử băm chuỗi tiếng Việt có dấu: ắ ằ ẳ ẵ ặ ơ ư đ|orange": {
+   "n": 53,
+   "sha": "cb44408b3cde1cab"
+  },
+  "Tiêu đề rất dài để thử băm chuỗi tiếng Việt có dấu: ắ ằ ẳ ẵ ặ ơ ư đ|green": {
+   "n": 53,
+   "sha": "cd44b6a22d1429a3"
+  },
+  "Tiêu đề rất dài để thử băm chuỗi tiếng Việt có dấu: ắ ằ ẳ ẵ ặ ơ ư đ|blue": {
+   "n": 53,
+   "sha": "c085cc7acf1f8d37"
+  },
+  "AI viết nhanh hơn, còn mình nghĩ chậm lại|orange": {
+   "n": 53,
+   "sha": "5e55ac94ae633938"
+  },
+  "AI viết nhanh hơn, còn mình nghĩ chậm lại|green": {
+   "n": 53,
+   "sha": "3abcf4217c1f3627"
+  },
+  "AI viết nhanh hơn, còn mình nghĩ chậm lại|blue": {
+   "n": 53,
+   "sha": "b48de9267951dbda"
+  },
+  "Nhiều máy chủ, một mạng riêng, không mở cổng nào|orange": {
+   "n": 55,
+   "sha": "e037eb069c468514"
+  },
+  "Nhiều máy chủ, một mạng riêng, không mở cổng nào|green": {
+   "n": 55,
+   "sha": "cc642292ef690c9a"
+  },
+  "Nhiều máy chủ, một mạng riêng, không mở cổng nào|blue": {
+   "n": 55,
+   "sha": "c8106827b2f3a5dc"
+  },
+  "Chia việc cho agent như chia việc cho người|orange": {
+   "n": 53,
+   "sha": "64b57ca7dfa2fdc1"
+  },
+  "Chia việc cho agent như chia việc cho người|green": {
+   "n": 53,
+   "sha": "7836f2363515c9e1"
+  },
+  "Chia việc cho agent như chia việc cho người|blue": {
+   "n": 53,
+   "sha": "8aad8d31e1956ec8"
+  },
+  "CLAUDE.md một trang là đủ|orange": {
+   "n": 52,
+   "sha": "b2ab6432882b68b2"
+  },
+  "CLAUDE.md một trang là đủ|green": {
+   "n": 52,
+   "sha": "c83348cd74292642"
+  },
+  "CLAUDE.md một trang là đủ|blue": {
+   "n": 52,
+   "sha": "0515fa4142b53447"
+  },
+  "Ghi chú về những đêm ngồi với máy chủ|orange": {
+   "n": 51,
+   "sha": "ad905a177bd555b8"
+  },
+  "Ghi chú về những đêm ngồi với máy chủ|green": {
+   "n": 51,
+   "sha": "a24a09c4a9463304"
+  },
+  "Ghi chú về những đêm ngồi với máy chủ|blue": {
+   "n": 51,
+   "sha": "323b1c7877846f0d"
+  },
+  "git clone treo mãi: thủ phạm là Cloudflare|orange": {
+   "n": 52,
+   "sha": "971a168bcfbc7b87"
+  },
+  "git clone treo mãi: thủ phạm là Cloudflare|green": {
+   "n": 52,
+   "sha": "0cd950e8b0b77b62"
+  },
+  "git clone treo mãi: thủ phạm là Cloudflare|blue": {
+   "n": 52,
+   "sha": "ad4ad881121dbc73"
+  },
+  "Hôm nay hook của mình chặn chính Claude|orange": {
+   "n": 51,
+   "sha": "530ca3b0b62a021c"
+  },
+  "Hôm nay hook của mình chặn chính Claude|green": {
+   "n": 51,
+   "sha": "d7b6133f6fb9a46e"
+  },
+  "Hôm nay hook của mình chặn chính Claude|blue": {
+   "n": 51,
+   "sha": "d159437bff1e1b27"
+  },
+  "Mười lệnh mình gõ mỗi ngày|orange": {
+   "n": 51,
+   "sha": "67d68116e5b67088"
+  },
+  "Mười lệnh mình gõ mỗi ngày|green": {
+   "n": 51,
+   "sha": "f8b5bd5f47ef614b"
+  },
+  "Mười lệnh mình gõ mỗi ngày|blue": {
+   "n": 51,
+   "sha": "c75b5165dc1203d0"
+  },
+  "pkill -f tự giết chính mình|orange": {
+   "n": 52,
+   "sha": "0f02a9b1e5d7421e"
+  },
+  "pkill -f tự giết chính mình|green": {
+   "n": 52,
+   "sha": "7ca989c37784ec67"
+  },
+  "pkill -f tự giết chính mình|blue": {
+   "n": 52,
+   "sha": "3f0a49e9401186af"
+  },
+  "Alias shell mình dùng mỗi ngày|orange": {
+   "n": 54,
+   "sha": "294c6e88fdce4105"
+  },
+  "Alias shell mình dùng mỗi ngày|green": {
+   "n": 54,
+   "sha": "d2476676dd59e727"
+  },
+  "Alias shell mình dùng mỗi ngày|blue": {
+   "n": 54,
+   "sha": "b3e519182b66adf5"
+  },
+  "Bật strict mode cho một dự án TypeScript cũ|orange": {
+   "n": 57,
+   "sha": "525b751f15da476b"
+  },
+  "Bật strict mode cho một dự án TypeScript cũ|green": {
+   "n": 57,
+   "sha": "ae270069354bd8d1"
+  },
+  "Bật strict mode cho một dự án TypeScript cũ|blue": {
+   "n": 57,
+   "sha": "214f90f35900543b"
+  },
+  "Buổi sáng không màn hình|orange": {
+   "n": 56,
+   "sha": "5d7484d70247d9f3"
+  },
+  "Buổi sáng không màn hình|green": {
+   "n": 56,
+   "sha": "d4ef0880dcba978e"
+  },
+  "Buổi sáng không màn hình|blue": {
+   "n": 56,
+   "sha": "7fdb0e7ceb3b3ee0"
+  },
+  "Cách mình đặt tên biến mà không phải nghĩ lâu|orange": {
+   "n": 52,
+   "sha": "f7d2e9124eed41a8"
+  },
+  "Cách mình đặt tên biến mà không phải nghĩ lâu|green": {
+   "n": 52,
+   "sha": "1024eb28da64a586"
+  },
+  "Cách mình đặt tên biến mà không phải nghĩ lâu|blue": {
+   "n": 52,
+   "sha": "900dc10297625e72"
+  },
+  "Cách mình đọc code của người khác|orange": {
+   "n": 53,
+   "sha": "804465726cec8eb4"
+  },
+  "Cách mình đọc code của người khác|green": {
+   "n": 53,
+   "sha": "ccbb7716a93d9245"
+  },
+  "Cách mình đọc code của người khác|blue": {
+   "n": 53,
+   "sha": "e045c141019c6445"
+  },
+  "Chạy script định kỳ bằng cron trên máy cá nhân|orange": {
+   "n": 53,
+   "sha": "308e4c43013a6709"
+  },
+  "Chạy script định kỳ bằng cron trên máy cá nhân|green": {
+   "n": 53,
+   "sha": "b58f1cea3b9f03db"
+  },
+  "Chạy script định kỳ bằng cron trên máy cá nhân|blue": {
+   "n": 53,
+   "sha": "1bd7275dd8e3df8c"
+  },
+  "Đọc log bằng grep, awk và một chút kiên nhẫn|orange": {
+   "n": 56,
+   "sha": "48d7f89a9e7b526c"
+  },
+  "Đọc log bằng grep, awk và một chút kiên nhẫn|green": {
+   "n": 56,
+   "sha": "aeb9119510505cb3"
+  },
+  "Đọc log bằng grep, awk và một chút kiên nhẫn|blue": {
+   "n": 56,
+   "sha": "c1eeeaf92bdf049d"
+  },
+  "Ghi chú sau một năm làm việc từ xa|orange": {
+   "n": 50,
+   "sha": "f211d78e48c39db7"
+  },
+  "Ghi chú sau một năm làm việc từ xa|green": {
+   "n": 50,
+   "sha": "66705ad387b12443"
+  },
+  "Ghi chú sau một năm làm việc từ xa|blue": {
+   "n": 50,
+   "sha": "5b57fbd0b87a5573"
+  },
+  "Ghi chú sau một tháng viết blog bằng tiếng Việt|orange": {
+   "n": 54,
+   "sha": "0b7cf3062e7fbfe9"
+  },
+  "Ghi chú sau một tháng viết blog bằng tiếng Việt|green": {
+   "n": 54,
+   "sha": "64dad9dd4f67f510"
+  },
+  "Ghi chú sau một tháng viết blog bằng tiếng Việt|blue": {
+   "n": 54,
+   "sha": "17d689cd372a673a"
+  },
+  "Git worktree thay cho stash|orange": {
+   "n": 52,
+   "sha": "277dc49a5972b4b2"
+  },
+  "Git worktree thay cho stash|green": {
+   "n": 52,
+   "sha": "e98a8d7c137680bc"
+  },
+  "Git worktree thay cho stash|blue": {
+   "n": 52,
+   "sha": "99f454e39d155e4e"
+  },
+  "Họp stand-up năm phút|orange": {
+   "n": 53,
+   "sha": "0096b53662a3082d"
+  },
+  "Họp stand-up năm phút|green": {
+   "n": 53,
+   "sha": "80388cd66390b168"
+  },
+  "Họp stand-up năm phút|blue": {
+   "n": 53,
+   "sha": "4a0bb0a46397d6f8"
+  },
+  "Khi nào nên bỏ một dependency|orange": {
+   "n": 50,
+   "sha": "102225ecfd4de2f5"
+  },
+  "Khi nào nên bỏ một dependency|green": {
+   "n": 50,
+   "sha": "449797572b4307d6"
+  },
+  "Khi nào nên bỏ một dependency|blue": {
+   "n": 50,
+   "sha": "36a6edc817d7cc42"
+  },
+  "Một ngày không bật thông báo|orange": {
+   "n": 50,
+   "sha": "e51888e379e07c14"
+  },
+  "Một ngày không bật thông báo|green": {
+   "n": 50,
+   "sha": "2c99d1d0c0cd84ff"
+  },
+  "Một ngày không bật thông báo|blue": {
+   "n": 50,
+   "sha": "227664a3c67671d2"
+  },
+  "Vì sao mình chuyển ghi chú về file markdown|orange": {
+   "n": 52,
+   "sha": "a99f2ebd2ba014ad"
+  },
+  "Vì sao mình chuyển ghi chú về file markdown|green": {
+   "n": 52,
+   "sha": "d0c9aa1a772638dc"
+  },
+  "Vì sao mình chuyển ghi chú về file markdown|blue": {
+   "n": 52,
+   "sha": "fc6f221bd203ea5b"
+  },
+  "Vì sao mình ngừng viết test cho getter|orange": {
+   "n": 53,
+   "sha": "57d81f94a1daeece"
+  },
+  "Vì sao mình ngừng viết test cho getter|green": {
+   "n": 53,
+   "sha": "35f98760e9bdf9ca"
+  },
+  "Vì sao mình ngừng viết test cho getter|blue": {
+   "n": 53,
+   "sha": "3be819421a8fdc89"
+  },
+  "Vì sao mình viết README trước khi viết code|orange": {
+   "n": 50,
+   "sha": "323e9593af7e90ce"
+  },
+  "Vì sao mình viết README trước khi viết code|green": {
+   "n": 50,
+   "sha": "327e1f4c4d945535"
+  },
+  "Vì sao mình viết README trước khi viết code|blue": {
+   "n": 50,
+   "sha": "96f8cc72c76a6b28"
+  },
+  "Viết commit message để sáu tháng sau còn đọc được|orange": {
+   "n": 56,
+   "sha": "2dd96fc513df250c"
+  },
+  "Viết commit message để sáu tháng sau còn đọc được|green": {
+   "n": 56,
+   "sha": "b665cbf97025a40d"
+  },
+  "Viết commit message để sáu tháng sau còn đọc được|blue": {
+   "n": 56,
+   "sha": "5f25325ca0e3bbd2"
+  },
+  "Xóa code cũng là một cách viết code|orange": {
+   "n": 50,
+   "sha": "f318582b6dbfc112"
+  },
+  "Xóa code cũng là một cách viết code|green": {
+   "n": 50,
+   "sha": "d22fafde69313adc"
+  },
+  "Xóa code cũng là một cách viết code|blue": {
+   "n": 50,
+   "sha": "9c8f05c45071074f"
+  }
+ },
+ "sprite": {
+  "0|cat|0": {
+   "n": 178,
+   "sha": "f9caf531b7a5c635"
+  },
+  "0|cat|1": {
+   "n": 178,
+   "sha": "12210c224c2dcf5a"
+  },
+  "0|cat|2": {
+   "n": 178,
+   "sha": "1f91ee8ff888a554"
+  },
+  "0|cat|3": {
+   "n": 178,
+   "sha": "7a794c9dd15547be"
+  },
+  "0|cat|4": {
+   "n": 184,
+   "sha": "13488590d9144c18"
+  },
+  "0|cat|5": {
+   "n": 184,
+   "sha": "bb83390af620181c"
+  },
+  "0|cat|6": {
+   "n": 178,
+   "sha": "6305f3cb371fb809"
+  },
+  "0|cat|7": {
+   "n": 178,
+   "sha": "7e0146e8497300da"
+  },
+  "0|cat|8": {
+   "n": 178,
+   "sha": "0fa257129611bf74"
+  },
+  "0|cat|9": {
+   "n": 178,
+   "sha": "ecd6f45985e287b6"
+  },
+  "0|cat|10": {
+   "n": 184,
+   "sha": "48f1564775815443"
+  },
+  "0|cat|11": {
+   "n": 184,
+   "sha": "4f62b385ef8c80a8"
+  },
+  "0|cat|12": {
+   "n": 178,
+   "sha": "96951d532d0f8e96"
+  },
+  "0|cat|13": {
+   "n": 178,
+   "sha": "da8639763e46cc27"
+  },
+  "0|cat|14": {
+   "n": 178,
+   "sha": "35c8489ac0a37c65"
+  },
+  "0|cat|15": {
+   "n": 178,
+   "sha": "9d69461d820d6e37"
+  },
+  "0|cat|16": {
+   "n": 184,
+   "sha": "cd560443c773a6c5"
+  },
+  "0|cat|17": {
+   "n": 184,
+   "sha": "78e528966ec7bb42"
+  },
+  "0|cat|18": {
+   "n": 178,
+   "sha": "3358d3c1c7985698"
+  },
+  "0|cat|19": {
+   "n": 178,
+   "sha": "36f1eb7ed188ef12"
+  },
+  "0|cat|20": {
+   "n": 178,
+   "sha": "e3800b82a6e5834a"
+  },
+  "0|cat|21": {
+   "n": 178,
+   "sha": "8cc0116b393a9fd5"
+  },
+  "0|cat|22": {
+   "n": 184,
+   "sha": "e4571f6d4f3e680c"
+  },
+  "0|cat|23": {
+   "n": 184,
+   "sha": "7ebf76ba361d5bb2"
+  },
+  "0|cat|24": {
+   "n": 178,
+   "sha": "1cfce157c9f4fe45"
+  },
+  "0|cat|25": {
+   "n": 178,
+   "sha": "27a8543a0c18fb06"
+  },
+  "0|cat|26": {
+   "n": 178,
+   "sha": "3358d3c1c7985698"
+  },
+  "0|cat|27": {
+   "n": 176,
+   "sha": "c2114de94dea0c10"
+  },
+  "0|cat|28": {
+   "n": 173,
+   "sha": "e2dd40cdc6269d65"
+  },
+  "0|cat|29": {
+   "n": 181,
+   "sha": "9cf285bf27defb14"
+  },
+  "0|cat|30": {
+   "n": 178,
+   "sha": "00a4e9a5a75353d6"
+  },
+  "0|cat|31": {
+   "n": 178,
+   "sha": "f7c66c43b9701720"
+  },
+  "0|cat|32": {
+   "n": 171,
+   "sha": "ec9041be5c905055"
+  },
+  "0|loaf|0": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|1": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|2": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|3": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|4": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|5": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|6": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|7": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|8": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|9": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|10": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|11": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|12": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|13": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|14": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|15": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|16": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|17": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|18": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|19": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|20": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|21": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|22": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|23": {
+   "n": 164,
+   "sha": "f1dd3c31ebce1d32"
+  },
+  "0|loaf|24": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|25": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|26": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|27": {
+   "n": 162,
+   "sha": "91d4116cb5274eb4"
+  },
+  "0|loaf|28": {
+   "n": 164,
+   "sha": "31ef74fba9bd0135"
+  },
+  "0|loaf|29": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|30": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|31": {
+   "n": 164,
+   "sha": "4232ac8eeb44eaa1"
+  },
+  "0|loaf|32": {
+   "n": 164,
+   "sha": "0dc671dfa43e0b30"
+  },
+  "1|cat|0": {
+   "n": 178,
+   "sha": "299d1c43ebd8635c"
+  },
+  "1|cat|1": {
+   "n": 178,
+   "sha": "b11bd1f550f1988a"
+  },
+  "1|cat|2": {
+   "n": 178,
+   "sha": "2451d397617cbace"
+  },
+  "1|cat|3": {
+   "n": 178,
+   "sha": "9e8a07d152889acf"
+  },
+  "1|cat|4": {
+   "n": 184,
+   "sha": "c0299e584349f852"
+  },
+  "1|cat|5": {
+   "n": 184,
+   "sha": "0937bd99e731038c"
+  },
+  "1|cat|6": {
+   "n": 178,
+   "sha": "fd6e3702087ef6cb"
+  },
+  "1|cat|7": {
+   "n": 178,
+   "sha": "3b11405b72460c64"
+  },
+  "1|cat|8": {
+   "n": 178,
+   "sha": "5350423a77688d7e"
+  },
+  "1|cat|9": {
+   "n": 178,
+   "sha": "b4266d7212962843"
+  },
+  "1|cat|10": {
+   "n": 184,
+   "sha": "2030854e3b209088"
+  },
+  "1|cat|11": {
+   "n": 184,
+   "sha": "61a7e6306d9fd1a0"
+  },
+  "1|cat|12": {
+   "n": 178,
+   "sha": "4247025a742538cd"
+  },
+  "1|cat|13": {
+   "n": 178,
+   "sha": "5934712064aded22"
+  },
+  "1|cat|14": {
+   "n": 178,
+   "sha": "6b73fe459f14e23a"
+  },
+  "1|cat|15": {
+   "n": 178,
+   "sha": "b1efea2ad7c29627"
+  },
+  "1|cat|16": {
+   "n": 184,
+   "sha": "cf755891a394e8e5"
+  },
+  "1|cat|17": {
+   "n": 184,
+   "sha": "f3b22b5444040bed"
+  },
+  "1|cat|18": {
+   "n": 178,
+   "sha": "a47557a9c6899ae5"
+  },
+  "1|cat|19": {
+   "n": 178,
+   "sha": "8c37cf805693990a"
+  },
+  "1|cat|20": {
+   "n": 178,
+   "sha": "2414f385f4ed5dcf"
+  },
+  "1|cat|21": {
+   "n": 178,
+   "sha": "4e84f5afb1b46f5b"
+  },
+  "1|cat|22": {
+   "n": 184,
+   "sha": "b22be46a7fa70e78"
+  },
+  "1|cat|23": {
+   "n": 184,
+   "sha": "9d9ef70e179f2971"
+  },
+  "1|cat|24": {
+   "n": 178,
+   "sha": "c9d1880937ce311e"
+  },
+  "1|cat|25": {
+   "n": 178,
+   "sha": "2d281e7fe88b516f"
+  },
+  "1|cat|26": {
+   "n": 178,
+   "sha": "a47557a9c6899ae5"
+  },
+  "1|cat|27": {
+   "n": 176,
+   "sha": "7c40e81677d9a738"
+  },
+  "1|cat|28": {
+   "n": 173,
+   "sha": "4f2a4b594f23e922"
+  },
+  "1|cat|29": {
+   "n": 181,
+   "sha": "6075d413bb0c4a7e"
+  },
+  "1|cat|30": {
+   "n": 178,
+   "sha": "bd6ac8cfa4eac589"
+  },
+  "1|cat|31": {
+   "n": 178,
+   "sha": "07080b57d728e5d4"
+  },
+  "1|cat|32": {
+   "n": 171,
+   "sha": "814ac0cd2376f20d"
+  },
+  "1|loaf|0": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|1": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|2": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|3": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|4": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|5": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|6": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|7": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|8": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|9": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|10": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|11": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|12": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|13": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|14": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|15": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|16": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|17": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|18": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|19": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|20": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|21": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|22": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|23": {
+   "n": 164,
+   "sha": "2c08d6358433309f"
+  },
+  "1|loaf|24": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|25": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|26": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|27": {
+   "n": 162,
+   "sha": "ea53ec919168acf8"
+  },
+  "1|loaf|28": {
+   "n": 164,
+   "sha": "216eb27d51b288af"
+  },
+  "1|loaf|29": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|30": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|31": {
+   "n": 164,
+   "sha": "333bbafdfda57f00"
+  },
+  "1|loaf|32": {
+   "n": 164,
+   "sha": "bbb50b5354d8784e"
+  },
+  "2|cat|0": {
+   "n": 178,
+   "sha": "e0a4cc3e8073b304"
+  },
+  "2|cat|1": {
+   "n": 178,
+   "sha": "37cd2cd94c49d562"
+  },
+  "2|cat|2": {
+   "n": 178,
+   "sha": "1593e0b5556730b9"
+  },
+  "2|cat|3": {
+   "n": 178,
+   "sha": "467514faaac0fda1"
+  },
+  "2|cat|4": {
+   "n": 184,
+   "sha": "557e3e55a092a955"
+  },
+  "2|cat|5": {
+   "n": 184,
+   "sha": "efd1cb1cffcd2052"
+  },
+  "2|cat|6": {
+   "n": 178,
+   "sha": "a5ee29a7d74e9efd"
+  },
+  "2|cat|7": {
+   "n": 178,
+   "sha": "c6920729ff24583a"
+  },
+  "2|cat|8": {
+   "n": 178,
+   "sha": "169b69f9c590c905"
+  },
+  "2|cat|9": {
+   "n": 178,
+   "sha": "57384df484d50653"
+  },
+  "2|cat|10": {
+   "n": 184,
+   "sha": "e7a0f09bdad6099d"
+  },
+  "2|cat|11": {
+   "n": 184,
+   "sha": "c56b64608945ae92"
+  },
+  "2|cat|12": {
+   "n": 178,
+   "sha": "3ca865cb4011519c"
+  },
+  "2|cat|13": {
+   "n": 178,
+   "sha": "9ef7ce45aa1c4c77"
+  },
+  "2|cat|14": {
+   "n": 178,
+   "sha": "6fa805edbba26aa5"
+  },
+  "2|cat|15": {
+   "n": 178,
+   "sha": "e4d6245a23073db1"
+  },
+  "2|cat|16": {
+   "n": 184,
+   "sha": "e95c16e84967d515"
+  },
+  "2|cat|17": {
+   "n": 184,
+   "sha": "5c4e30d7d870f31a"
+  },
+  "2|cat|18": {
+   "n": 178,
+   "sha": "aadf6246eb09954a"
+  },
+  "2|cat|19": {
+   "n": 178,
+   "sha": "96164f4ba56932bf"
+  },
+  "2|cat|20": {
+   "n": 178,
+   "sha": "195977368f5cc9ac"
+  },
+  "2|cat|21": {
+   "n": 178,
+   "sha": "eeb90501589cc7d3"
+  },
+  "2|cat|22": {
+   "n": 184,
+   "sha": "450e47f19150af15"
+  },
+  "2|cat|23": {
+   "n": 184,
+   "sha": "37d5b6932ecfcb0d"
+  },
+  "2|cat|24": {
+   "n": 178,
+   "sha": "2c37b7e693121b35"
+  },
+  "2|cat|25": {
+   "n": 178,
+   "sha": "af9692daeae5f516"
+  },
+  "2|cat|26": {
+   "n": 178,
+   "sha": "aadf6246eb09954a"
+  },
+  "2|cat|27": {
+   "n": 176,
+   "sha": "ee4742a872ab7f0b"
+  },
+  "2|cat|28": {
+   "n": 173,
+   "sha": "c12f45376e9da540"
+  },
+  "2|cat|29": {
+   "n": 181,
+   "sha": "f664fda2cef541c3"
+  },
+  "2|cat|30": {
+   "n": 178,
+   "sha": "31f058ce60c80bfb"
+  },
+  "2|cat|31": {
+   "n": 178,
+   "sha": "80249764a0102af5"
+  },
+  "2|cat|32": {
+   "n": 171,
+   "sha": "bc8df9aff1983333"
+  },
+  "2|loaf|0": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|1": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|2": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|3": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|4": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|5": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|6": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|7": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|8": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|9": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|10": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|11": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|12": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|13": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|14": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|15": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|16": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|17": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|18": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|19": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|20": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|21": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|22": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|23": {
+   "n": 164,
+   "sha": "7fed8f2b2fe35453"
+  },
+  "2|loaf|24": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|25": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|26": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|27": {
+   "n": 162,
+   "sha": "c8a5e6ba25e4e078"
+  },
+  "2|loaf|28": {
+   "n": 164,
+   "sha": "d2ae6aa26e5fbcbd"
+  },
+  "2|loaf|29": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|30": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|31": {
+   "n": 164,
+   "sha": "cefa8c5ca440eae7"
+  },
+  "2|loaf|32": {
+   "n": 164,
+   "sha": "b330b2902ad92909"
+  },
+  "3|cat|0": {
+   "n": 178,
+   "sha": "209a54989fb79c01"
+  },
+  "3|cat|1": {
+   "n": 178,
+   "sha": "28fc3f2aedd0c792"
+  },
+  "3|cat|2": {
+   "n": 178,
+   "sha": "e8373e8f93c3ea55"
+  },
+  "3|cat|3": {
+   "n": 178,
+   "sha": "4afafe9cbd08f746"
+  },
+  "3|cat|4": {
+   "n": 184,
+   "sha": "e68348286abf98ff"
+  },
+  "3|cat|5": {
+   "n": 184,
+   "sha": "c7e256036d278e8d"
+  },
+  "3|cat|6": {
+   "n": 178,
+   "sha": "ba440e985571742f"
+  },
+  "3|cat|7": {
+   "n": 178,
+   "sha": "9c1c823caeb57dd8"
+  },
+  "3|cat|8": {
+   "n": 178,
+   "sha": "1305debaafc96229"
+  },
+  "3|cat|9": {
+   "n": 178,
+   "sha": "f7b11f9cbd979d1d"
+  },
+  "3|cat|10": {
+   "n": 184,
+   "sha": "bc3ccc70db0a46e7"
+  },
+  "3|cat|11": {
+   "n": 184,
+   "sha": "af308acb0621329d"
+  },
+  "3|cat|12": {
+   "n": 178,
+   "sha": "9d993f9e7dc9ff32"
+  },
+  "3|cat|13": {
+   "n": 178,
+   "sha": "4820a4db8884a416"
+  },
+  "3|cat|14": {
+   "n": 178,
+   "sha": "6d8228763374e2c6"
+  },
+  "3|cat|15": {
+   "n": 178,
+   "sha": "86ef5a8ed495c431"
+  },
+  "3|cat|16": {
+   "n": 184,
+   "sha": "245cb569656ca7a8"
+  },
+  "3|cat|17": {
+   "n": 184,
+   "sha": "659074148fdf71f8"
+  },
+  "3|cat|18": {
+   "n": 178,
+   "sha": "bb70b10a12d8a676"
+  },
+  "3|cat|19": {
+   "n": 178,
+   "sha": "349e3b307b87f719"
+  },
+  "3|cat|20": {
+   "n": 178,
+   "sha": "cf00a55d908dc8bb"
+  },
+  "3|cat|21": {
+   "n": 178,
+   "sha": "21cad545e71837a4"
+  },
+  "3|cat|22": {
+   "n": 184,
+   "sha": "53743f096a75a875"
+  },
+  "3|cat|23": {
+   "n": 184,
+   "sha": "a2d8f8941c68ad22"
+  },
+  "3|cat|24": {
+   "n": 178,
+   "sha": "2daed38dc6db6c64"
+  },
+  "3|cat|25": {
+   "n": 178,
+   "sha": "80231bf998b98492"
+  },
+  "3|cat|26": {
+   "n": 178,
+   "sha": "bb70b10a12d8a676"
+  },
+  "3|cat|27": {
+   "n": 176,
+   "sha": "e8d8786355fa8c40"
+  },
+  "3|cat|28": {
+   "n": 173,
+   "sha": "081961ca6e098363"
+  },
+  "3|cat|29": {
+   "n": 181,
+   "sha": "207134b88225213e"
+  },
+  "3|cat|30": {
+   "n": 178,
+   "sha": "42ba16ac6dc92334"
+  },
+  "3|cat|31": {
+   "n": 178,
+   "sha": "727b4ced7fe106e5"
+  },
+  "3|cat|32": {
+   "n": 171,
+   "sha": "ff65242186b82059"
+  },
+  "3|loaf|0": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|1": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|2": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|3": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|4": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|5": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|6": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|7": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|8": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|9": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|10": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|11": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|12": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|13": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|14": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|15": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|16": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|17": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|18": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|19": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|20": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|21": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|22": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|23": {
+   "n": 164,
+   "sha": "6ff4177f1989ffa7"
+  },
+  "3|loaf|24": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|25": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|26": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|27": {
+   "n": 162,
+   "sha": "56f735a037ddbc80"
+  },
+  "3|loaf|28": {
+   "n": 164,
+   "sha": "155ab344a9085a92"
+  },
+  "3|loaf|29": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|30": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|31": {
+   "n": 164,
+   "sha": "015ed041edd64b14"
+  },
+  "3|loaf|32": {
+   "n": 164,
+   "sha": "eea15d96ded0a43f"
+  }
+ },
+ "hero": {
+  "cam|day": {
+   "n": 142,
+   "sha": "8f8822ec311ca447"
+  },
+  "cam|dusk": {
+   "n": 142,
+   "sha": "077b08123a09dba2"
+  },
+  "cam|night": {
+   "n": 118,
+   "sha": "3a17b6b4b90f2ee1"
+  },
+  "rêu|day": {
+   "n": 142,
+   "sha": "69ab8393c059b33b"
+  },
+  "rêu|dusk": {
+   "n": 142,
+   "sha": "7d952eaf53a220a0"
+  },
+  "rêu|night": {
+   "n": 118,
+   "sha": "513012acfc91f305"
+  },
+  "chàm|day": {
+   "n": 142,
+   "sha": "1b80b2475bff3187"
+  },
+  "chàm|dusk": {
+   "n": 142,
+   "sha": "bfa6acbae3753ad4"
+  },
+  "chàm|night": {
+   "n": 118,
+   "sha": "5e1a33a7afea1722"
+  },
+  "mận|day": {
+   "n": 142,
+   "sha": "831aa432c76506b9"
+  },
+  "mận|dusk": {
+   "n": 142,
+   "sha": "a67dceb147f76484"
+  },
+  "mận|night": {
+   "n": 118,
+   "sha": "f4c86269a6ee419d"
+  }
+ },
+ "meta": {
+  "titles": 30
+ }
+}

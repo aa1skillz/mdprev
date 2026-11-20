@@ -1,0 +1,33 @@
+---
+// Hành vi của AppBar (nút `?` và nút theme). Trang tĩnh không nạp: chúng không có JavaScript.
+---
+<script>
+  import { emit, type BusType } from '../lib/bus';
+  import { isDark, setDark } from '../lib/prefs';
+  // giữ lời nhắc cài app của trình duyệt (Chromium) để lệnh "Install mdprev as an app" trong palette dùng lại
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); (window as unknown as { __mdInstall?: unknown }).__mdInstall = e; });
+  document.querySelectorAll<HTMLButtonElement>('.appbar [data-bus]').forEach((b) => b.addEventListener('click', () => emit(b.dataset['bus'] as BusType)));
+  // Nút theme tự đổi (không qua bus) để chạy cả ở /app/inspect/, nơi không nạp Shell.
+  document.querySelectorAll<HTMLButtonElement>('.appbar [data-theme-toggle]').forEach((b) => b.addEventListener('click', () => setDark(!isDark())));
+  // tooltip của nút theme nói rõ một cú bấm sẽ làm gì (aria-label giữ "Switch theme"); theo dõi mọi nguồn đổi theme (nút, phím d, hệ điều hành, Palette)
+  const syncThemeTitle = () => {
+    const dark = isDark(), sys = document.documentElement.dataset['themeSource'] === 'system';
+    document.querySelectorAll<HTMLButtonElement>('.appbar [data-theme-toggle]').forEach((b) => { b.title = `Switch to ${dark ? 'light' : 'dark'}${sys ? ' (now following the system)' : ''}`; });
+  };
+  syncThemeTitle();
+  new MutationObserver(syncThemeTitle).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-theme-source'] });
+  // "Skip to editor": đưa focus vào ô soạn; ở trang chủ khi editor chưa nạp thì bấm "Start writing" của thẻ chào trong khung tĩnh (HomeStudio nạp editor và focus ô soạn)
+  document.querySelector<HTMLAnchorElement>('[data-skip-editor]')?.addEventListener('click', (ev) => {
+    ev.preventDefault();
+    const box = document.querySelector<HTMLElement>('.ed-ta');
+    if (box) box.focus(); else document.querySelector<HTMLElement>('.wc-go')?.click();
+  });
+  // Inspect a skill: ô nhập mở ngay trên header (details gốc, chạy được cả khi không có JS); mở thì focus ô nhập, Esc hoặc bấm ra ngoài thì đóng và trả focus
+  const ins = document.getElementById('appbar-ins') as HTMLDetailsElement | null;
+  if (ins) {
+    const input = ins.querySelector<HTMLInputElement>('.appbar-ins-in');
+    ins.addEventListener('toggle', () => { if (ins.open) input?.focus(); });
+    ins.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') { ev.preventDefault(); ins.open = false; ins.querySelector<HTMLElement>('summary')?.focus(); } });
+    document.addEventListener('pointerdown', (ev) => { if (ins.open && !ins.contains(ev.target as Node)) ins.open = false; });
+  }
+</script>

@@ -1,0 +1,95 @@
+/* Panel file của bản sao (WorkspacePanel). Cột bên trái của khung editor; điện thoại thì là ngăn kéo phủ lên khung. */
+.wp { display: flex; flex-direction: column; min-height: 0; min-width: 0; border-right: 1px solid var(--line); background: var(--bg); font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 13px; color: var(--body); }
+.wp-h { display: flex; align-items: center; gap: 8px; padding: 12px 14px 0; }
+.wp-name { font-weight: 500; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+.wp-sub { margin: 2px 14px 8px; color: var(--sub); font-size: 12px; }
+.wp-acts { display: flex; flex-wrap: wrap; gap: 2px 4px; padding: 0 8px 8px; border-bottom: 1px solid var(--line); }
+.wp button { font: inherit; color: var(--sub); background: transparent; border: 0; cursor: pointer; padding: 4px 8px; }
+.wp button:hover:not(:disabled) { color: var(--ink); background: var(--hover); }
+.wp button:disabled { opacity: 0.4; cursor: default; }
+.wp button:focus-visible, .wp input:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+.wp-x { font-size: 18px; line-height: 1; }
+.wp .wp-go, .wp .wp-go:hover:not(:disabled) { background: var(--ink); color: var(--bg); }
+.wp .wp-go:hover:not(:disabled) { opacity: 0.88; }
+.wp .wp-danger, .wp .wp-danger:hover:not(:disabled) { color: var(--err); }
+.wp-form { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 14px; background: var(--panel); border-bottom: 1px solid var(--line); }
+.wp-form label { flex: 1 1 100%; display: grid; gap: 4px; }
+.wp-lbl { font-size: 11px; color: var(--sub); }
+.wp-form input { font: 400 13px 'JetBrains Mono', monospace; padding: 6px 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; box-sizing: border-box; }
+.wp-err { flex: 1 1 100%; margin: 0; color: var(--err); font-size: 12px; }
+.wp-tree { flex: 1; min-height: 0; overflow: auto; padding: 6px 0; scrollbar-width: thin; }
+.wp .wp-f { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 6px; width: 100%; text-align: left; padding-top: 5px; padding-bottom: 5px; padding-right: 12px; font: 400 12px 'JetBrains Mono', monospace; color: var(--body); }
+.wp .wp-f:hover:not(:disabled) { color: var(--body); }
+.wp-f .c { color: var(--sub); font-size: 11px; }
+.wp-f .nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wp-f .s { color: var(--dim); font-size: 11px; }
+.wp .wp-f[aria-current='true'], .wp .wp-f[aria-current='true']:hover:not(:disabled) { background: var(--hover); color: var(--ink); box-shadow: inset 2px 0 0 var(--accent); }
+.wp .wp-f.wp-d { grid-template-columns: 22px minmax(0, 1fr); }
+.wp .wp-f.wp-d, .wp .wp-f.wp-d:hover:not(:disabled) { color: var(--sub); }
+.wp-r { display: inline-flex; align-items: center; gap: 6px; }
+.wp-flag { font: 600 11px/1 'JetBrains Mono', monospace; color: var(--warn); }
+.wp-b { font-size: 11px; font-weight: 600; min-width: 16px; text-align: center; }
+.wp-modified { color: var(--accent); }
+.wp-added { color: var(--ok); }
+.wp-sec { border-top: 1px solid var(--line); padding: 8px 0; }
+.wp-sec h3 { margin: 0 14px 4px; font-size: 11px; font-weight: 500; color: var(--sub); letter-spacing: 0.04em; }
+.wp-del { display: flex; align-items: center; gap: 8px; padding: 2px 8px 2px 14px; font: 400 12px 'JetBrains Mono', monospace; text-decoration: line-through; color: var(--sub); }
+.wp-del .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wp-del button { text-decoration: none; }
+.wp-note { margin: 0; padding: 8px 14px; color: var(--sub); font-size: 12px; border-top: 1px solid var(--line); }
+.wp-foot { display: flex; gap: 6px; padding: 10px 12px; border-top: 1px solid var(--line); }
+.wp-dlg { position: fixed; z-index: 140; inset: 96px auto 48px 24px; width: min(760px, calc(100vw - 48px)); display: flex; flex-direction: column; background: var(--bg); border: 1px solid var(--ink); box-shadow: var(--shadow-hard); } /* rộng hơn panel: diff cần chỗ để đọc */
+.wp-dlg-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); overflow: hidden; }
+.wp-dlg-h b { font: 500 12px 'JetBrains Mono', monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wp-dlg pre { flex: 1; margin: 0; padding: 10px 12px; overflow: auto; font: 400 12px/1.6 'JetBrains Mono', monospace; white-space: pre; color: var(--body); }
+.wp-only-phone { display: none; }
+
+/* editor có panel: panel nằm tuyệt đối ở mép trái .pv-split (lưới của nó giữ nguyên), .pv-split chừa chỗ bằng padding */
+.pv[data-ws] .pv-split { position: relative; box-sizing: border-box; padding-left: var(--wsw, 260px); }
+.pv[data-ws][data-wsclosed] .pv-split { padding-left: 0; }
+.pv[data-ws] .pv-split > .wp { position: absolute; left: 0; top: 0; bottom: 0; width: var(--wsw, 260px); z-index: 3; }
+.pv[data-ws][data-wsclosed] .pv-split > .wp { display: none; }
+@media (max-width: 640px) {
+  .pv[data-ws] .pv-split { padding-left: 0; }
+  .pv[data-ws] .pv-split > .wp { position: fixed; z-index: 130; inset: 0 22% 0 0; width: auto; box-shadow: 0 0 0 100vmax color-mix(in oklch, var(--ink) 38%, transparent); border-right: 1px solid var(--line); }
+  .wp-only-phone { display: inline-block; }
+}
+
+
+/* hộp diff: bóng cứng như mọi UI nổi, chốt panel không chọc lên trên, dòng thêm/bớt có màu (ký hiệu + và - vẫn giữ) */
+.wp-dlg { box-shadow: var(--shadow-hard); }
+.wp-dlg pre .dh { color: var(--dim); }
+.wp-dlg pre .dm { color: var(--sub); }
+.wp-dlg pre .da { color: var(--ok); background: color-mix(in oklch, var(--ok) 10%, transparent); }
+.wp-dlg pre .dd { color: var(--err); background: color-mix(in oklch, var(--err) 10%, transparent); }
+
+/* panel file và Inspector: tông --side; tên và nhãn nguồn dài (URL GitHub) ngắt dòng trong panel, không tràn sang mặt soạn */
+.wp, .pv-insp { background: var(--side); }
+.wp-sub { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* cây file: icon theo loại, vạch dẫn thụt lề (--d = độ sâu) */
+.wp .wp-f { position: relative; }
+.wp .wp-f::before { content: ''; position: absolute; left: 19px; top: 0; bottom: 0; width: calc(var(--d, 0) * 14px); background: repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 14px); pointer-events: none; }
+.wp-f .c { display: grid; place-items: center; }
+.wp-f .c svg { display: block; }
+
+
+/* hàng thao tác của panel: icon có tooltip; Xoá tách riêng và chỉ đỏ khi rê chuột; "Close copy" nhạt hơn "Download zip" */
+.wp-acts { align-items: center; gap: 2px; }
+.wp .wp-ic { width: 28px; height: 28px; padding: 0; display: inline-grid; place-items: center; }
+.wp-acts-gap { flex: 1; }
+.wp .wp-ic-danger:hover:not(:disabled) { color: var(--err); }
+.wp .wp-quiet { color: var(--dim); font-size: 12px; }
+.wp .wp-quiet:hover:not(:disabled) { color: var(--err); background: transparent; }
+.wp-foot { justify-content: space-between; }
+
+/* toggle panel trên header: mở thì màu accent (trạng thái duy nhất kiểu bật/tắt của cụm trái và phải) */
+.appbar-btn[aria-pressed='true'], .pv-btn.pv-insp-btn[aria-pressed='true'] { color: var(--accent); }
+
+/* vault: wikilink và khối nhúng trong bản xem (CSS này chỉ nạp cùng panel file, tức chỉ khi đang mở workspace) */
+.md-doc a.wl { color: var(--link); }
+.md-doc .wl-broken { color: var(--sub); border-bottom: 1px dotted var(--sub); cursor: help; }
+.md-doc .embed { margin: 0 0 1.2em; padding: 2px 16px 4px; border-left: 3px solid var(--line); background: var(--surface); border-radius: 0 8px 8px 0; }
+.md-doc .embed-h { font-size: var(--t-xs); letter-spacing: 0.04em; text-transform: uppercase; margin: 10px 0 0; }
+.md-doc .embed-h a { color: var(--sub); text-decoration: none; }
+.wp-note ul { margin: 4px 0 0; padding-left: 16px; }
+.wp-note summary { cursor: pointer; }

@@ -1,0 +1,65 @@
+---
+import Page from '../../layouts/Page.astro';
+import { article, breadcrumbs } from '../../lib/site/jsonld';
+import { url } from '../../lib/url';
+
+const PATH = '/guides/what-is-inside-a-skill-md/';
+const DESC = 'The frontmatter fields, the three loading levels and the optional folders of an agent skill, explained from the published Agent Skills specification.';
+const HEADLINE = 'What is inside a SKILL.md';
+---
+<Page title={HEADLINE} description={DESC} path={PATH} current="guides" ogType="article"
+  jsonLd={[article({ path: PATH, site: Astro.site, headline: HEADLINE, description: DESC, published: '2026-11-13', modified: '2026-11-13' }), breadcrumbs([{ name: 'mdprev', path: '/' }, { name: 'Guides', path: '/guides/' }, { name: HEADLINE, path: PATH }], Astro.site)]}>
+  <article class="art">
+    <span class="st-lbl">Guide</span>
+    <h1>{HEADLINE}</h1>
+    <p class="by">Updated 13 November 2026. Based on the <a href="https://agentskills.io/specification">Agent Skills specification</a>, read directly from agentskills.io on that date. Where an agent behaves differently from the specification, the agent wins; check its own documentation.</p>
+
+    <div class="callout"><b>SHORT ANSWER</b><p>A skill is a folder whose only required file is <code>SKILL.md</code>: YAML frontmatter with a <code>name</code> and a <code>description</code>, then Markdown instructions. <code>scripts/</code>, <code>references/</code> and <code>assets/</code> are optional. Agents load it in three levels: the name and description at startup, the whole SKILL.md when a task matches, and other files only when the instructions point to them.</p></div>
+
+    <p>An agent skill is a folder. The only required file is <code>SKILL.md</code>: a short block of YAML at the top, then instructions in Markdown. Everything else is optional.</p>
+    <pre tabindex="0"><code>pdf-processing/
+├── SKILL.md        required: frontmatter, then instructions
+├── scripts/        optional: code the agent can run
+├── references/     optional: documentation loaded when needed
+└── assets/         optional: templates, images, data files</code></pre>
+
+    <h2>The frontmatter, field by field</h2>
+    <p>Two fields are required.</p>
+    <table class="st-table">
+      <thead><tr><th scope="col">Field</th><th scope="col">Required</th><th scope="col">Rule in the specification</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">name</td><td>yes</td><td>1 to 64 characters. Lowercase letters, digits and hyphens. Must not start or end with a hyphen, must not contain two hyphens in a row, and must match the folder’s name.</td></tr>
+        <tr><td class="nm">description</td><td>yes</td><td>1 to 1024 characters. Should say both what the skill does and when to use it.</td></tr>
+        <tr><td class="nm">license</td><td>no</td><td>A license name, or the name of a bundled license file.</td></tr>
+        <tr><td class="nm">compatibility</td><td>no</td><td>1 to 500 characters. Environment requirements such as the intended product, system packages or network access.</td></tr>
+        <tr><td class="nm">metadata</td><td>no</td><td>A map of text keys to text values, for anything the specification does not define.</td></tr>
+        <tr><td class="nm">allowed-tools</td><td>no</td><td>A space-separated string of pre-approved tools. Marked experimental; support varies between agents.</td></tr>
+      </tbody>
+    </table>
+    <p>A minimal file looks like this:</p>
+    <pre tabindex="0"><code>---
+name: pdf-processing
+description: Extracts text and tables from PDF files, fills forms and merges files. Use when working with PDFs.
+---
+# PDF processing
+
+Step-by-step instructions go here.</code></pre>
+
+    <div class="callout"><b>WHY THE DESCRIPTION MATTERS</b><p>It is the part every agent reads for every installed skill, and it is how an agent decides whether a task needs the skill. “Helps with PDFs” tells it little; naming what the skill does and when to use it tells it much more.</p></div>
+
+    <h2>What gets loaded, and when</h2>
+    <p>The specification describes loading in three levels, so that a long list of skills does not fill the agent’s context:</p>
+    <ol>
+      <li><b>Metadata</b>, the name and description of every skill, at startup. The specification puts this at about 100 tokens per skill.</li>
+      <li><b>Instructions</b>, the whole SKILL.md, when the agent decides a task matches. The specification recommends under 5000 tokens, and a file under 500 lines.</li>
+      <li><b>Resources</b>, the files in <code>scripts/</code>, <code>references/</code> and <code>assets/</code>, only when the instructions point to them.</li>
+    </ol>
+    <p>That is why long reference material belongs in separate files rather than in SKILL.md itself. See <a href={url('/guides/how-much-context-does-a-skill-cost/')}>how much context a skill costs</a> for measurements.</p>
+
+    <h2>Pointing at other files</h2>
+    <p>Refer to files with relative paths from the skill’s folder, for example <code>references/REFERENCE.md</code> or <code>scripts/extract.py</code>. The specification advises keeping references one level deep from SKILL.md and avoiding chains of files that point to more files.</p>
+
+    <h2>Checking a skill</h2>
+    <p>The specification’s own reference tool is <code>skills-ref validate ./my-skill</code>. The <a href={url('/skill-inspector/')}>mdprev skill inspector</a> does the same frontmatter checks in the browser, adds the estimated token cost and lists files that the instructions mention but the folder does not contain, and scripts worth reading before you install a skill. Next: <a href={url('/guides/install-a-skill-in-claude-code/')}>how to install a skill in Claude Code</a>, step by step.</p>
+  </article>
+</Page>

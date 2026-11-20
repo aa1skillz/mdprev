@@ -1,0 +1,122 @@
+/* Tài liệu Markdown sạch: dùng cho bản xem, file .html xuất ra và bản in. Chỉ dùng biến màu của blog. */
+.md-doc { max-width: 760px; font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 16px; line-height: 1.75; color: var(--body); overflow-wrap: break-word; }
+.md-doc > :first-child { margin-top: 0; }
+.md-doc > :last-child { margin-bottom: 0; }
+.md-doc h1, .md-doc [data-h1], .md-doc h2, .md-doc h3, .md-doc h4, .md-doc h5, .md-doc h6 { color: var(--ink); font-weight: 500; line-height: 1.3; letter-spacing: -0.01em; margin: 1.9em 0 0.6em; scroll-margin-top: 16px; text-wrap: balance; }
+.md-doc h1, .md-doc [data-h1] { font-size: 32px; letter-spacing: -0.02em; margin-top: 0; padding-bottom: 0.4em; border-bottom: 1px solid var(--ink); }
+.md-doc h2 { font-size: 22px; padding-bottom: 0.3em; border-bottom: 1px solid var(--line); }
+.md-doc h3 { font-size: 18px; }
+.md-doc h4 { font-size: 16px; }
+.md-doc h5, .md-doc h6 { font-size: 14px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sub); }
+.md-doc p { margin: 0 0 1.1em; text-wrap: pretty; }
+.md-doc a { color: var(--accent); text-underline-offset: 3px; }
+.md-doc a:hover { color: var(--link-h); }
+.md-doc strong { font-weight: 600; color: var(--ink); } /* 600 là cỡ đậm có nạp (Newsreader 400 và 600); 500 rơi về 400 nên **đậm** trông như chữ thường */
+.md-doc ul, .md-doc ol { margin: 0 0 1.1em; padding-left: 1.5em; }
+.md-doc li { margin: 0.25em 0; }
+.md-doc li > ul, .md-doc li > ol { margin: 0.25em 0 0; }
+.md-doc li::marker { color: var(--dim); }
+.md-doc ul.contains-task-list { list-style: none; padding-left: 0; }
+.md-doc .task-list-item { display: flex; align-items: baseline; gap: 10px; }
+.md-doc .task-list-item input { appearance: none; flex: none; width: 14px; height: 14px; margin: 0; transform: translateY(2px); border: 1px solid var(--ink); background: transparent; }
+.md-doc .task-list-item input:checked { background: var(--ink); box-shadow: inset 0 0 0 2px var(--bg); }
+.md-doc blockquote { margin: 0 0 1.1em; padding: 0 0 0 16px; border-left: 2px solid var(--ink); color: var(--sub); }
+.md-doc blockquote > :last-child { margin-bottom: 0; }
+.md-doc hr { border: 0; border-top: 1px solid var(--line); margin: 2em 0; }
+.md-doc img { max-width: 100%; height: auto; }
+.md-doc code { font-family: 'JetBrains Mono', monospace; font-size: 0.88em; background: var(--hover); padding: 1px 5px; }
+.md-doc table { width: 100%; border-collapse: collapse; margin: 0 0 1.4em; font-size: 15px; }
+.md-doc th, .md-doc td { padding: 8px 14px 8px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+.md-doc th { font-family: inherit; font-size: 0.82em; font-weight: 600; letter-spacing: 0.01em; text-transform: none; color: var(--ink); border-bottom-color: var(--ink); } /* tiêu đề cột cùng họ chữ với tài liệu (trước là mono in hoa giãn chữ, lệch với thân bài) */
+.md-doc th[align='center'], .md-doc td[align='center'] { text-align: center; }
+.md-doc th[align='right'], .md-doc td[align='right'] { text-align: right; }
+.md-doc .cb { margin: 0 0 1.4em; background: var(--code-bg); color: var(--code-fg); overflow: hidden; }
+.md-doc .cb-h { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px 6px 16px; border-bottom: 1px solid var(--code-line); font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; color: var(--code-label); }
+.md-doc .cb-copy { display: inline-grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 1px solid transparent; background: transparent; color: var(--code-label); cursor: pointer; }
+.md-doc .cb-copy .cb-ic { display: block; }
+.md-doc .cb-copy .cb-ic-ok { display: none; }
+.md-doc .cb-copy[data-done] { color: var(--ok); border-color: var(--code-btn); }
+.md-doc .cb-copy[data-done] .cb-ic-copy { display: none; }
+.md-doc .cb-copy[data-done] .cb-ic-ok { display: block; }
+.md-doc .cb-copy:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 1px; }
+.md-doc .cb-copy:hover { background: var(--code-hover); }
+.md-doc pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 14px; line-height: 1.65; background: transparent; }
+.md-doc pre code { background: transparent; padding: 0; font-size: inherit; }
+.md-doc .footnotes { margin-top: 2.4em; padding-top: 1em; border-top: 1px solid var(--line); font-size: 14px; color: var(--sub); }
+.md-doc .footnotes h2 { font-size: 12px; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sub); border: 0; margin: 0 0 8px; padding: 0; }
+.md-doc [data-line] { scroll-margin-top: 16px; }
+.md-doc .callout { margin: 0 0 1.1em; padding: 10px 16px; border-left: 2px solid var(--ink); background: var(--hover); }
+.md-doc .callout > :last-child { margin-bottom: 0; }
+.md-doc .callout-t { margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--sub); }
+.md-doc .callout-important, .md-doc .callout-warning, .md-doc .callout-caution { border-left-color: var(--warn); }
+.md-doc .callout-important .callout-t, .md-doc .callout-warning .callout-t, .md-doc .callout-caution .callout-t { color: var(--warn); }
+.md-doc figure.mermaid { margin: 0 0 1.4em; overflow-x: auto; text-align: center; }
+.md-doc figure.mermaid svg { max-width: 100%; height: auto; }
+.md-doc .katex-display { margin: 1em 0; overflow-x: auto; overflow-y: hidden; }
+.md-doc .katex { font-size: 1.08em; }
+
+/* Kiểu tài liệu (nút style: trong studio). Chỉ đổi chữ và nhịp, màu vẫn từ token của blog. */
+.md-doc[data-doc='paper'] { max-width: 680px; font-family: 'Newsreader', 'Iowan Old Style', Charter, Georgia, 'Times New Roman', serif; font-size: 19px; line-height: 1.8; hyphens: auto; }
+.md-doc[data-doc='paper'] h1, .md-doc[data-doc='paper'] [data-h1], .md-doc[data-doc='paper'] h2,.md-doc[data-doc='paper'] h3, .md-doc[data-doc='paper'] h4 { font-family: inherit; font-weight: 600; letter-spacing: 0; }
+.md-doc[data-doc='paper'] h1, .md-doc[data-doc='paper'] [data-h1] { font-size: 34px; text-align: center; border-bottom: 0; padding-bottom: 0; margin-bottom: 1.2em; }
+.md-doc[data-doc='paper'] h2 { font-size: 24px; border-bottom: 0; padding-bottom: 0; }
+.md-doc[data-doc='paper'] p { text-align: left; } /* canh đều hai bên tạo khoảng trắng loang ở cột hẹp của khung chia đôi; chỉ canh đều khi in */
+@media print { .md-doc[data-doc='paper'] p { text-align: justify; } }
+.md-doc[data-doc='paper'] blockquote { border-left-width: 1px; font-style: italic; }
+.md-doc[data-doc='paper'] hr { width: 30%; margin: 2.4em auto; }
+.md-doc[data-doc='paper'] table { font-size: 16px; }
+.md-doc[data-doc='compact'] { max-width: 880px; font-size: 14px; line-height: 1.55; }
+.md-doc[data-doc='compact'] h1, .md-doc[data-doc='compact'] [data-h1] { font-size: 24px; }
+.md-doc[data-doc='compact'] h2 { font-size: 18px; margin-top: 1.5em; }
+.md-doc[data-doc='compact'] h3 { font-size: 15px; margin-top: 1.4em; }
+.md-doc[data-doc='compact'] p, .md-doc[data-doc='compact'] ul, .md-doc[data-doc='compact'] ol, .md-doc[data-doc='compact'] blockquote { margin-bottom: 0.75em; }
+.md-doc[data-doc='compact'] li { margin: 0.1em 0; }
+.md-doc[data-doc='compact'] table { font-size: 13px; }
+.md-doc[data-doc='compact'] th, .md-doc[data-doc='compact'] td { padding: 4px 8px; border: 1px solid var(--line); }
+.md-doc[data-doc='compact'] pre { font-size: 13px; padding: 10px 12px; }
+.md-doc .img-broken { display: inline-block; max-width: 100%; padding: 6px 10px; border: 1px dashed var(--line2); color: var(--sub); font: 400 12px/1.4 'Be Vietnam Pro', system-ui, sans-serif; overflow-wrap: anywhere; }
+.md-doc img[data-missing] { min-width: 120px; min-height: 40px; outline: 1px dashed var(--line2); }
+
+/* In: lề trang, số trang ở chân, không cắt ngang tiêu đề và hình */
+@media print {
+  /* lề 0 thì trình duyệt không còn chỗ vẽ ngày giờ, tiêu đề tab, URL: lề thật nằm ở padding của nội dung in (không đặt ở body: các khung bọc của app có chiều cao cố định nên chỉ hai trang đầu được lặp lề; slide .sl-doc có lề riêng) và lặp lại ở mỗi trang (box-decoration-break: clone) */
+  @page { size: A4; margin: 0; }
+  .md-doc:not(.sl-doc), .pv-ptoc, html body[data-view='inspect'] { box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 16mm 15mm 18mm; }
+  .md-doc h1, .md-doc [data-h1], .md-doc h2, .md-doc h3, .md-doc h4 { break-after: avoid; }
+  .md-doc p, .md-doc li { orphans: 3; widows: 3; }
+  .md-doc img, .md-doc figure, .md-doc .callout { break-inside: avoid; }
+}
+
+/* Ảnh ngoài bị chặn trong tài liệu chia sẻ */
+.md-doc .md-img-blocked { display: inline-block; padding: 10px 14px; border: 1px dashed var(--line2); font: 12px/1.4 'JetBrains Mono', monospace; color: var(--sub); }
+
+/* công thức hoặc sơ đồ lỗi: thấy ngay trong bản xem, kèm lý do ngắn (tooltip với công thức, dòng ghi chú với sơ đồ) */
+.md-doc .katex-error { font-family: 'JetBrains Mono', monospace; font-size: 0.9em; color: var(--err); text-decoration: underline wavy; text-underline-offset: 3px; cursor: help; }
+.md-doc .katex-error::after { content: ' · formula error'; font-family: 'Be Vietnam Pro', system-ui, sans-serif; font-size: 0.75em; text-decoration: none; display: inline-block; }
+.md-doc .mm-err { margin: 0 0 6px; font: 500 12px/1.4 'JetBrains Mono', monospace; color: var(--err); }
+
+/* điện thoại: bảng rộng cuộn ngang trong chính nó (không cắt cụt), có bóng mờ ở mép còn nội dung để biết là cuộn được */
+@media (max-width: 640px) {
+  .md-doc table { display: block; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+    background: linear-gradient(to right, var(--bg) 30%, transparent) left / 28px 100% no-repeat local, linear-gradient(to left, var(--bg) 30%, transparent) right / 28px 100% no-repeat local, linear-gradient(to right, var(--line2), transparent) left / 8px 100% no-repeat scroll, linear-gradient(to left, var(--line2), transparent) right / 8px 100% no-repeat scroll; }
+  .md-doc table:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+}
+.md-doc figure.mermaid:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pv-out .md-doc .task-list-item input { cursor: pointer; }
+@media (pointer: coarse) { .md-doc .task-list-item { min-height: 40px; align-items: center; } .md-doc .task-list-item input { width: 22px; height: 22px; transform: none; } }
+
+.md-doc del, .md-doc s { hyphens: manual; }
+
+
+@media (max-width: 640px) { .md-doc td, .md-doc th { min-width: 6.5rem; } }
+
+.md-doc h1, .md-doc h2, .md-doc h3 { hyphens: manual; }
+/* Theme tài liệu (mục 4) đặt biến trên phần tử có data-dt: khai báo lại các biến suy ra để chúng tính theo màu của theme */
+[data-dt] { --link: var(--accent); --link-h: color-mix(in oklch, var(--accent) 80%, var(--ink)); --shiki-foreground: var(--code-fg); --shiki-token-keyword: var(--accent); --shiki-token-string: var(--ok); --shiki-token-string-expression: var(--ok); --shiki-token-comment: var(--code-label); --shiki-token-constant: var(--accent); --shiki-token-function: var(--code-fg); --shiki-token-parameter: var(--code-fg); --shiki-token-punctuation: var(--code-label); --shiki-token-link: var(--accent); }
+
+/* Sơ đồ Mermaid phẳng: không đổ bóng, nhãn cạnh nền theo giấy, viền mảnh (hợp mọi theme đọc) */
+.md-doc figure.mermaid svg * { filter: none !important; }
+.md-doc figure.mermaid svg .edgeLabel, .md-doc figure.mermaid svg .edgeLabel p, .md-doc figure.mermaid svg .labelBkg { background-color: var(--bg) !important; }
+.md-doc figure.mermaid svg .edgeLabel rect { fill: var(--bg) !important; opacity: 1; }
+/* Tiêu đề Footnotes là nhãn phụ: giữ nhỏ ở mọi kiểu tài liệu/theme (h2 của kiểu paper không được phóng nó lên) */
+.md-doc .footnotes h2 { font-size: 12px !important; font-family: 'JetBrains Mono', monospace !important; font-weight: 500; }

@@ -1,0 +1,37 @@
+---
+import '@fontsource/newsreader/latin-400.css';
+import '@fontsource/newsreader/vietnamese-400.css';
+import '@fontsource/newsreader/latin-400-italic.css';
+import '@fontsource/newsreader/latin-600.css';
+import '@fontsource/newsreader/vietnamese-600.css';
+import '../styles/site.css';
+import nr400 from '@fontsource/newsreader/files/newsreader-latin-400-normal.woff2?url';
+import nr600 from '@fontsource/newsreader/files/newsreader-latin-600-normal.woff2?url';
+import bv400 from '@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-400-normal.woff2?url';
+import bv500 from '@fontsource/be-vietnam-pro/files/be-vietnam-pro-latin-500-normal.woff2?url';
+import Base from './Base.astro';
+import AppBar from '../components/AppBar.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+/** Trang tĩnh công khai (không có editor, không có JavaScript riêng): header, nội dung, footer. */
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  current?: 'inspector' | 'guides' | 'privacy' | undefined;
+  ogImage?: string;
+  ogType?: 'website' | 'article';
+  jsonLd?: object[];
+  noindex?: boolean;
+}
+const { title, description, path, current, ogType = 'website', jsonLd = [], noindex = false, ogImage = '/og.png' } = Astro.props;
+---
+<Base view="page" shell={false} title={title} description={description} path={path} ogType={ogType} jsonLd={jsonLd} noindex={noindex} ogImage={ogImage}>
+  <Fragment slot="head">
+    {/* Phông của chữ đầu trang tải song song với CSS: không có thì chữ đổi phông sau lần vẽ đầu và đẩy cả bài (CLS 0.23 trên guide, mobile). */}
+    {[nr400, nr600, bv400, bv500].map((f) => <link rel="preload" as="font" type="font/woff2" href={f} crossorigin="anonymous" />)}
+  </Fragment>
+  <AppBar variant="page" current={current} />
+  <div class="st"><slot /></div>
+  <div class="st"><SiteFooter /></div>
+</Base>

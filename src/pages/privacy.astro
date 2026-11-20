@@ -1,0 +1,49 @@
+---
+import Page from '../layouts/Page.astro';
+import { breadcrumbs } from '../lib/site/jsonld';
+import { url } from '../lib/url';
+
+const DESC = 'What mdprev stores in your browser, what leaves it and what does not: documents, vaults, themes, password links and hosting, described as the code actually behaves.';
+---
+<Page title="Privacy: what is stored, and where" description={DESC} path="/privacy/" current="privacy"
+  jsonLd={[breadcrumbs([{ name: 'mdprev', path: '/' }, { name: 'Privacy', path: '/privacy/' }], Astro.site)]}>
+  <article class="art">
+    <span class="st-lbl">Privacy</span>
+    <h1>What is stored, and where</h1>
+    <p class="by">Updated 17 November 2026. This page describes what the code does, not a promise about anything it does not do. If the code changes in a way that matters here, this page changes with it.</p>
+
+    <h2>Nothing you open is uploaded to mdprev</h2>
+    <p>mdprev is a set of static pages that run in your browser. There is no account, no sign-in and no mdprev server that receives your documents, skills or zip files. The pages carry no analytics script and set no cookies.</p>
+
+    <h2>What stays in your browser</h2>
+    <ul>
+      <li><b>The document you are editing</b>, its name, and its earlier versions (the history and “Restore previous”), in the browser’s storage.</li>
+      <li><b>Images you paste</b>, kept in the browser’s storage and referenced from the document.</li>
+      <li><b>A copy of a skill you chose to edit</b> (“Edit a copy”): every file in it, plus the untouched original so mdprev can show what you changed, in the browser’s storage (IndexedDB). A copy is capped at 10 MB of text. “Close copy” deletes it; downloading a zip writes a file to your disk and nothing else.</li>
+      <li><b>A vault you opened</b> (“Open folder as vault…” or “Open zip as vault…”): a copy of its Markdown notes, in the browser’s storage (IndexedDB), like a skill copy. The files on your disk are not changed. “Close vault” deletes the copy; “Export site…” writes a zip to your disk and nothing else.</li>
+      <li><b>Authorship marks</b>, if you turn them on: which parts of the document were pasted or dropped in, in the browser’s storage (IndexedDB). They are never written into the document, and are exported only if you press “Export record”.</li>
+      <li><b>Document themes</b>: the theme in use, the themes you saved, any custom CSS you wrote, and your own templates.</li>
+      <li><b>A writing log</b>: how many words you wrote on each day, for the streak in Checks. The word goal is kept too. The log holds counts, not text.</li>
+      <li><b>Settings</b> such as the theme, the layout and the document style.</li>
+      <li><b>The last five GitHub links you inspected</b>, so you can open them again.</li>
+      <li><b>App files for offline use</b>, in the browser’s cache, if you install the editor as an app.</li>
+    </ul>
+    <p>Clearing this site’s data in your browser settings removes all of it. Two tabs of mdprev on the same browser share the same document; a second tab opened on a skill copy is read-only so it cannot overwrite the first.</p>
+
+    <h2>When you inspect a skill from GitHub</h2>
+    <p>Your browser requests the file list from <code>api.github.com</code> and the files from <code>raw.githubusercontent.com</code>, directly. GitHub sees those requests as it would see you browsing the repository: your IP address and which repository you asked for. mdprev does not see them and does not relay them. A zip or a folder you open is read locally and never sent anywhere. No file from a skill is ever executed.</p>
+
+    <h2>When you open a web address or export</h2>
+    <p>“Open URL” fetches the address you type, straight from your browser and without sending cookies. Exporting a document that links to images on other sites makes your browser fetch those images so they can be embedded. These requests go to those sites, not to mdprev.</p>
+
+    <h2>Share links</h2>
+    <p>A share link carries the compressed document inside the link itself, after the <code>#</code>. That part of a link is not sent to the web server when the page is requested. It is, however, part of the link: it sits in your browser history, in the chat or mail where you paste it, and anyone who has the link can read the document. Treat a share link like the document. When someone opens a share link, mdprev asks first, and it does not load images from other sites until they choose to.</p>
+    <p>A password link (<code>#e=</code>) carries the document encrypted in your browser with AES-GCM, with a key made from the password. The password is not put in the link, in storage or in a log, and decryption also happens in the reader’s browser. Anyone with the link and the password can read the document. An expiry date is soft: it is checked against the reader’s clock and cannot recall a copy already made. A document theme (colours, font, size, width) can travel inside either kind of link; custom CSS never does. <a href={url('/guides/share-a-markdown-document-with-a-password/')}>How password links work</a>.</p>
+
+    <h2>Hosting</h2>
+    <p>The site is static files served by a hosting provider. Like any host, it processes ordinary web requests (your IP address, the page asked for, your browser’s headers). mdprev adds no tracking on top of that.</p>
+
+    <div class="callout"><b>QUESTIONS</b><p>Something here does not match what you see? That is a bug in this page or in the code. Please report it.</p></div>
+    <p><a href={url('/')}>Back to the editor</a></p>
+  </article>
+</Page>

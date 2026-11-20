@@ -1,0 +1,74 @@
+---
+import Page from '../../layouts/Page.astro';
+import FeatureFigures from '../../components/FeatureFigures.astro';
+import { article, breadcrumbs } from '../../lib/site/jsonld';
+import { url } from '../../lib/url';
+
+const PATH = '/guides/publish-a-markdown-vault-as-a-static-site/';
+const DESC = 'Turn a folder of Markdown notes with [[wikilinks]] into a static website with backlinks and link previews, free and in the browser. Steps, a 50-note test and the limits.';
+const HEADLINE = 'Publish a Markdown vault as a static site, free';
+---
+<Page title={HEADLINE} description={DESC} path={PATH} current="guides" ogType="article" ogImage="/og-vault-site.png"
+  jsonLd={[article({ path: PATH, site: Astro.site, headline: HEADLINE, description: DESC, published: '2026-11-17', modified: '2026-11-17' }), breadcrumbs([{ name: 'mdprev', path: '/' }, { name: 'Guides', path: '/guides/' }, { name: HEADLINE, path: PATH }], Astro.site)]}>
+  <article class="art gd">
+    <span class="st-lbl">Guide</span>
+    <h1>{HEADLINE}</h1>
+    <p class="by">Updated 17 November 2026. Describes what the <a href={url('/app/')}>mdprev editor</a> does today, measured on a 50-note test vault.</p>
+
+    <div class="callout"><b>SHORT ANSWER</b><p>In the <a href={url('/app/')}>editor</a>, choose <b>Open → Open folder as vault…</b> (or <b>Open zip as vault…</b>), then <b>Export site…</b>. You get a zip with one HTML page per note, an index, backlinks and link previews; broken links are listed before you export. Unzip it and open it from disk, or upload the folder to any static host. It is free and needs no account. mdprev does not host the site for you.</p></div>
+
+    <p>A “vault” here means a folder of Markdown notes that link to each other with <code>[[wikilinks]]</code>. Paid publishing services host such a folder for you. If you are happy to upload a folder yourself, the site can be built in your browser instead, and the notes never leave your device on the way.</p>
+
+    <FeatureFigures name="vault" class="gd-fig" />
+
+    <h2>1. Open the folder</h2>
+    <p>Open the <a href={url('/app/')}>editor</a> and use the <b>Open</b> menu in the header: <b>Open folder as vault…</b> picks a folder, <b>Open zip as vault…</b> picks a zip of one. Both use the browser’s ordinary file picker rather than a Chromium-only API: the files are read once and copied into the browser’s storage. That also means changes you make in mdprev stay in the copy, not in the files on your disk.</p>
+    <p>Only Markdown notes (<code>.md</code> and <code>.markdown</code>) are taken in. The file panel says how many other files were skipped, such as images and PDFs.</p>
+
+    <h2>2. Check the links</h2>
+    <p>These link forms are understood:</p>
+    <ul>
+      <li><code>[[Note]]</code> and <code>[[Note|shown text]]</code>, matched without regard to case.</li>
+      <li><code>[[Note#Heading]]</code>, which jumps to that heading on the page.</li>
+      <li><code>![[Note]]</code>, which places the other note inside this one.</li>
+    </ul>
+    <p>When two notes share a name in different folders, a link goes to the one in the same folder first, then to the one with the shortest path. <b>Export site…</b> opens a dialog that lists every link it could not resolve, with the note and line it came from, so you can fix them first or export anyway.</p>
+
+    <h2>3. Export and open</h2>
+    <p>In the dialog, set a site title and, if you know it, the address the site will live at (it must start with <code>https://</code>). With an address, the export also writes a sitemap and the tags that give share previews. <b>Export zip</b> downloads the site.</p>
+    <p>Every page links with relative paths and the previews are plain script files, so the unzipped folder works straight from disk (<code>file://</code>): double-click <code>index.html</code>. To put it online, upload the folder as it is to GitHub Pages, Cloudflare Pages or any host that serves static files.</p>
+
+    <FeatureFigures name="hover" class="gd-fig gd-sm" />
+
+    <h2>What the test vault gave</h2>
+    <p>The test vault has 50 notes in 8 folders, with some file names in Vietnamese and three links that are broken on purpose.</p>
+    <table class="st-table">
+      <caption>Measured 17 November 2026 in Chromium, with the export opened from disk.</caption>
+      <tbody>
+        <tr><td>Notes in</td><td class="n">50</td></tr>
+        <tr><td>Pages out</td><td class="n">50, plus an index</td></tr>
+        <tr><td>Broken links listed before export</td><td class="n">3 of 3</td></tr>
+        <tr><td>Wikilinks, backlinks, hover previews from <code>file://</code></td><td class="n">working</td></tr>
+      </tbody>
+    </table>
+    <p>The three broken links were a note that does not exist, a heading that does not exist and an image, <code>![[photo.png]]</code>, which leads to the first limit below.</p>
+
+    <h2>Limits, plainly</h2>
+    <ul>
+      <li><b>Notes only.</b> Images and other attachments are not carried into the site. An image embed such as <code>![[photo.png]]</code> is reported as a broken link.</li>
+      <li><b>Embeds are whole notes.</b> <code>![[Note#Heading]]</code> places the entire note, not only that section.</li>
+      <li><b>No graph view.</b> The site has an index, backlinks and previews, but no graph of notes.</li>
+      <li><b>Plain code and math.</b> The site does not colour code blocks or render math formulas; they appear as plain text. Raw HTML in notes is left out.</li>
+      <li><b>No hosting, no sync.</b> mdprev builds the files. Where they live, and keeping them up to date after you edit, is up to you: export again and upload again.</li>
+    </ul>
+    <p>mdprev reads <code>[[name]]</code>, <code>[[name|alias]]</code> and <code>[[name#heading]]</code> links. Plugins, canvases and other app-specific files are not read.</p>
+
+    <h2>Related</h2>
+    <p><a href={url('/features/')}>Everything free in mdprev, compared with paid plans</a>. To send a single note privately instead of publishing it, <a href={url('/guides/share-a-markdown-document-with-a-password/')}>share it with a password</a>. The <a href={url('/privacy/')}>privacy page</a> says where an opened vault is stored.</p>
+  </article>
+</Page>
+<style>
+  .gd :global(.gd-fig) { margin: 6px 0 26px; max-width: 520px; }
+  .gd :global(.gd-sm) { max-width: 400px; }
+  .gd .st-table .n { white-space: normal; }
+</style>

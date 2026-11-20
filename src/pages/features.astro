@@ -1,0 +1,67 @@
+---
+import Page from '../layouts/Page.astro';
+import FeatureFigures from '../components/FeatureFigures.astro';
+import { breadcrumbs, webPage } from '../lib/site/jsonld';
+import { url } from '../lib/url';
+
+const PATH = '/features/';
+const TITLE = 'Six free features: password links, static sites, EPUB';
+const DESC = 'Password-protected share links, a static site from a folder of notes, Style Check, authorship marks, EPUB and LaTeX export, themes. Free, no account, all in your browser.';
+const UPDATED = '2026-11-17';
+---
+<Page title={TITLE} description={DESC} path={PATH} ogImage="/og-features.png"
+  jsonLd={[webPage({ path: PATH, site: Astro.site, name: TITLE, description: DESC, modified: UPDATED }), breadcrumbs([{ name: 'mdprev', path: '/' }, { name: 'Features', path: PATH }], Astro.site)]}>
+  <article class="art ft">
+    <span class="st-lbl">Features</span>
+    <h1>Six features, free, in your browser</h1>
+    <p class="by">Updated <time datetime={UPDATED}>17 November 2026</time>.</p>
+
+    <div class="callout"><b>SHORT ANSWER</b><p>Six things that many Markdown apps keep behind a plan are free in mdprev, with no account: share links with a password, a static site from a folder of notes, Style Check, authorship marks, EPUB, LaTeX and TextPack export, and document themes. All of it runs in your browser. mdprev does not host, sync, collaborate or use AI.</p></div>
+
+    <p>mdprev is a Markdown editor that runs in a browser tab. There is no mdprev server that stores documents, so anything that needs one (hosting, sync, live editing with others) is out of reach by design. What is left still covers a lot of what people pay for. This page lists it, and what mdprev does not do.</p>
+
+    <FeatureFigures name="grid" class="ft-fig" />
+
+    <h2 id="six">The six features</h2>
+
+    <h3>1. Share a document with a password</h3>
+    <p><b>Share with password…</b> in the Export menu makes a link that starts with <code>#e=</code>. The document is encrypted in your browser with AES-GCM, using a key derived from your password with PBKDF2-SHA256 and 600,000 rounds. The link carries the encrypted text; the password is not in it, and no server keeps a copy. Passwords need at least 8 characters, and the page must be served over HTTPS.</p>
+    <p>You can pick an expiry of 1, 7 or 30 days. Expiry is soft: the page refuses to open the link after that date, going by the reader’s own clock, but anyone who already opened or copied the text keeps it. On the 60-line sample document the encrypted part of the link is 1,164 characters, against 1,066 for the same document shared without a password. <a href={url('/guides/share-a-markdown-document-with-a-password/')}>How password links work, step by step</a>.</p>
+
+    <h3>2. Publish a folder of notes as a website</h3>
+    <p><b>Open folder as vault…</b> or <b>Open zip as vault…</b> (in the Open menu) reads a folder of Markdown notes linked with <code>[[wikilinks]]</code> (<code>[[name]]</code>, <code>[[name|alias]]</code>, <code>[[name#heading]]</code>). <b>Export site…</b> then builds a zip: one page per note, an index, backlinks under every page and a preview card when you point at a link. Broken links are listed before you export. The folder opens straight from disk, or you upload it to any static host. A 50-note test vault gave 50 pages. <a href={url('/guides/publish-a-markdown-vault-as-a-static-site/')}>The full walk-through, with its limits</a>.</p>
+
+    <h3>3. Style Check and writing stats</h3>
+    <p>The <b>Checks</b> tab of the Inspector suggests edits in English: wordy phrases, passive voice, long sentences and the same word repeated close together. It skips code, front matter and tables. The same tab counts words and sentences, reading time and average sentence length. There is no readability score. Words written per day and a streak (days with at least 50 words) are kept in this browser.</p>
+
+    <h3>4. Authorship marks</h3>
+    <p><b>View options → Authorship marks</b> highlights text that was pasted or dropped in, as opposed to typed. It is off by default. The record stays in this browser and is never written into the file; you can export it as JSON from the Checks tab. It is approximate and self-reported, not evidence of who wrote what.</p>
+
+    <h3>5. More export formats</h3>
+    <p>Besides PDF, Word, HTML and slides, <b>Export</b> now writes <b>EPUB</b> (an e-book with your pasted images inside), <b>LaTeX</b> (a .tex file for XeLaTeX; what it cannot convert is listed when you download) and <b>TextPack</b> (Markdown and images in one file, which mdprev opens again). See <a href={url('/guides/markdown-to-pdf-word-and-slides/')}>every export format compared</a>.</p>
+
+    <h3>6. Document themes</h3>
+    <p><b>View options → Theme…</b> sets the colours, font, text size and page width of the rendered document: Default, Sepia, Newsprint, Slate, Night, or your own. The theme applies to the preview, printing and HTML export, and travels inside share links. Custom CSS is also allowed, but it stays on this device and never goes into a link. Saved themes and your own templates have no limit.</p>
+
+    <h2 id="not">What mdprev does not do</h2>
+    <p>Most of these follow from having no server to keep your files on.</p>
+    <ul>
+      <li><b>No hosting.</b> The site export is a zip. You upload it to GitHub Pages, Cloudflare Pages or any static host yourself.</li>
+      <li><b>No custom-domain hosting.</b> Point your own domain at your own host; mdprev is not in that chain.</li>
+      <li><b>No sync.</b> Documents live in this browser on this device. Save or export files and sync them with what you already use.</li>
+      <li><b>No collaboration.</b> One person, one browser. A share link is a copy of the document, not a live one.</li>
+      <li><b>No AI.</b> Nothing writes, rewrites or summarises your text. Style Check works from fixed word lists and rules.</li>
+      <li><b>No account, so no recovery.</b> Clearing this site’s data in your browser deletes what is stored there. The <a href={url('/privacy/')}>privacy page</a> lists exactly what that is.</li>
+    </ul>
+
+    <p class="ft-go"><a href={url('/app/')}>Open the editor</a> · <a href={url('/guides/')}>All guides</a></p>
+  </article>
+</Page>
+<style>
+  .ft h3 { font: 600 22px/1.3 'Newsreader', serif; color: var(--ink); margin: 30px 0 8px; }
+  .ft :global(.ft-fig) { max-width: 360px; margin: 6px 0 8px; }
+  .ft .st-table td { vertical-align: top; }
+  .ft .st-table .n { text-align: left; white-space: normal; }
+  .ft .st-table .nm a { color: var(--ink); }
+  .ft-go { margin-top: 30px; }
+</style>

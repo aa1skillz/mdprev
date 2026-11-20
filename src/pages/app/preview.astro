@@ -1,0 +1,15 @@
+---
+import '@fontsource/newsreader/latin-400.css';
+import '@fontsource/newsreader/vietnamese-400.css';
+import '@fontsource/newsreader/latin-400-italic.css';
+import '@fontsource/newsreader/vietnamese-400-italic.css';
+import '@fontsource/newsreader/latin-600.css';
+import '@fontsource/newsreader/vietnamese-600.css';
+import '../../styles/md-doc.css';
+import '../../styles/popout.css';
+import Base from '../../layouts/Base.astro';
+import StudioPopout from '../../components/islands/StudioPopout';
+---
+<Base view="markdown-popout" title="Preview" description="Preview window for the mdprev editor." path="/app/preview/" noindex>
+  <StudioPopout client:only="preact" />
+</Base>

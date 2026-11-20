@@ -1,0 +1,114 @@
+---
+import { url } from '../lib/url';
+import BrandLogo from './BrandLogo.astro';
+
+/** Header duy nhất của mọi bề mặt: `/` (home), `/app/` (app), `/app/inspect/` (inspect) và trang tĩnh (page: có điều hướng, không h1 riêng, không tìm kiếm). Inspect và page không nạp Shell/Palette nên không có ô tìm kiếm và nút `?`. */
+interface Props { variant?: 'app' | 'home' | 'inspect' | 'page'; current?: 'inspector' | 'guides' | 'privacy' | undefined }
+const { variant = 'app', current } = Astro.props;
+const tools = variant !== 'inspect' && variant !== 'page';
+const cur = (id: string): 'page' | undefined => (current === id ? 'page' : undefined);
+---
+<header class="appbar" data-focus-hide>
+  {tools && <a class="skip-link" href="#main" data-skip-editor>Skip to editor</a>}
+  <a class="appbar-brand" href={url('/')} aria-label="mdprev"><BrandLogo /></a>
+  {tools && <span class="appbar-files" id="appbar-slot-files"></span>}
+  {tools && (
+    <details class="appbar-ins" id="appbar-ins">
+      <summary class="appbar-btn appbar-act" title="Inspect a skill: paste a link to check it"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 12h8" /></svg><span class="lbl">Inspect a skill</span></summary>
+      <form class="appbar-ins-form" action={url('/app/inspect/')} method="get">
+        <input class="appbar-ins-in" name="u" type="text" placeholder="Paste a GitHub link to a skill" aria-label="Skill link" autocomplete="off" spellcheck="false" />
+        <button type="submit" class="appbar-ins-go">Inspect</button>
+      </form>
+    </details>
+  )}
+  {variant === 'page'
+    ? <nav aria-label="Main" class="appbar-nav">
+        <a href={url('/skill-inspector/')} aria-current={cur('inspector')}>Skill inspector</a>
+        <a href={url('/guides/')} aria-current={cur('guides')}>Guides</a>
+        <a href={url('/privacy/')} aria-current={cur('privacy')}>Privacy</a>
+      </nav>
+    : variant === 'home'
+    ? <h1 class="appbar-h1">Markdown editor and agent skill inspector</h1>
+    : variant === 'inspect'
+      ? <span class="appbar-where" id="appbar-where">Skill inspector</span>
+      : <span class="appbar-where appbar-where-app" id="appbar-where" title="This document lives in this browser's storage. Use FILE or EXPORT to keep a copy on disk.">Scratch · stored in this browser</span>}
+  <span class="appbar-r">
+    {tools && (
+      <button type="button" class="appbar-search" data-open-search aria-label="Search or run a command" title="Search or run a command (⌘/Ctrl+/)">
+        <svg class="ic ic-cmd" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" /></svg>
+        <svg class="ic ic-find" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+        <span class="appbar-search-t">Search or run a command</span><kbd aria-hidden="true">/</kbd>
+      </button>
+    )}
+    {variant === 'inspect' && <a class="appbar-btn" href={url('/app/')}>Editor</a>}
+    {tools && <button type="button" class="appbar-btn appbar-ic" data-bus="help" aria-label="Keyboard shortcuts" title="Keyboard shortcuts (?)"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01" /></svg></button>}
+    {tools && <span class="appbar-slot-aa" id="appbar-slot-aa"></span>}
+    {variant !== 'page' && <button type="button" class="appbar-btn appbar-ic appbar-theme" data-theme-toggle aria-label="Switch theme" title="Switch theme"><svg class="ic ic-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11z" /></svg><svg class="ic ic-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></svg></button>}
+    {tools && <span class="appbar-slot-export" id="appbar-slot-export"></span>}
+    {variant === 'page' && <a class="appbar-cta" href={url('/app/')}>Open editor</a>}
+  </span>
+</header>
+<style is:global>
+  .appbar-search .ic-find { display: none; }
+  @media (max-width: 899px) { .appbar-search .ic-cmd { display: none; } .appbar-search .ic-find { display: block; } } /* ⌘ chỉ có nghĩa với bàn phím; dưới 900px (cảm ứng) nút tìm kiếm dùng kính lúp */
+  @media (max-width: 640px) { .appbar [data-bus='help'] { display: none; } } /* "?" liệt kê phím tắt, điện thoại không có */
+  .skip-link { position: absolute; left: 8px; top: -48px; z-index: 200; padding: 8px 14px; background: var(--ink); color: var(--bg); font: 500 var(--t-sm)/1 'Be Vietnam Pro', system-ui, sans-serif; text-decoration: none; }
+  .skip-link:focus { top: 8px; outline: 2px solid var(--accent); outline-offset: 2px; }
+  .appbar { display: flex; align-items: center; gap: 16px; min-height: 44px; box-sizing: border-box; padding: 0 16px; border-bottom: 1px solid var(--line); font: 400 var(--t-base)/1.4 'Be Vietnam Pro', system-ui, sans-serif; color: var(--sub); }
+  .appbar-brand { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); text-decoration: none; font-weight: 500; font-size: var(--t-md); }
+  .appbar-brand:hover { color: var(--ink); }
+  .appbar-mark { flex: none; display: block; }
+  .appbar-word { flex: none; display: block; }
+  .appbar-files { display: inline-flex; align-items: center; gap: 2px; }
+  .appbar-files:empty { display: none; }
+  .appbar-act { display: inline-flex; align-items: center; gap: 6px; }
+  .appbar-ins { position: relative; }
+  .appbar-ins > summary { list-style: none; cursor: pointer; }
+  .appbar-ins > summary::-webkit-details-marker { display: none; }
+  .appbar-ins[open] > summary { visibility: hidden; }
+  .appbar-ins-form { position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 40; display: flex; align-items: center; gap: 6px; padding: 4px; width: min(430px, 60vw); background: var(--surface); border: 1px solid var(--ink); box-shadow: var(--shadow-hard); }
+  .appbar-ins-in { flex: 1; min-width: 0; height: 28px; padding: 0 8px; font: 400 var(--t-base) 'JetBrains Mono', monospace; color: var(--ink); background: transparent; border: 1px solid var(--line2); }
+  .appbar-ins-in:focus { outline: 0; border-color: var(--accent); }
+  .appbar-ins-go { height: 28px; padding: 0 12px; font: 500 var(--t-base) 'Be Vietnam Pro', system-ui, sans-serif; color: var(--bg); background: var(--ink); border: 1px solid var(--ink); cursor: pointer; }
+  .appbar-ins-go:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  /* theme: một nút, icon theo trạng thái hiện tại (trăng ở sáng, mặt trời ở tối), lật bằng CSS theo html[data-theme] nên không nháy; chấm accent = đang theo hệ thống */
+  .appbar-theme { position: relative; }
+  .appbar-theme .ic-sun { display: none; }
+  html[data-theme='dark'] .appbar-theme .ic-sun { display: block; }
+  html[data-theme='dark'] .appbar-theme .ic-moon { display: none; }
+  html[data-theme-source='system'] .appbar-theme::after { content: ''; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; background: var(--accent); }
+  .appbar-nav { display: flex; gap: 4px; }
+  .appbar-nav a { padding: 4px 8px; color: var(--sub); text-decoration: none; border-bottom: 2px solid transparent; }
+  .appbar-nav a:hover { color: var(--ink); }
+  .appbar-nav a[aria-current] { color: var(--ink); border-bottom-color: var(--accent); }
+  .appbar-cta { margin-left: 8px; padding: 4px 12px; background: var(--ink); border: 1px solid var(--ink); color: var(--bg); font-weight: 500; text-decoration: none; white-space: nowrap; }
+  .appbar-cta:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .appbar-where { color: var(--sub); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  .appbar-h1 { margin: 0; font: inherit; font-weight: 400; color: var(--sub); position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } /* h1 của trang chủ giữ trong DOM cho công cụ tìm kiếm và trình đọc màn hình; header chỉ còn chỗ cho các điều khiển */
+  .appbar-where-app { display: none; }
+  .appbar-r { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .appbar-slot-aa, .appbar-slot-export { display: inline-flex; align-items: center; }
+  .appbar-slot-aa:empty, .appbar-slot-export:empty { display: none; }
+  .appbar-btn { font: inherit; font-size: var(--t-base); padding: 4px 8px; border: 1px solid transparent; background: transparent; color: var(--sub); cursor: pointer; text-decoration: none; white-space: nowrap; }
+  .appbar-ic { display: inline-flex; align-items: center; justify-content: center; }
+  .appbar-btn:hover { border-color: var(--line2); color: var(--ink); }
+  .appbar-search { display: inline-flex; align-items: center; gap: 8px; min-width: 200px; padding: 4px 10px; border: 1px solid var(--line2); background: transparent; color: var(--dim); font: inherit; font-size: var(--t-sm); cursor: pointer; }
+  .appbar-search:hover { color: var(--ink); border-color: var(--ink); }
+  .appbar-search kbd { margin-left: auto; font: 400 var(--t-xs)/1 'JetBrains Mono', monospace; color: var(--dim); border: 1px solid var(--line2); padding: 2px 5px; }
+  /* thanh tài liệu đã nằm trên header ở màn rộng: ô tìm kiếm chỉ còn icon để header giữ một hàng */
+  @media (max-width: 899px) { .appbar-search { min-width: 0; padding: 4px 8px; } .appbar-search-t, .appbar-search kbd { display: none; } }
+  @media (max-width: 640px) {
+    .appbar { padding: 0 16px; gap: 10px; }
+    .appbar-where { display: none; }
+    .appbar-brand { white-space: nowrap; }
+    .appbar-btn { padding: 4px 6px; }
+    .appbar-r { gap: 4px; }
+    .appbar-r a[href$='/guides/'] { display: none; }
+    .appbar:has(.appbar-nav) { flex-wrap: wrap; padding-top: 6px; padding-bottom: 6px; }
+    .appbar-nav { order: 3; width: 100%; margin: 0 -8px; }
+    .appbar-cta { margin-left: 4px; }
+    /* trên điện thoại: h1 vẫn nằm trong DOM cho công cụ tìm kiếm và trình đọc màn hình, chỉ không hiện */
+    .appbar-h1 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  }
+  @media print { .appbar { display: none; } }
+</style>

@@ -1,0 +1,62 @@
+---
+import Page from '../layouts/Page.astro';
+import { INSPECTOR_FAQ } from '../lib/site/faq';
+import { breadcrumbs, faqPage, softwareApp } from '../lib/site/jsonld';
+import { url } from '../lib/url';
+
+const DESC = 'Paste a GitHub link to an agent skill or a whole collection and see its spec check, estimated token cost and scripts worth reading. Nothing is uploaded or run.';
+---
+<Page title="Inspect agent skills before you install them" description={DESC} path="/skill-inspector/" current="inspector"
+  jsonLd={[softwareApp('/skill-inspector/', Astro.site, DESC), faqPage(INSPECTOR_FAQ), breadcrumbs([{ name: 'mdprev', path: '/' }, { name: 'Skill inspector', path: '/skill-inspector/' }], Astro.site)]}>
+  <section class="pg-hero">
+    <span class="st-lbl">Skill inspector</span>
+    <h1>Inspect agent skills before you install them.</h1>
+    <p class="pg-lead">Paste a GitHub link to one skill or a whole collection. See the spec check, the estimated context cost and the scripts worth reading, in a few seconds.</p>
+    <form class="pg-form" action={url('/app/inspect/')} method="get">
+      <input name="u" type="text" required placeholder="github.com/owner/repo" aria-label="GitHub link to a skill or a repository" spellcheck="false" autocomplete="off" autocapitalize="off" />
+      <button type="submit">Inspect</button>
+    </form>
+    <p class="pg-alt">Or <a href={url('/app/inspect/')}>open a zip, a folder or the built-in example</a>. Nothing is uploaded and no script is ever run. To fix what the report finds, use “Edit a copy”: it opens the files in the editor and shows a diff against the original.</p>
+  </section>
+
+  <section class="st-sec" aria-labelledby="h-real">
+    <span class="st-lbl">A real report</span>
+    <h2 id="h-real">What you get for a whole collection.</h2>
+    <p class="st-intro">This is the report for a public repository of 20 skills, read in about seven seconds. Installing all of them puts about 2.4k tokens in every session before you type a word.</p>
+    <table class="st-table">
+      <caption>github.com/anthropics/skills, 20 skills, run on 13 November 2026. Token counts are estimates.</caption>
+      <thead><tr><th scope="col">Skill</th><th scope="col" class="hide-sm">What it says it does</th><th scope="col" class="n">Always</th><th scope="col" class="n">On trigger</th><th scope="col" class="n">Notes</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">claude-api</td><td class="hide-sm">Reference for the Claude API / Anthropic SDK: model ids, pricing, parameters…</td><td class="n">~270</td><td class="n">~26k</td><td class="n"><span class="st-tag">1 REVIEW</span></td></tr>
+        <tr><td class="nm">webapp-testing</td><td class="hide-sm">Toolkit for interacting with and testing local web applications…</td><td class="n">~55</td><td class="n">~970</td><td class="n"><span class="st-tag">1 REVIEW</span></td></tr>
+        <tr><td class="nm">xlsx</td><td class="hide-sm">Use this skill any time a spreadsheet file is the primary input or output…</td><td class="n">~238</td><td class="n">~2.1k</td><td class="n">none</td></tr>
+        <tr><td class="nm">pptx</td><td class="hide-sm">Use this skill any time a .pptx or .potx file is involved in any way…</td><td class="n">~184</td><td class="n">~5.2k</td><td class="n">1 note</td></tr>
+      </tbody>
+    </table>
+    <p class="fine" style="font-size:14px;color:var(--sub);max-width:46em">The two REVIEW items: <b>claude-api</b> has a description of 1068 characters, while the specification allows 1024. <b>webapp-testing</b> has a script, <code>scripts/with_server.py</code>, that starts a command through the shell (<code>shell=True</code>), with a comment in the file explaining why. Both are pointers to read, not verdicts. The note on <b>pptx</b> is that its SKILL.md is above the specification’s suggested size.</p>
+  </section>
+
+  <section class="st-sec" aria-labelledby="h-checks">
+    <span class="st-lbl">What it checks</span>
+    <h2 id="h-checks">Four things, with fixed rules.</h2>
+    <div class="st-cols st-cols-2">
+      <div class="st-col"><h3>The specification</h3><p>The frontmatter against <a href="https://agentskills.io/specification">the published specification</a>: the name (lowercase letters, digits and hyphens, up to 64 characters, matching the folder), the description (required, up to 1024 characters) and the optional fields. Notes for a SKILL.md over 500 lines or about 5000 tokens, which the specification advises against.</p></div>
+      <div class="st-col"><h3>The context cost</h3><p>Estimated tokens at three levels: the name and description every agent reads at startup, the whole SKILL.md once the skill triggers, and every text file. Estimated from character count, about four characters per token.</p></div>
+      <div class="st-col"><h3>Missing files</h3><p>Files that the instructions mention but the folder does not contain: paths with a folder, link targets, and script names after a command such as <code>python</code>. Example names like <code>your_script.py</code> are ignored.</p></div>
+      <div class="st-col"><h3>Scripts worth reading</h3><p>Scripts matched against a fixed list of patterns: running a command through a shell, running text as code, piping a download into a shell, deleting broad paths, naming places where keys are kept, decoding then running text, long encoded blobs. Network use and package installs are noted, not flagged.</p></div>
+    </div>
+  </section>
+
+  <section class="st-sec" aria-labelledby="h-not">
+    <span class="st-lbl">Limits</span>
+    <h2 id="h-not">What it does not do.</h2>
+    <p class="st-intro" style="margin-bottom:0">It does not run anything, and it is not a malware scanner. A clean report does not make a script safe, and a flag does not make one harmful: the rules are patterns, so they miss things and flag harmless ones. It does not check that a skill does what its description says. Token counts are estimates, and real counts depend on the model. Read what it points at.</p>
+  </section>
+
+  <section class="st-sec st-faq" aria-labelledby="h-faq">
+    <span class="st-lbl">Questions</span>
+    <h2 id="h-faq">About the inspector</h2>
+    {INSPECTOR_FAQ.map((f, i) => <details open={i === 0}><summary>{f.q}</summary><p>{f.a}</p></details>)}
+    <p style="margin-top:24px">More: <a href={url('/guides/what-is-inside-a-skill-md/')}>What is inside a SKILL.md</a> · <a href={url('/guides/how-much-context-does-a-skill-cost/')}>How much context does a skill cost?</a></p>
+  </section>
+</Page>

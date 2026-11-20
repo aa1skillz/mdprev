@@ -1,0 +1,91 @@
+/* Quiet Pro: token theo vai trò.
+   Một accent xanh mực cho tương tác và mục đang chọn; cam, đỏ, lục chỉ dành cho severity (--warn, --err, --ok).
+   Chữ màu accent và severity đạt AA (4.5:1) trên --bg và --surface ở cả hai theme. Luật được canh bởi tests/style-system.test.ts. */
+:root {
+  color-scheme:light;
+  --bg:oklch(0.975 0.006 90);
+  --side:oklch(0.955 0.008 88);
+  --paper:oklch(0.988 0.005 90); /* vùng xem trước: trang giấy, sáng hơn mặt soạn một bậc */
+  --brand-fold:#9cc0ee; /* góc gập của logo (mặt sau trang); logo dùng --accent làm thân: ngoại lệ có chủ đích của quy tắc "accent chỉ cho tương tác" */
+  --surface:oklch(0.995 0.003 90);
+  --ink:oklch(0.22 0.01 60);
+  --body:oklch(0.32 0.01 60);
+  --sub:oklch(0.42 0.01 70);
+  --dim:oklch(0.52 0.01 75);
+  --line:oklch(0.9 0.008 88);
+  --line2:oklch(0.8 0.01 85);
+  --hover:oklch(0.94 0.008 88);
+  --accent:oklch(0.47 0.13 255);
+  --accent-bg:oklch(0.47 0.13 255 / 0.09);
+  --on-accent:oklch(0.99 0 0);
+  --link:var(--accent);
+  --link-h:color-mix(in oklch, var(--accent) 80%, var(--ink));
+  --err:oklch(0.5 0.17 27);
+  --err-bg:oklch(0.5 0.17 27 / 0.09);
+  --warn:oklch(0.47 0.1 70);
+  --warn-bg:oklch(0.6 0.13 75 / 0.14);
+  --ok:oklch(0.46 0.1 150);
+  --ok-bg:oklch(0.5 0.1 150 / 0.1);
+  --scrim:oklch(0.2 0.01 60 / 0.35);
+  --code-bg:oklch(0.97 0.005 90);
+  --code-fg:oklch(0.3 0.01 60);
+  --code-line:oklch(0.9 0.008 88);
+  --code-label:oklch(0.5 0.01 75);
+  --code-btn:oklch(0.5 0.01 75);
+  --code-hover:oklch(0.93 0.008 88);
+  --shadow-hard:4px 4px 0 oklch(0.22 0.01 60 / 0.14);
+  /* thang chữ giao diện (6 bậc) và display (4 bậc, chỉ cho tiêu đề lớn) */
+  --t-xs:11px; --t-sm:12px; --t-base:13px; --t-md:14px; --t-lg:18px; --t-xl:28px;
+  --t-d1:22px; --t-d2:34px; --t-d3:46px; --t-d4:56px;
+  /* thang khoảng cách 4px */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px
+}
+:root[data-theme=dark] {
+  color-scheme:dark;
+  --bg:oklch(0.2 0.006 70);
+  --side:oklch(0.17 0.006 70);
+  --paper:oklch(0.225 0.006 70);
+  --brand-fold:#d6e6fb;
+  --surface:oklch(0.23 0.006 70);
+  --ink:oklch(0.94 0.008 90);
+  --body:oklch(0.86 0.01 85);
+  --sub:oklch(0.76 0.01 85);
+  --dim:oklch(0.68 0.01 80);
+  --line:oklch(0.3 0.008 70);
+  --line2:oklch(0.42 0.01 70);
+  --hover:oklch(0.27 0.008 70);
+  --accent:oklch(0.76 0.11 255);
+  --accent-bg:oklch(0.76 0.11 255 / 0.13);
+  --on-accent:oklch(0.2 0.006 70);
+  --link:var(--accent);
+  --link-h:color-mix(in oklch, var(--accent) 80%, var(--ink));
+  --err:oklch(0.76 0.13 27);
+  --err-bg:oklch(0.76 0.13 27 / 0.13);
+  --warn:oklch(0.8 0.11 80);
+  --warn-bg:oklch(0.8 0.11 80 / 0.13);
+  --ok:oklch(0.78 0.1 150);
+  --ok-bg:oklch(0.78 0.1 150 / 0.12);
+  --scrim:oklch(0 0 0 / 0.55);
+  --code-bg:oklch(0.18 0.006 70);
+  --code-fg:oklch(0.92 0.008 90);
+  --code-line:oklch(0.3 0.008 70);
+  --code-label:oklch(0.7 0.01 80);
+  --code-btn:oklch(0.4 0.01 60);
+  --code-hover:oklch(0.26 0.008 70);
+  --shadow-hard:4px 4px 0 oklch(0 0 0 / 0.45)
+}
+
+/* Tô màu cú pháp (Shiki, theme biến CSS): chỉ dùng token vai trò nên theo theme sáng/tối tự động. */
+:root {
+  --shiki-foreground: var(--code-fg);
+  --shiki-background: transparent;
+  --shiki-token-keyword: var(--accent);
+  --shiki-token-string: var(--ok);
+  --shiki-token-string-expression: var(--ok);
+  --shiki-token-comment: var(--code-label);
+  --shiki-token-constant: var(--accent);
+  --shiki-token-function: var(--code-fg);
+  --shiki-token-parameter: var(--code-fg);
+  --shiki-token-punctuation: var(--code-label);
+  --shiki-token-link: var(--accent);
+}
