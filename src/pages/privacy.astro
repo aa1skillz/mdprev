@@ -18,6 +18,7 @@ const DESC = 'What mdprev stores in your browser, what leaves it and what does n
     <h2>What stays in your browser</h2>
     <ul>
       <li><b>The document you are editing</b>, its name, and its earlier versions (the history and “Restore previous”), in the browser’s storage.</li>
+      <li><b>Undo steps</b> for each open tab (the recent typing and deleting, up to 100 steps or about 200 KB per document), in the browser’s storage (IndexedDB), so Ctrl+Z still works after you switch tabs or reload. They hold the text you typed and removed, so they are deleted when a tab is closed for good: closing a tab keeps them only while it sits in “Reopen closed tab”, and Clear or opening another document in place drops them at once. Nothing is sent anywhere.</li>
       <li><b>Images you paste</b>, kept in the browser’s storage and referenced from the document.</li>
       <li><b>A copy of a skill you chose to edit</b> (“Edit a copy”): every file in it, plus the untouched original so mdprev can show what you changed, in the browser’s storage (IndexedDB). A copy is capped at 10 MB of text. “Close copy” deletes it; downloading a zip writes a file to your disk and nothing else.</li>
       <li><b>A vault you opened</b> (“Open folder as vault…” or “Open zip as vault…”): a copy of its Markdown notes, in the browser’s storage (IndexedDB), like a skill copy. The files on your disk are not changed. “Close vault” deletes the copy; “Export site…” writes a zip to your disk and nothing else.</li>

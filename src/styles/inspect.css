@@ -218,3 +218,5 @@ body[data-view='inspect'] .frame { max-width: none; }
 @media (pointer: coarse) { .ix-alts button { min-height: 40px; padding-block: 8px; } }
 
 @media (pointer: coarse) { .ix-field input { font-size: 1rem; } } /* iOS Safari tự phóng to khi ô nhập <16px */
+
+@media (max-width: 640px) { .ix-alts button { min-height: 44px; } } /* vùng chạm 44px */

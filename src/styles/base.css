@@ -97,3 +97,5 @@ input::placeholder {
 /* Find gốc của trình duyệt (Ctrl/⌘+F ở chế độ Read) và chạm trên Android: không để lọt màu vàng/cam mặc định */
 ::search-text { background-color: color-mix(in oklch, var(--accent) 22%, transparent); color: inherit; }
 button, a, summary, [role='button'] { -webkit-tap-highlight-color: transparent; }
+
+@media (max-width: 640px) { .appbar .appbar-brand, .appbar a:not(.skip-link) { min-height: 44px; display: inline-flex; align-items: center; } .appbar .skip-link { min-height: 0; display: block; top: -80px; } .appbar .appbar-btn.appbar-theme { min-width: 44px; width: 44px; min-height: 44px; } .appbar .appbar-search { border-color: transparent; background: transparent; } } /* vùng chạm 44px ở mọi bề mặt */

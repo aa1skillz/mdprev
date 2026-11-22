@@ -163,3 +163,10 @@ body[data-view='page'] .frame { max-width: none; }
 .art p, .art li { max-width: 29em; }
 .pg-alt { max-width: 34em; }
 .st-faq p { max-width: 33em; }
+
+/* Mobile: vùng chạm ≥ 44px cho liên kết/nút nhỏ của trang tĩnh và thẻ chào (đo bằng audit 390px) */
+@media (max-width: 640px) {
+  .st-foot nav { gap: 4px 14px; }
+  .st-foot nav a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 8px; margin: 0 -8px; }
+  .about-bar { min-height: 44px; display: flex; align-items: center; justify-content: center; }
+}

@@ -48,6 +48,11 @@ export function fileMenu(page: Page): Locator {
 export function viewOptions(page: Page): Locator {
   return page.getByRole('button', { name: 'View options', exact: true });
 }
+/** Mở bảng View: bánh răng ở ≥641px; điện thoại (≤640px) đi qua hàng "View options" trong menu File. */
+export async function openView(page: Page): Promise<void> {
+  if (!(await viewOptions(page).isVisible())) await fileMenu(page).click(); // bánh răng ẩn ở điện thoại: đi qua menu File
+  await viewOptions(page).click();
+}
 /** Nút icon Inspector ở header (aria-pressed). */
 export function inspectorToggle(page: Page): Locator {
   return page.getByRole('button', { name: 'Inspector', exact: true });

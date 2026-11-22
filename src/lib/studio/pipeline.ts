@@ -13,6 +13,7 @@ import type { Element, ElementContent, Root } from 'hast';
 import { highlightBlocks } from './shiki';
 import { idMaker } from './slug';
 import { remarkCallout } from './callout';
+import { remarkBareDomain } from './baredomain';
 import { remarkSafeHtml } from './safe-html';
 import { normalizeMathDelims } from './mathdelim';
 import type { VaultCtx } from '../vault/preview';
@@ -121,7 +122,7 @@ type Proc = { process: (v: string) => Promise<{ toString(): string }> };
 
 /** Math (KaTeX) chỉ được nạp khi tài liệu có công thức, để trang thường không phải tải thư viện. */
 const build = async (math: boolean, vault?: { ctx: VaultCtx; src: string }): Promise<Proc> => {
-  const p = unified().use(remarkParse).use(remarkGfm).use(remarkSafeHtml).use(remarkCallout);
+  const p = unified().use(remarkParse).use(remarkGfm).use(remarkBareDomain).use(remarkSafeHtml).use(remarkCallout);
   if (vault) p.use((await import('../vault/preview')).remarkVault, vault); // chỉ vault mới nạp phần wikilink
   if (math) {
     const [{ default: remarkMath }, { rehypeMath }] = await Promise.all([import('remark-math'), import('./rehype-math')]);

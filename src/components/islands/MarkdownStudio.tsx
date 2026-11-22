@@ -33,6 +33,8 @@ import { blockExternalImages } from '../../lib/studio/guard';
 import { paragraphRange, paragraphLevels, renderLines, sentenceMarks, tokenizeLines } from '../../lib/studio/tokenize';
 import docCss from '../../styles/md-doc.css?raw';
 import { addSnapshot, listSnapshots, setHistoryDoc, type Snap } from '../../lib/studio/history';
+import { breakRun, emptyLog, fitReplay, logOf, pack, record as recordUndo, unpack, type Replay, type ULog } from '../../lib/studio/undo-log';
+import { deleteUndo, getUndo, pruneUndo, putUndo } from '../../lib/studio/undo-store';
 import { TEMPLATES } from '../../lib/studio/templates';
 import { cleanClipboardHtml, htmlToMarkdown, preloadTurndown } from '../../lib/studio/paste-html';
 import { StudioFind } from './StudioFind';
@@ -49,6 +51,7 @@ import type { ComponentType } from 'preact';
 import type { InspectorTab } from './InspectorPanel';
 import { createPortal } from 'preact/compat';
 import type { Workspace } from '../../lib/workspace/model';
+import { detailsKeys } from '../../lib/studio/details-key';
 import type { DocTheme, ThemeState } from '../../lib/studio/theme';
 import type { Tracker } from '../../lib/studio/authorship-track';
 import { ACTIVE_KEY, getActiveId, setActiveId } from '../../lib/workspace/active';
@@ -181,7 +184,7 @@ function docTitle(text: string): string {
   }
   return lines.slice(i).map((l) => l.replace(/^#+\s*/, '').trim()).find(Boolean) ?? '';
 }
-const PHONE_KEYS: [string, string][] = [['b', 'B'], ['i', 'I'], ['h2', '#'], ['ul', '-'], ['task', '[ ]'], ['link', 'link'], ['code', '</>'], ['table', 'table']];
+const PHONE_KEYS: [string, string][] = [['b', 'B'], ['i', 'I'], ['h2', '#'], ['ul', '-'], ['task', '[ ]'], ['link', 'link'], ['code', '</>'], ['table', 'table'], ['s', 'S'], ['h1', 'H1'], ['h3', 'H3'], ['ol', '1.'], ['quote', '>'], ['fence', 'block'], ['math', 'math']];
 const ZEN_MAIN = [zenBtn('h1'), zenBtn('h2'), zenBtn('h3'), zenBtn('b'), zenBtn('i'), zenBtn('link'), zenBtn('quote', '>'), zenBtn('ul', '•'), zenBtn('ol')];
 const ZEN_MORE = [zenBtn('s'), zenBtn('code', '`code`'), zenBtn('fence', 'block'), zenBtn('task'), zenBtn('table')];
 
@@ -225,6 +228,11 @@ export default function MarkdownStudio() {
   const [src, setSrc] = useState<string>(() => readString(KEYS.md) ?? ''); // khách mới bắt đầu từ tờ giấy trống (thẻ chào); bài mẫu chỉ nạp khi họ bấm "Try a sample"
   /** Lịch sử gõ: `loaded` = văn bản lúc nạp (undo không đi quá mốc này, kể cả khi ngăn xếp gốc còn dư từ file trước); `redo` = vừa có thao tác undo nên redo mới có nghĩa. */
   const hist = useRef({ loaded: src, redo: false }); // lần dựng đầu: mốc là văn bản đã lưu
+  // Nhật ký undo từng tab (lib/studio/undo-log.ts): ngăn xếp undo gốc bị xoá mỗi khi đổi tab/reload nên ta ghi song song rồi DỰNG LẠI bằng replay khi ô soạn lấy focus.
+  const ulog = useRef<ULog>(emptyLog()), ulogId = useRef(''), ulogs = useRef(new Map<string, ULog>()), ulText = useRef(src);
+  const pendingU = useRef<{ text: string; p: Replay } | null>(null); // đã có nhật ký cho văn bản đang trong ô nhưng ngăn xếp gốc chưa dựng lại
+  const replaying = useRef(false), undoSig = useRef(new Map<string, string>()), undoPruned = useRef(false);
+  const [, setUndoTick] = useState(0); // render lại nút Undo/Redo sau khi dựng lại ngăn xếp
   const [html, setHtml] = useState('');
   const [pvStale, setPvStale] = useState(false); // vừa đổi tài liệu, bản xem còn là của tài liệu cũ: ẩn nó và báo "Loading preview…" cho tới khi bản mới dựng xong
   const [fm, setFm] = useState<FrontMatter | null>(null);
@@ -650,6 +658,30 @@ export default function MarkdownStudio() {
 
   const wlHash = useRef(''); // heading cần cuộn tới sau khi mở note qua wikilink
   useEffect(() => { if (wlHash.current) { const el = doc.current?.querySelector<HTMLElement>('#' + CSS.escape(wlHash.current)); if (el) { el.scrollIntoView(); wlHash.current = ''; } } }, [html]);
+  // <details> mở sẵn: mỗi lần gõ, bản xem được dựng lại từ HTML mới nên thuộc tính `open` mất. Nhớ khoá các details đang mở (sự kiện toggle) rồi gán lại sau khi dựng.
+  // Khoá theo chữ summary + thứ tự trong nhóm trùng chữ (không theo chỉ số: chèn/xoá details phía trên sẽ làm lệch). Sửa chữ summary thì khối đó mất trạng thái mở.
+  const openDetails = useRef(new Set<string>());
+  const detailsKeyList = (root: HTMLElement) => {
+    const all = Array.from(root.querySelectorAll('details'));
+    const keys = detailsKeys(all.map((d) => d.querySelector(':scope > summary')?.textContent ?? ''));
+    return all.map((d, i) => [d, keys[i] ?? ''] as const);
+  };
+  useEffect(() => { // `toggle` không nổi bọt: nghe ở pha bắt trên document, lọc theo vùng bản xem (article có thể được dựng lại khi đổi chế độ)
+    const onToggle = (ev: Event) => {
+      const d = ev.target as HTMLDetailsElement | null, root = doc.current;
+      if (!root || !d || d.tagName !== 'DETAILS' || !root.contains(d)) return;
+      const hit = detailsKeyList(root).find(([x]) => x === d);
+      if (!hit) return;
+      if (d.open) openDetails.current.add(hit[1]); else openDetails.current.delete(hit[1]);
+    };
+    document.addEventListener('toggle', onToggle, true);
+    return () => document.removeEventListener('toggle', onToggle, true);
+  }, []);
+  useLayoutEffect(() => {
+    const keep = openDetails.current; if (!keep.size) return;
+    const root = doc.current; if (!root) return;
+    detailsKeyList(root).forEach(([d, k]) => { if (keep.has(k) && !d.open) d.open = true; });
+  }, [html]);
   useEffect(() => { doc.current?.querySelectorAll<HTMLInputElement>('.task-list-item > input[type=checkbox], .task-list-item input[type=checkbox]').forEach((i) => { i.disabled = false; }); }, [html]); // HTML gốc để disabled (xuất file chỉ đọc); trong bản xem thì bấm được
   // vault: note khác + ảnh cho wikilink trong bản xem; khoá đổi khi danh sách note/ảnh hay nội dung note khác đổi (worker giữ theo khoá)
   const vctx = useMemo(() => {
@@ -1046,6 +1078,18 @@ export default function MarkdownStudio() {
   // hàng phím: ghim ngay trên bàn phím ảo bằng visualViewport (iOS không co layout viewport khi bàn phím mở)
   const phoneKeys = focused && !zen && view !== 'pv' && matchMedia('(max-width: 640px), (pointer: coarse) and (max-height: 500px)').matches;
   const [vvBottom, setVvBottom] = useState<number | null>(null);
+  const keyStart = useRef<[number, number] | null>(null);
+  useEffect(() => { // Inspector mở ở ≥900px: bảng View lùi sang trái đúng bằng phần đè lên Inspector (đo thật, không đoán chiều rộng)
+    const pop = document.querySelector<HTMLElement>('.pv-menu-view'), insp = document.querySelector<HTMLElement>('.pv-insp');
+    if (!pop || !insp || menu !== 'view' || !matchMedia('(min-width: 900px)').matches) return;
+    pop.style.transform = '';
+    const over = pop.getBoundingClientRect().right - insp.getBoundingClientRect().left;
+    if (over > 0) pop.style.transform = `translateX(${-Math.ceil(over) - 8}px)`;
+  }, [menu, inspOpen]);
+  useEffect(() => { // chrome nhường chỗ khi gõ trên điện thoại (CSS: html[data-kb])
+    document.documentElement.toggleAttribute('data-kb', phoneKeys);
+    return () => document.documentElement.removeAttribute('data-kb');
+  }, [phoneKeys]);
   useEffect(() => {
     const vv = window.visualViewport;
     if (!phoneKeys || !vv) { setVvBottom(null); return; }
@@ -1112,9 +1156,10 @@ export default function MarkdownStudio() {
   /** Áp một sửa đổi qua lịch sử undo gốc của trình duyệt: chỉ thay đoạn khác nhau bằng `insertText`. */
   /** Undo/redo bằng lịch sử gốc của ô soạn (commit đi qua execCommand nên cùng một ngăn xếp với Ctrl+Z). */
   const qce = (c: string) => { try { return document.queryCommandEnabled(c); } catch { return true; } };
-  const canUndo = src !== hist.current.loaded && qce('undo');
-  const canRedo = hist.current.redo && qce('redo');
-  const stepHistory = (redo: boolean) => { const t = ta.current; if (!t) return; t.focus(); try { document.execCommand(redo ? 'redo' : 'undo'); } catch { /* bỏ qua */ } };
+  const pu = pendingU.current; // nhật ký đã có nhưng ngăn xếp gốc chưa dựng lại (dựng khi ô soạn lấy focus hoặc khi bấm Undo)
+  const canUndo = pu ? pu.p.idx > 0 : src !== hist.current.loaded && qce('undo');
+  const canRedo = pu ? pu.p.idx < pu.p.steps.length : hist.current.redo && qce('redo');
+  const stepHistory = (redo: boolean) => { const t = ta.current; if (!t) return; t.focus(); flushU(); try { document.execCommand(redo ? 'redo' : 'undo'); } catch { /* bỏ qua */ } };
   const commit = (r: Edit) => {
     const t = ta.current; if (!t || roRef.current) return;
     const old = t.value;
@@ -1126,7 +1171,7 @@ export default function MarkdownStudio() {
       const rep = r.text.slice(d.from, d.bEnd);
       let ok = false;
       try { ok = rep === '' ? document.execCommand('delete') : document.execCommand('insertText', false, rep); } catch { /* dùng phương án dự phòng */ }
-      if (!ok || t.value !== r.text) t.value = r.text;
+      if (!ok || t.value !== r.text) { t.value = r.text; ulog.current = emptyLog(); ulText.current = r.text; pendingU.current = null; } // gán thẳng value xoá ngăn xếp gốc: nhật ký làm lại từ đây
       lastInput.current = performance.now();
       setSrc(t.value);
     }
@@ -1238,6 +1283,8 @@ export default function MarkdownStudio() {
   };
 
   const onKeyDown = (ev: KeyboardEvent) => {
+    if (pendingU.current) flushU(); // Ctrl+Z đầu tiên sau reload/đổi tab: dựng lại ngăn xếp gốc trước khi trình duyệt xử lý phím
+    if (ev.key.length > 1 && /^(Arrow|Home$|End$|Page)/.test(ev.key)) breakRun(ulog.current); // con trỏ nhảy chỗ khác: chữ gõ tiếp theo là bước undo mới
     if (ev.isComposing || ev.keyCode === 229) return; // đang gõ tiếng Việt (IME)
     const t = ev.target as HTMLTextAreaElement;
     const mod = ev.metaKey || ev.ctrlKey;
@@ -1399,6 +1446,7 @@ export default function MarkdownStudio() {
     return true;
   };
   const onEdClick = (ev: MouseEvent) => {
+    breakRun(ulog.current);
     caret();
     setSlash(null);
     const t = ta.current;
@@ -1625,7 +1673,8 @@ export default function MarkdownStudio() {
   const persistTabs = (s: TabsState) => {
     if (!canWrite.current || roRef.current || wsOnRef.current || wsBusyRef.current) return;
     const all = [...s.tabs, ...s.closed], ids = new Set(all.map((t) => t.id));
-    for (const id of seenIds.current) if (!ids.has(id)) { seenIds.current.delete(id); void deleteTabRecord(id).catch(() => undefined); }
+    for (const id of seenIds.current) if (!ids.has(id)) { seenIds.current.delete(id); void deleteTabRecord(id).catch(() => undefined); ulogs.current.delete(id); undoSig.current.delete(id); void deleteUndo(id).catch(() => undefined); } // tab gỡ hẳn: bỏ luôn nhật ký undo (chứa chữ đã gõ/xoá)
+    if (!undoPruned.current) { undoPruned.current = true; void pruneUndo(ids); } // lần đầu: dọn nhật ký mồ côi
     for (const id of ids) seenIds.current.add(id);
     writeString(KEYS.mdTabs, toMeta(s));
     for (const t of all) {
@@ -1641,6 +1690,7 @@ export default function MarkdownStudio() {
       if (!canWrite.current || roRef.current) return;
       const s = updateTab(tabsRef.current, tabsRef.current.activeId, capture()); tabsRef.current = s;
       persistTabs(s);
+      if (ulogId.current === s.activeId && ulText.current === srcRef.current) saveUndoFor(s.activeId, ulog.current, ulText.current);
     };
     flushNow.current = flush;
     const id = setTimeout(flush, 600);
@@ -1659,10 +1709,78 @@ export default function MarkdownStudio() {
   /** Trạng thái tài liệu đang chọn, để cất vào tab trước khi rời. */
   const capture = (): Partial<Tab> => {
     const e = ta.current;
-    return { text: srcRef.current, name: customRef.current, baseline: baselineRef.current, savedFile: savedRef.current, base: baseRef.current, hasFile: savedRef.current !== null, sel: { s: e?.selectionStart ?? 0, e: e?.selectionEnd ?? 0 }, top: e?.scrollTop ?? 0 };
+    return { text: srcRef.current, name: customRef.current, baseline: baselineRef.current, savedFile: savedRef.current, base: baseRef.current, hasFile: savedRef.current !== null, sel: { s: e?.selectionStart ?? 0, e: e?.selectionEnd ?? 0 }, top: e?.scrollTop ?? 0, view: uiRef.current.zen ? prevView.current : uiRef.current.view };
   };
   const setTabs = (s: TabsState) => { tabsRef.current = s; setHistoryDoc(s.activeId); setTabsS(s); };
   setHistoryDoc(tabsRef.current.activeId);
+  // ---- nhật ký undo từng tab: ghi ở onInput, lưu IndexedDB (DB riêng), dựng lại ngăn xếp gốc bằng replay ----
+  /** Lưu (hoặc xoá, nếu không còn gì để undo) nhật ký của một tab. Chỉ cửa sổ giữ khoá soạn mới ghi. */
+  const saveUndoFor = (id: string, l: ULog, text: string) => {
+    if (!id || !canWrite.current || roRef.current || wsOnRef.current || wsBusyRef.current) return;
+    const rec = pack(l, text), sig = rec ? `${rec.steps.length}:${rec.idx}:${rec.h}` : '';
+    if (undoSig.current.get(id) === sig) return;
+    undoSig.current.set(id, sig);
+    void (rec ? putUndo(id, rec) : deleteUndo(id)).catch(() => undoSig.current.delete(id));
+  };
+  /** Chuẩn bị dựng lại ngăn xếp gốc cho `text`: không hợp lệ (không khớp, hỏng) thì nhật ký bị bỏ. */
+  const armUndo = (l: ULog, text: string) => {
+    const rec = pack(l, text), u = rec ? unpack(rec, text) : null, p = u ? fitReplay(u, text.split('\n').length) : null; // fitReplay: tài liệu dài thì replay ít bước hơn (mỗi bước đắt)
+    pendingU.current = p && p.steps.length ? { text, p } : null;
+    if (!u) { l.steps.length = 0; l.idx = 0; l.run = false; }
+    hist.current = { loaded: text, redo: false };
+  };
+  /** Dựng lại ngăn xếp undo gốc: ô về văn bản đầu, `insertText` từng bước (đặt vùng chọn trước mỗi bước để trình duyệt không gộp), rồi undo các bước nằm sau con trỏ thành redo. */
+  const flushU = () => {
+    const pw = pendingU.current, t = ta.current;
+    if (!pw || !t || t.readOnly) return;
+    pendingU.current = null;
+    if (t.value !== pw.text) { ulog.current = emptyLog(); hist.current = { loaded: t.value, redo: false }; return; }
+    const { p } = pw, sel = [t.selectionStart, t.selectionEnd, t.selectionDirection] as const, top = t.scrollTop;
+    replaying.current = true;
+    let ok = false;
+    const t0 = performance.now();
+    try {
+      if (document.activeElement !== t) t.focus({ preventScroll: true });
+      t.value = p.base;
+      for (const st of p.steps) {
+        if (performance.now() - t0 > 1500) throw new Error('replay too slow'); // máy/tài liệu quá nặng: bỏ, chấp nhận không có undo hơn là đơ
+        t.setSelectionRange(st.f, st.f + st.d.length);
+        if (st.i === '') document.execCommand('delete'); else document.execCommand('insertText', false, st.i);
+      }
+      for (let k = p.steps.length; k > p.idx; k--) document.execCommand('undo');
+      ok = t.value === pw.text;
+    } catch { ok = false; }
+    if (!ok) { t.value = pw.text; ulog.current = emptyLog(); }
+    t.setSelectionRange(sel[0], sel[1], sel[2]); t.scrollTop = top;
+    replaying.current = false;
+    hist.current = ok ? { loaded: p.base, redo: p.idx < p.steps.length } : { loaded: pw.text, redo: false };
+    setUndoTick((n) => n + 1);
+  };
+  /** Đọc nhật ký đã lưu của tab chưa có trong bộ nhớ (sau reload, hoặc tab chưa chọn lần nào trong phiên này). */
+  const adoptStoredUndo = (id: string, text: string) => {
+    void getUndo(id).then((rec) => {
+      if (!rec || ulogId.current !== id || ulText.current !== text || ulog.current.steps.length) return; // trong lúc chờ đã gõ hoặc đổi tab
+      const u = unpack(rec, text); if (!u) return;
+      const p = fitReplay(u, text.split('\n').length);
+      ulog.current = logOf(u); pendingU.current = p.steps.length ? { text, p } : null; undoSig.current.set(id, `${rec.steps.length}:${rec.idx}:${rec.h}`);
+      if (document.activeElement === ta.current) flushU(); else setUndoTick((n) => n + 1);
+    }).catch(() => undefined);
+  };
+  /** Gắn nhật ký cho tài liệu vừa vào ô soạn. `fresh`: do thao tác thay thế (New, Clear, Open…), không có lịch sử cũ (và bản lưu cũ bị xoá). */
+  const bindUndo = (id: string, text: string, fresh: boolean) => {
+    const prev = ulogId.current;
+    if (prev && prev !== id) { ulogs.current.set(prev, ulog.current); saveUndoFor(prev, ulog.current, ulText.current); } // tab vừa rời: giữ trong phiên và lưu ngay
+    const known = fresh ? undefined : ulogs.current.get(id);
+    ulogs.current.delete(id);
+    ulog.current = known ?? emptyLog(); ulogId.current = id; ulText.current = text;
+    if (fresh) saveUndoFor(id, ulog.current, text);
+    armUndo(ulog.current, text);
+    if (!known && !fresh) adoptStoredUndo(id, text);
+    if (pendingU.current && document.activeElement === ta.current) flushU();
+    else if (pendingU.current) setUndoTick((n) => n + 1);
+  };
+  useEffect(() => { ulogId.current = tabsRef.current.activeId; adoptStoredUndo(ulogId.current, srcRef.current); }, []); // sau reload: tab đang chọn lấy lại nhật ký đã lưu
+  useEffect(() => { const t = ta.current; if (t && !replaying.current && t.value !== ulText.current) { ulog.current = emptyLog(); ulText.current = t.value; pendingU.current = null; } }, [src]); // văn bản trong ô đổi không qua sự kiện input (nạp file, bản sao workspace…): ngăn xếp gốc đã mất, nhật ký làm lại. So với giá trị THẬT của ô, không phải `src` (gõ nhanh thì state render trễ hơn ô)
   /** Nạp một tab vào CÙNG ô soạn (undo, tác giả, vị trí đều làm lại như khi mở tài liệu khác). */
   const applyTab = (t: Tab) => {
     const text = t.text ?? '';
@@ -1677,7 +1795,10 @@ export default function MarkdownStudio() {
     setPvStale(true);
     setSrc(text);
     if (ta.current) { ta.current.value = text; ta.current.setSelectionRange(s, e); ta.current.scrollTop = t.top; }
+    bindUndo(t.id, text, false); // ngăn xếp gốc vừa bị xoá bởi `value =`: dựng lại từ nhật ký của tab này
     setCustom(t.name);
+    openDetails.current.clear(); // details đã mở thuộc về tài liệu trước
+    if (t.view && !uiRef.current.zen && (t.view !== 'split' || matchMedia('(min-width: 960px)').matches)) setView(t.view); // mỗi tab nhớ chế độ Edit/Split/Read của nó
     wPrev.current = -1; // đổi tab không tính là số chữ vừa viết
     if (canWrite.current) { if (t.name) writeString(KEYS.mdName, t.name); else removeKey(KEYS.mdName); }
     if (!wsOnRef.current && !wsBusyRef.current && canWrite.current) { writeString(KEYS.mdTabId, t.id); writeString(KEYS.md, text); } // gương: bản cũ (rollback) mở đúng tài liệu này
@@ -1748,6 +1869,7 @@ export default function MarkdownStudio() {
     if (readOnlyHere()) return;
     if (wsOnRef.current && !wsInternal.current) { say('CLOSE THE COPY FIRST TO OPEN ANOTHER DOCUMENT'); return; } // nếu không, wsFlush sẽ ghi tài liệu này đè lên file đang mở của bản sao
     const clean = text.replace(/\r\n/g, '\n');
+    openDetails.current.clear(); // tài liệu khác: details đã mở của bài trước không áp sang
     const nm0 = opts.name ?? opts.handle?.name;
     if (!opts.keepPrev && !opts.inPlace && clean !== srcRef.current) { // mở tài liệu khác = TAB MỚI (dùng lại tab hiện tại nếu nó rỗng và nguyên vẹn)
       const r = openTabIn(saveCurrentTab(), { text: clean, name: nm0 ?? '', baseline: clean, savedFile: opts.handle ? clean : null, base: opts.base ?? null, hasFile: !!opts.handle });
@@ -1768,6 +1890,7 @@ export default function MarkdownStudio() {
     if (clean !== srcRef.current) setPvStale(true);
     setSrc(clean);
     if (ta.current) { ta.current.value = clean; ta.current.scrollTop = 0; }
+    bindUndo(tabsRef.current.activeId, clean, true);
     const nm = opts.name ?? opts.handle?.name; // mở file (ô chọn file, kéo thả, hay File System Access) thì giữ đúng tên file
     if (wsOnRef.current || wsBusyRef.current) { setCustom(nm ?? ''); }
     else if (nm) { setCustom(nm); writeString(KEYS.mdName, nm); } else { setCustom(''); removeKey(KEYS.mdName); }
@@ -2611,6 +2734,8 @@ export default function MarkdownStudio() {
                   <button type="button" aria-expanded={tplOpen} onClick={(ev) => { if (performance.now() - tplHover.current > 600) { setTplOpen(!tplOpen); sheetTop(ev.currentTarget as HTMLElement); } }} onPointerEnter={(e) => { if (e.pointerType === 'mouse' && !tplOpen) { tplHover.current = performance.now(); setTplOpen(true); } }}>New from template<span aria-hidden="true">{tplOpen ? '▾' : '▸'}</span></button>
                   {tplOpen && TEMPLATES.map((t) => <button key={t.id} type="button" class="pv-menu-sub" title={t.hint} onClick={() => newFromTemplate(t.id)}>{t.label}</button>)}
                   <button type="button" onClick={() => { setMenu(''); setHistOpen(false); setAssetsOpen(true); }} title="Pasted images, stored in this browser">Images…</button>
+                  {!ws && <button type="button" class="pv-menu-phone" onClick={() => { setMenu(''); newDoc(); }}>New tab</button>}
+                  <button type="button" class="pv-menu-phone" onClick={() => setMenu('view')}>View options<span aria-hidden="true">▸</span></button>
                   <button type="button" class="pv-menu-phone" aria-expanded={expOpen} onClick={(ev) => { setExpOpen(!expOpen); sheetTop(ev.currentTarget as HTMLElement); }}>Export<span aria-hidden="true">{expOpen ? '▾' : '▸'}</span></button>
                   {expOpen && exportItems.map((it) => <button key={it.label} type="button" class="pv-menu-sub pv-menu-phone" onClick={() => { setMenu(''); it.run(); }}>{it.label}</button>)}
                   <button type="button" class="pv-menu-phone" disabled={!editing} onClick={() => { setMenu(''); openFind(); }}>Find</button>
@@ -2766,8 +2891,14 @@ export default function MarkdownStudio() {
 
 
       {phoneKeys && (
-        <div class="pv-keys" aria-hidden="true" style={vvBottom === null ? 'bottom:0' : `top:${vvBottom - 44}px`}>
-          {PHONE_KEYS.map(([id, label]) => <button key={id} type="button" tabIndex={-1} onPointerDown={(ev) => { ev.preventDefault(); apply(TOOLS[id]!.run); }}>{label}</button>)}
+        <div class="pv-keys" aria-hidden="true" style={vvBottom === null ? 'bottom:0' : `top:${vvBottom}px;transform:translateY(-100%)`}>
+          <div class="pv-keys-s">
+            {PHONE_KEYS.map(([id, label]) => <button key={id} type="button" tabIndex={-1}
+              onPointerDown={(ev) => { ev.preventDefault(); keyStart.current = [ev.clientX, ev.clientY]; }} // giữ focus ô soạn; chỉ chạy khi nhấc tay mà không vuốt (hàng cuộn ngang được)
+              onPointerUp={(ev) => { const o = keyStart.current; keyStart.current = null; if (o && Math.hypot(ev.clientX - o[0], ev.clientY - o[1]) < 8) apply(TOOLS[id]!.run); }}
+              onPointerCancel={() => { keyStart.current = null; }}>{label}</button>)}
+          </div>
+          <button type="button" class="pv-keys-done" tabIndex={-1} onPointerDown={(ev) => ev.preventDefault()} onClick={() => ta.current?.blur()}>Done</button>
         </div>
       )}
       <div class="pv-split" data-view={view} ref={splitEl} style={`--pvr:${split}`}>
@@ -2840,9 +2971,9 @@ export default function MarkdownStudio() {
                 readOnly={wsBusy || wsStale || ro || lockPending || (ws !== null && wsPath === null)} aria-label="Markdown, press Esc to leave the editor" placeholder="Write or paste Markdown, or type / for blocks"
                 aria-autocomplete="list" aria-controls={slash && slashItems.length ? 'pv-slash' : undefined}
                 aria-activedescendant={slash && slashItems.length ? `pv-slash-${Math.min(slash.sel, slashItems.length - 1)}` : undefined}
-                onInput={(ev) => { const it = (ev as InputEvent).inputType; hist.current.redo = it === 'historyUndo' || (it === 'historyRedo' && hist.current.redo); lastInput.current = performance.now(); setSrc((ev.target as HTMLTextAreaElement).value); caret(); if (!(ev as InputEvent).isComposing) syncSlash(); }}
+                onInput={(ev) => { if (replaying.current) return; const it = (ev as InputEvent).inputType; hist.current.redo = it === 'historyUndo' || (it === 'historyRedo' && hist.current.redo); lastInput.current = performance.now(); { const v = (ev.target as HTMLTextAreaElement).value; if (pendingU.current) { pendingU.current = null; ulog.current = emptyLog(); } recordUndo(ulog.current, ulText.current, v, it, inCommit.current); ulText.current = v; } setSrc((ev.target as HTMLTextAreaElement).value); caret(); if (!(ev as InputEvent).isComposing) syncSlash(); }}
                 onKeyDown={onKeyDown} onClick={onEdClick} onScroll={onEdScroll} onPaste={onPaste}
-                onFocus={() => { setFocused(true); preloadTurndown(); }} onBlur={() => { checkLink(true); setFocused(false); setSlash(null); }}
+                onFocus={() => { flushU(); setFocused(true); preloadTurndown(); }} onBlur={() => { breakRun(ulog.current); checkLink(true); setFocused(false); setSlash(null); }}
                 onDragOver={(ev) => ev.preventDefault()}
                 onDrop={(ev) => {
                   const fs = [...(ev.dataTransfer?.files ?? [])];

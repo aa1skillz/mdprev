@@ -397,7 +397,9 @@
   }
   :root[data-alive='calm'] .zc-keep, :root[data-alive='calm'] .zc-rail-list, :root[data-alive='calm'] .zc-flash { transition: none; }
   /* mép dưới cột chữ mờ dần để chữ không bị cắt gắt (mask trên khung cuộn: chức năng, không phải trang trí) */
-  .pv[data-zen] .ed, .pv[data-zen][data-zread] .pv-out { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent); }
+  .pv[data-zen] .ed { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 64px), transparent); }
+  /* mặt Read: mờ vào đúng màu giấy (--bg của theme tài liệu, đặt trên .pv-out) bằng lớp phủ dính đáy; mask sẽ lộ nền app phía sau, và khi theme giấy khác theme app thì mép dưới đen như bóng */
+  .pv[data-zen][data-zread] .pv-out::after { content: ''; display: block; position: sticky; bottom: 0; height: 64px; margin-top: -64px; background: linear-gradient(to bottom, transparent, var(--bg)); pointer-events: none; }
 
   body:has(.pv[data-zen]) { overflow: hidden; } /* zen chiếm đúng một màn hình, không còn cuộn cả trang */
 
@@ -612,9 +614,11 @@
 }
 
 /* hàng phím Markdown trên bàn phím ảo: chỉ hiện ở điện thoại khi ô soạn đang được chọn (MarkdownStudio dựng nó theo điều kiện đó) */
-.pv-keys { position: fixed; left: 0; right: 0; height: 40px; z-index: 120; display: flex; background: var(--bg); border-top: 1px solid var(--line); }
-.pv-keys button { flex: 1 1 0; min-width: 0; border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--ink); font: 500 14px 'JetBrains Mono', monospace; padding: 0; touch-action: manipulation; }
-.pv-keys button:last-child { border-right: 0; }
+.pv-keys { position: fixed; left: 0; right: 0; height: 44px; z-index: 120; display: flex; background: var(--bg); border-top: 1px solid var(--line); }
+.pv-keys-s { flex: 1 1 auto; min-width: 0; display: flex; overflow-x: auto; scrollbar-width: none; touch-action: pan-x; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 36px), transparent); }
+.pv-keys-s::-webkit-scrollbar { display: none; }
+.pv-keys button { flex: 0 0 auto; min-width: 48px; border: 0; border-right: 1px solid var(--line); background: transparent; color: var(--ink); font: 500 14px 'JetBrains Mono', monospace; padding: 0 12px; touch-action: manipulation; }
+.pv-keys .pv-keys-done { flex: 0 0 56px; min-width: 0; padding: 0; border-right: 0; border-left: 1px solid var(--line2); color: var(--accent); font: 500 var(--t-sm) 'Be Vietnam Pro', system-ui, sans-serif; }
 .pv-keys button:active { background: var(--hover); }
 @media (min-width: 641px) and (not ((pointer: coarse) and (max-height: 500px))) { .pv-keys { display: none; } }
 
@@ -1109,7 +1113,6 @@ html:not([data-studio='ready']) body:has(astro-island[component-url*='MarkdownSt
 @media (max-width: 640px) { .pv-menu .pv-nophone { display: none; } }
 
 /* hàng phím Markdown: cao 44px (cũ 40); màn ngang thấp (điện thoại xoay) cũng dùng hàng phím và ẩn thanh công cụ + trạng thái khi đang gõ để chừa chỗ cho chữ */
-.pv-keys { height: 44px; }
 @media (pointer: coarse) and (max-height: 500px) {
   .pv:has(.ed-ta:focus) :is(.pv-tools, .pv-mode) { display: none; }
 }
@@ -1292,7 +1295,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
 /* sơ đồ Mermaid chưa tới lượt dựng (chờ cuộn tới gần): chỗ giữ chỗ yên tĩnh thay vì nháy mã nguồn; lỗi thì hiện lại mã */
 .pv-out .md-doc .cb[data-mermaid]:not([data-mm-failed]) { position: relative; min-height: 8rem; }
 .pv-out .md-doc .cb[data-mermaid]:not([data-mm-failed]) > * { visibility: hidden; }
-.pv-out .md-doc .cb[data-mermaid]:not([data-mm-failed])::after { content: 'Diagram'; position: absolute; inset: 0; display: grid; place-items: center; font: 500 var(--t-xs)/1 'JetBrains Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+.pv-out .md-doc .cb[data-mermaid]:not([data-mm-failed]) { background: transparent; border-color: transparent; box-shadow: none; } /* chỗ giữ chỗ không hiện khung xám hay nhãn: chỉ giữ chiều cao để trang không nhảy khi sơ đồ dựng xong */
 @media print { .pv-out .md-doc .cb[data-mermaid]:not([data-mm-failed]) > * { visibility: visible; } .pv-out .md-doc .cb[data-mermaid]:not([data-mm-failed])::after { content: none; } }
 
 /* tuỳ chọn ô soạn (VIEW ▸ SOURCE): cỡ chữ riêng cho ô soạn (bản xem có cỡ riêng); cảm ứng giữ 16px để iOS không phóng to khi focus */
@@ -1342,7 +1345,7 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
 /* ===== Thanh tab tài liệu (≥ 2 tài liệu): thay ô tên file trong .pv-title; điện thoại dùng nút chọn tài liệu + bảng đáy ===== */
 .pv-tabs { display: flex; align-items: stretch; min-width: 0; flex: 1 1 auto; align-self: stretch; position: relative; }
 .pv-tablist { display: flex; align-items: stretch; min-width: 0; }
-.pv-tab { position: relative; display: flex; align-items: center; min-width: 0; width: 112px; flex: 0 1 auto; border-left: 1px solid var(--line); color: var(--sub); }
+.pv-tab { position: relative; display: flex; align-items: center; min-width: 0; width: 120px; flex: 0 1 auto; border-left: 1px solid var(--line); color: var(--sub); }
 .pv-tab:last-of-type { border-right: 1px solid var(--line); }
 .pv-tab:hover { background: var(--hover); color: var(--ink); }
 .pv-tab[data-active] { background: var(--surface); color: var(--ink); }
@@ -1359,8 +1362,22 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
 .pv-tabbtn:hover, .pv-tabbtn[aria-expanded="true"] { background: var(--hover); color: var(--ink); }
 .pv-tabadd { font-size: var(--t-md); }
 .pv-tabmore { position: relative; }
-.pv-tabmenu { top: 100%; left: 0; min-width: 220px; max-height: 320px; overflow: auto; }
-.pv-tabmenu button { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pv-tabmore .pv-tabbtn { display: flex; align-items: center; gap: 3px; font-variant-numeric: tabular-nums; } /* "+4 ⌄" trên một dòng */
+.pv-tabmenu { top: calc(100% + 4px); left: 0; width: 360px; max-width: calc(100vw - 16px); max-height: min(60vh, 420px); overflow-x: hidden; overflow-y: auto; padding: 0; box-shadow: var(--shadow-hard); background: var(--surface); }
+.pv-tabmh { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px 8px; border-bottom: 1px solid var(--line); color: var(--dim); font: 500 var(--t-sm)/1 'Be Vietnam Pro', system-ui, sans-serif; letter-spacing: 0; }
+.pv-tabmh span:last-child { font: 400 var(--t-xs)/1 'JetBrains Mono', monospace; }
+.pv-tabml { display: block; }
+.pv-tabmrow { position: relative; display: flex; align-items: stretch; border-bottom: 1px solid var(--line); }
+.pv-tabmrow:last-child { border-bottom: 0; }
+.pv-tabmrow:hover, .pv-tabmrow:focus-within { background: var(--hover); }
+.pv-tabmenu .pv-tabmgo { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; justify-content: flex-start; gap: 10px; width: auto; min-height: 44px; padding: 8px 6px 8px 14px; border: 0; background: transparent; color: var(--ink); text-align: left; white-space: normal; font: 400 var(--t-base)/1.35 'Be Vietnam Pro', system-ui, sans-serif; letter-spacing: 0; cursor: pointer; }
+.pv-tabmenu .pv-tabmgo:focus-visible, .pv-tabmenu .pv-tabmx:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.pv-tabmi { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; } /* tên đầy đủ, tối đa 2 dòng, không cuộn ngang */
+.pv-tabmenu kbd { flex: none; padding: 0; border: 0; background: transparent; color: var(--dim); font: 400 var(--t-xs)/1 'JetBrains Mono', monospace; letter-spacing: 0; }
+.pv-tabmenu .pv-tabmx { flex: none; width: 40px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--dim); cursor: pointer; opacity: 0; }
+.pv-tabmrow:hover .pv-tabmx, .pv-tabmrow:focus-within .pv-tabmx { opacity: 1; }
+.pv-tabmenu .pv-tabmx:hover { color: var(--ink); }
+@media (hover: none) { .pv-tabmenu .pv-tabmx { opacity: 1; } }
 .pv-tabq { display: block; width: calc(100% - 20px); margin: 6px 10px; box-sizing: border-box; padding: 6px 8px; border: 1px solid var(--line2); background: var(--bg); color: var(--ink); font: inherit; font-size: var(--t-sm); }
 .pv-tabnone { display: block; padding: 8px 14px; color: var(--dim); font-size: var(--t-sm); }
 .pv-tabsw, .pv-tabsheet { display: none; }
@@ -1412,3 +1429,28 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
 /* thông báo nổi ở đáy (ảnh bị chặn, chỉ đọc, đã đóng tab, Undo): một cột xếp chồng, không đè lên nhau */
 .pv-notices { position: fixed; z-index: 140; left: 50%; bottom: 52px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; max-width: calc(100vw - 24px); pointer-events: none; }
 .pv-notices > * { pointer-events: auto; position: static; transform: none; }
+
+
+/* ---- Mobile ≤640px: vùng chạm 44px, sheet full width, chrome nhường chỗ khi gõ ---- */
+@media (max-width: 640px) {
+  .pv-menu.pv-menu-view, .pv-menu.pv-menu-exp { width: auto; max-width: none; max-height: min(80dvh, 600px); overflow-y: auto; padding-bottom: calc(6px + env(safe-area-inset-bottom)); }
+  .appbar { min-height: 48px; }
+  .appbar .appbar-btn, .appbar .appbar-act, .appbar .appbar-search, .appbar .appbar-slot-export .pv-hact { min-width: 44px; height: 44px; }
+  .pv-bar { min-height: 48px; padding-top: 2px; padding-bottom: 2px; gap: 2px; } /* gap hẹp: tên file có ~130px thay vì ~90px */
+  .pv-bar .pv-seg button, .pv-bar .pv-btn.pv-ic, .pv-acts .pv-btn.pv-ic { min-width: 44px; height: 44px; }
+  .pv-bar .pv-name { height: 44px; }
+  .pv-bar .pv-menuwrap-l { margin-left: 0; } /* nút File ▾ không đè lên ô tên file (vùng chạm 44px không chồng nhau) */
+  .pv-tabadd1 { display: none; }  /* New tab chuyển vào menu File */
+  .pv-acts .pv-menuwrap > .pv-btn { display: none; }  /* View options chuyển vào menu File; bảng vẫn dựng trong .pv-menuwrap */
+  .pv-insp-tabs { overflow-x: auto; scrollbar-width: none; }
+  .pv-insp-tabs [role='tab'] { min-height: 44px; flex: none; }
+  .zc-split { background: var(--surface); } /* nền đặc: chữ bản xem không lộ xuyên qua khe nút */
+  .zc-split button, .zc-caret, .zc-more, .zc-x { min-width: 44px; height: 44px; }
+  .zc-mode button { height: 42px; min-width: 56px; }
+}
+@media (max-width: 640px) { .appbar:has(.pv-files-btn) .appbar-word { display: none; } } /* bản sao có thêm nút Files: bỏ chữ logo để header không tràn */
+@media (max-width: 360px) { body .appbar { padding: 0 8px; gap: 2px; } body .appbar .appbar-r { gap: 0; } }  /* 320px: 5 nút 44px vẫn vừa một hàng */
+/* bàn phím mở trên điện thoại: bỏ header và banner SAMPLE, nhường chỗ cho vùng gõ (cờ đặt bởi MarkdownStudio khi hàng phím hiện) */
+@media (max-width: 640px), (pointer: coarse) and (max-height: 500px) {
+  html[data-kb] .appbar, html[data-kb] .pv-samplebar { display: none; }
+}

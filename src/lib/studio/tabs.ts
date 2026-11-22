@@ -10,6 +10,9 @@
 export const MAX_TABS = 12;
 export const MAX_CLOSED = 10;
 
+export type TabView = 'split' | 'src' | 'pv';
+const isTabView = (v: unknown): v is TabView => v === 'split' || v === 'src' || v === 'pv';
+
 export interface Tab {
   id: string;
   name: string; // '' = chưa đặt tên (hiện "Untitled.md")
@@ -21,6 +24,7 @@ export interface Tab {
   top: number;
   updatedAt: number;
   hasFile: boolean; // đã mở/lưu từ file trên máy: chỉ tab này mới có chấm "đã sửa so với file"
+  view?: TabView; // chế độ Edit/Split/Read riêng của tab; chưa đặt thì dùng chế độ đang có
 }
 
 export interface TabsState {
@@ -37,6 +41,7 @@ export function makeTab(p: Partial<Tab> = {}): Tab {
   return {
     id: p.id ?? newId(), name: p.name ?? '', text, baseline: p.baseline ?? (text ?? ''), savedFile: p.savedFile ?? null, base: p.base ?? null,
     sel: p.sel ?? { s: 0, e: 0 }, top: p.top ?? 0, updatedAt: p.updatedAt ?? Date.now(), hasFile: p.hasFile ?? false,
+    ...(isTabView(p.view) ? { view: p.view } : {}),
   };
 }
 
@@ -111,10 +116,27 @@ export function displayNames(tabs: Tab[], titleOf: (text: string) => string): st
   return base.map((n) => { const c = (seen.get(n) ?? 0) + 1; seen.set(n, c); return c > 1 ? `${n} (${c})` : n; });
 }
 
+/**
+ * Cắt nhãn Ở GIỮA cho vừa `fits` (hàm đo độ rộng thật do giao diện truyền vào): giữ đầu và ĐUÔI, vì phần phân biệt hai tài liệu
+ * ("…so-mot" / "…so-hai", "(2)") thường nằm ở cuối. Vừa sẵn thì trả nguyên. Đuôi giữ ít nhất `tail` ký tự (hoặc 40% phần giữ lại nếu nhiều hơn).
+ */
+export function midCut(name: string, fits: (label: string) => boolean, tail = 5): string {
+  if (fits(name)) return name;
+  const c = Array.from(name), n = c.length;
+  if (n < 3) return name;
+  const mk = (k: number): string => { // k = số ký tự giữ lại (đầu + đuôi), cộng dấu …
+    const t = Math.max(1, Math.min(k - 1, Math.max(Math.min(tail, k - 2), Math.round(k * 0.4))));
+    return c.slice(0, k - t).join('') + '…' + c.slice(n - t).join('');
+  };
+  let lo = 2, hi = n - 1, best = mk(2);
+  while (lo <= hi) { const k = (lo + hi) >> 1; if (fits(mk(k))) { best = mk(k); lo = k + 1; } else hi = k - 1; }
+  return best;
+}
+
 // ---------- metadata nhỏ (localStorage) ----------
 export const META_KEY = 'mdprev-md-tabs';
-interface Meta { v: 1; order: { id: string; name: string; hasFile: boolean; base: string | null }[]; active: string; closed: string[] }
-export const toMeta = (s: TabsState): string => JSON.stringify({ v: 1, order: s.tabs.map((t) => ({ id: t.id, name: t.name, hasFile: t.hasFile, base: t.base })), active: s.activeId, closed: s.closed.map((t) => t.id) } satisfies Meta);
+interface Meta { v: 1; order: { id: string; name: string; hasFile: boolean; base: string | null; view?: TabView }[]; active: string; closed: string[] }
+export const toMeta = (s: TabsState): string => JSON.stringify({ v: 1, order: s.tabs.map((t) => ({ id: t.id, name: t.name, hasFile: t.hasFile, base: t.base, ...(t.view ? { view: t.view } : {}) })), active: s.activeId, closed: s.closed.map((t) => t.id) } satisfies Meta);
 
 /**
  * Dựng trạng thái lúc khởi động, ĐỒNG BỘ: tab đang chọn lấy văn bản từ `mdprev-md` (nguồn sự thật, rollback-safe);
@@ -128,7 +150,7 @@ export function restore(metaRaw: string | null, activeText: string, activeName: 
   const mirrorOwn = !!mirrorId && m.order.some((o) => o.id === mirrorId);
   const order = mirrorId && !mirrorOwn ? [...m.order.slice(0, MAX_TABS - 1), { id: mirrorId, name: activeName, hasFile: false, base: null }] : m.order; // gương của tab không có trong metadata: thành tab riêng, KHÔNG đưa văn bản sang tab khác
   const active = mirrorId ? mirrorId : m.order.some((o) => o.id === m.active) ? m.active : m.order[0]!.id;
-  const tabs = order.slice(0, MAX_TABS).map((o) => makeTab({ id: o.id, name: o.name, hasFile: o.hasFile, base: o.base, text: o.id === active ? activeText : null, baseline: o.id === active ? activeText : '' }));
+  const tabs = order.slice(0, MAX_TABS).map((o) => makeTab({ id: o.id, name: o.name, hasFile: o.hasFile, base: o.base, ...(o.view ? { view: o.view } : {}), text: o.id === active ? activeText : null, baseline: o.id === active ? activeText : '' }));
   const act = tabs.find((t) => t.id === active)!; act.name = activeName; // tên tab đang chọn lấy từ gương
   return { tabs, activeId: active, closed: m.closed.filter((id) => id !== active).slice(0, MAX_CLOSED).map((id) => makeTab({ id, text: null })) };
 }

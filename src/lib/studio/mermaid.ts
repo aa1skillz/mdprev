@@ -182,7 +182,7 @@ export async function upgradeMermaid(html: string, dark: boolean, opts: { stale:
     fig.setAttribute('aria-label', `${kind} diagram${labels.length ? ': ' + labels.slice(0, 6).join(', ') + (labels.length > 6 ? `, and ${labels.length - 6} more` : '') : ''}`);
     fig.tabIndex = 0;
     const sv = fig.querySelector('svg'), vbw = Number(sv?.getAttribute('viewBox')?.split(/[\s,]+/)[2]);
-    if (sv && vbw > 480) { sv.style.setProperty('--mw-pv', Math.round(Math.min(vbw, Math.max(480, vbw * 0.75))) + 'px'); sv.style.minWidth = 'var(--mw, 480px)'; } // 480px mặc định (xuất/slide/in); bản xem trong app nâng lên 75% qua studio.css // sơ đồ vốn rộng thì cuộn ngang trong khung thay vì co chữ tới mức không đọc được (tối thiểu 75% cỡ tự nhiên, hoặc 480px); sơ đồ nhỏ giữ nguyên
+    if (sv && vbw > 480) { sv.style.setProperty('--mw-pv', Math.round(Math.min(vbw, Math.max(480, vbw * 0.75))) + 'px'); sv.style.minWidth = kind === 'gantt' ? 'min(var(--mw, 480px), 100%)' : 'var(--mw, 480px)'; } // 480px mặc định (xuất/slide/in); bản xem trong app nâng lên 75% qua studio.css // sơ đồ vốn rộng thì cuộn ngang trong khung thay vì co chữ tới mức không đọc được (tối thiểu 75% cỡ tự nhiên, hoặc 480px); sơ đồ nhỏ giữ nguyên
     if (vbw > 700) { fig.setAttribute('data-wide', ''); fig.style.setProperty('--w', Math.min(vbw, 960) + 'px'); } // sơ đồ rộng thoát khỏi cột chữ hẹp (CSS, chỉ ở bản xem) để giữ cỡ chữ gần tự nhiên
     b.replaceWith(fig);
     const out = document.createElement('div');

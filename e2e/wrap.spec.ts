@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { viewOptions } from './helpers';
+import { openView } from './helpers';
 
 /** Chế độ xuống dòng của khung soạn (ngoài zen): mặc định bật (tài liệu <= ~2000 dòng), tắt/bật ở menu VIEW. */
 const ta = (p: Page) => p.locator('.ed-ta');
@@ -11,7 +11,7 @@ const open = async (page: Page, md: string) => {
   await ta(page).fill(md);
   await expect(page.locator('.pv-modetag')).toHaveText('READY');
 };
-const toggleWrap = async (page: Page) => { await viewOptions(page).click(); await page.getByRole('button', { name: /^Wrap lines/ }).click(); };
+const toggleWrap = async (page: Page) => { await openView(page); await page.getByRole('button', { name: /^Wrap lines/ }).click(); };
 
 test.describe('xuống dòng, màn lớn', () => {
   test('mặc định bật: hai lớp ngắt dòng giống nhau, không cuộn ngang, số dòng thẳng hàng; tắt ở VIEW thì nhớ sau khi tải lại, bật lại được', async ({ page }) => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_CLOSED, MAX_TABS, activate, activateIndex, activateOffset, closeTab, displayNames, getActive, initialState, isChangedVsFile, isPristine, makeTab, moveTab, openTab, renameTab, reopenClosed, restore, toMeta } from '../src/lib/studio/tabs';
+import { MAX_CLOSED, MAX_TABS, activate, activateIndex, activateOffset, closeTab, displayNames, getActive, initialState, isChangedVsFile, isPristine, makeTab, moveTab, openTab, renameTab, reopenClosed, restore, midCut, toMeta } from '../src/lib/studio/tabs';
 
 const doc = (text: string, name = '') => makeTab({ text, name });
 const opened = (s: ReturnType<typeof initialState>, text: string) => { const r = openTab(s, { text }); expect(r.id).not.toBeNull(); return r.state; };
@@ -169,5 +169,40 @@ describe('nhiều cửa sổ', () => {
     expect(r.activeId).toBe('x');
     expect(r.tabs.find((t) => t.id === 'x')!.text).toBe('MIRROR OF X');
     expect(r.tabs.find((t) => t.id === 'a')!.text).toBeNull();
+  });
+});
+
+describe('nhãn tab hẹp (cắt ở giữa)', () => {
+  const fit = (n: number) => (s: string) => s.length <= n;
+  it('vừa sẵn thì giữ nguyên', () => { expect(midCut('so-mot', fit(20))).toBe('so-mot'); });
+  it('giữ đầu và ĐUÔI, cắt ở giữa: hai tên cùng phần đầu vẫn phân biệt được', () => {
+    const a = midCut('kiem-tra-ten-tab-dai-so-mot', fit(16)), b = midCut('kiem-tra-ten-tab-dai-so-hai', fit(16));
+    expect(a).not.toBe(b); expect(a.length).toBeLessThanOrEqual(16);
+    expect(a.endsWith('so-mot')).toBe(true); expect(b.endsWith('so-hai')).toBe(true); expect(a).toContain('…'); expect(a.startsWith('kiem')).toBe(true);
+  });
+  it('lấy bản dài nhất còn vừa', () => { expect(midCut('kiem-tra-ten-tab-dai-so-mot', fit(16)).length).toBe(16); expect(midCut('kiem-tra-ten-tab-dai-so-mot', fit(12)).length).toBe(12); });
+  it('untitled (2)/(3) vẫn phân biệt được qua số cuối khi bị cắt', () => {
+    const l = ['untitled', 'untitled (2)', 'untitled (3)'].map((n) => midCut(n, fit(9)));
+    expect(new Set(l).size).toBe(3); expect(l[1]!.endsWith('(2)')).toBe(true); expect(l[2]!.endsWith('(3)')).toBe(true);
+  });
+  it('quá hẹp thì còn ít nhất đầu…cuối, không ném lỗi; tên rất ngắn giữ nguyên', () => {
+    expect(midCut('kiem-tra-so-mot', fit(1))).toBe('k…t'); expect(midCut('ab', fit(1))).toBe('ab');
+  });
+  it('tiếng Việt có dấu không bị chẻ giữa ký tự', () => { expect(midCut('ghi-chép-tiếng-việt-dài-hơn-nhiều', fit(14))).toMatch(/^ghi.*….*$/u); });
+});
+
+describe('chế độ xem riêng từng tab', () => {
+  it('lưu vào metadata và đọc lại; giá trị lạ bị bỏ', () => {
+    let s = initialState(makeTab({ text: 'a', view: 'split' }));
+    s = opened(s, 'b');
+    s = { ...s, tabs: s.tabs.map((t, i) => (i === 1 ? { ...t, view: 'pv' as const } : t)) };
+    const r = restore(toMeta(s), 'a', '', s.tabs[0]!.id);
+    expect(r.tabs.map((t) => t.view)).toEqual(['split', 'pv']);
+    const bad = JSON.parse(toMeta(s)); bad.order[0].view = 'zzz';
+    expect(restore(JSON.stringify(bad), 'a', '', s.tabs[0]!.id).tabs[0]!.view).toBeUndefined();
+  });
+  it('metadata cũ không có view vẫn đọc được', () => {
+    const s = initialState(makeTab({ text: 'a' }));
+    expect(restore(toMeta(s), 'a', '', s.tabs[0]!.id).tabs[0]!.view).toBeUndefined();
   });
 });

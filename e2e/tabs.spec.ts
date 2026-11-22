@@ -33,9 +33,92 @@ test.describe('nhiều tài liệu', () => {
     expect(await val(page)).toBe('# One\n\nfirst doc');
     expect(await ta(page).evaluate((e: HTMLTextAreaElement) => e.selectionStart)).toBe(3);
     await ta(page).focus();
-    await page.keyboard.press('Control+Z'); // undo bị reset khi đổi tab: không được kéo nội dung tab kia về
-    expect(await val(page)).toBe('# One\n\nfirst doc');
-    expect(await mirror(page)).toBe('# One\n\nfirst doc'); // gương cho bản cũ (rollback)
+    await page.keyboard.press('Control+Z'); // lùi bước nạp bài (fill) của chính tab này; tuyệt đối không kéo nội dung tab kia về
+    expect(await val(page)).not.toContain('second');
+    await expect.poll(async () => (await mirror(page)) === (await val(page))).toBe(true); // gương cho bản cũ (rollback) theo kịp sau undo
+  });
+
+  // Undo theo từng tab: nhật ký ghi từ sự kiện input, ngăn xếp gốc dựng lại bằng replay khi ô soạn lấy focus (lib/studio/undo-log.ts)
+  const undoBtn = (p: Page) => p.getByRole('button', { name: /^undo/i });
+  test('gõ một dòng, đổi tab rồi quay lại: Ctrl+Z vẫn lùi đúng, Ctrl+Shift+Z làm lại, autosave theo sau', async ({ page }) => {
+    await open(page, '# One\n\nfirst');
+    await page.keyboard.press('Control+End'); await page.keyboard.type(' line typed');
+    await newTab(page, '# Two\n\nsecond');
+    await tabs(page).first().click();
+    expect(await val(page)).toBe('# One\n\nfirst line typed');
+    await expect(undoBtn(page)).toBeEnabled(); // nút Undo sáng ngay cả khi ô soạn chưa lấy focus
+    await ta(page).focus();
+    await page.keyboard.press('Control+Z');
+    expect(await val(page)).toBe('# One\n\nfirst');
+    await expect.poll(() => mirror(page)).toBe('# One\n\nfirst'); // autosave lưu trạng thái SAU undo
+    await page.keyboard.press('Control+Shift+Z');
+    expect(await val(page)).toBe('# One\n\nfirst line typed');
+    await tabs(page).nth(1).click();
+    expect(await val(page)).toBe('# Two\n\nsecond'); // tab kia không bị ảnh hưởng
+  });
+
+  test('bấm nút Undo khi ô soạn chưa có focus (sau đổi tab) vẫn lùi được', async ({ page }) => {
+    await open(page, 'base');
+    await page.keyboard.press('Control+End'); await page.keyboard.type(' more');
+    await newTab(page, 'other');
+    await tabs(page).first().click();
+    await page.getByRole('button', { name: /^undo/i }).click();
+    expect(await val(page)).toBe('base');
+    await page.getByRole('button', { name: /^redo/i }).click();
+    expect(await val(page)).toBe('base more');
+  });
+
+  test('reload: Ctrl+Z vẫn lùi từng bước và redo được', async ({ page }) => {
+    await open(page, 'start');
+    await page.keyboard.press('Control+End'); await page.keyboard.type(' one');
+    await page.keyboard.press('Enter'); await page.keyboard.type('two'); // 2 bước: dòng 1 rồi dòng 2? (Enter nằm trong cùng mạch gõ)
+    await page.locator('.ed-ta').evaluate((e: HTMLTextAreaElement) => e.setSelectionRange(0, 0)); // đổi vị trí: gõ tiếp thành bước mới
+    await page.keyboard.type('>> ');
+    const typed = await val(page);
+    expect(typed.startsWith('>> start')).toBe(true);
+    await page.waitForTimeout(1200); // chờ lưu nền (600 ms) + IndexedDB
+    await page.reload();
+    await expect(ta(page)).toBeVisible();
+    expect(await val(page)).toBe(typed);
+    await expect(undoBtn(page)).toBeEnabled();
+    await ta(page).focus();
+    await page.keyboard.press('Control+Z');
+    expect(await val(page)).toBe(typed.slice(3)); // bỏ ">> "
+    await page.keyboard.press('Control+Z');
+    expect(await val(page)).not.toContain('two'); // lùi tiếp qua phần gõ trước
+    await page.keyboard.press('Control+Shift+Z');
+    await page.keyboard.press('Control+Shift+Z');
+    expect(await val(page)).toBe(typed);
+    await expect.poll(() => mirror(page)).toBe(typed);
+  });
+
+  test('đóng tab rồi Reopen: undo vẫn còn', async ({ page }) => {
+    await open(page, 'keep');
+    await page.keyboard.press('Control+End'); await page.keyboard.type(' typed');
+    await newTab(page, 'second tab');
+    await page.keyboard.press('Alt+1'); await page.waitForTimeout(300);
+    await page.keyboard.press('Alt+w'); // đóng tab 1 (đang chọn)
+    await expect(tabs(page)).toHaveCount(0); // còn một tài liệu: thanh tab ẩn
+    await page.keyboard.press('Alt+Shift+T');
+    await expect(tabs(page)).toHaveCount(2);
+    await expect.poll(() => val(page)).toBe('keep typed');
+    await ta(page).focus();
+    await page.keyboard.press('Control+Z');
+    expect(await val(page)).toBe('keep');
+  });
+
+  const undoKeys = (p: Page) => p.evaluate(() => new Promise<string[]>((res) => { const r = indexedDB.open('mdprev-md-undo', 1); r.onsuccess = () => { const q = r.result.transaction('logs').objectStore('logs').getAllKeys(); q.onsuccess = () => { r.result.close(); res(q.result as string[]); }; }; r.onerror = () => res([]); }));
+  test('bản lưu undo nằm trong DB riêng và bị xoá khi tab rớt khỏi danh sách "đóng gần đây"', async ({ page }) => {
+    await open(page, 'secret text');
+    await page.keyboard.press('Control+End'); await page.keyboard.type(' more');
+    await expect.poll(async () => (await undoKeys(page)).length).toBe(1);
+    const first = (await undoKeys(page))[0]!;
+    await page.keyboard.press('Alt+n'); await page.keyboard.press('Alt+1'); await page.waitForTimeout(200);
+    await page.keyboard.press('Alt+w'); // tab 1 vào ngăn "đóng gần đây": bản lưu còn (Reopen cần nó)
+    await page.waitForTimeout(700);
+    expect(await undoKeys(page)).toContain(first);
+    for (let i = 0; i < 11; i++) { await ta(page).focus(); await page.keyboard.type(`x${i}`); await page.keyboard.press('Alt+n'); await page.waitForTimeout(150); await page.keyboard.press('Alt+1'); await page.waitForTimeout(150); await page.keyboard.press('Alt+w'); await page.waitForTimeout(150); }
+    await expect.poll(async () => (await undoKeys(page)).includes(first), { timeout: 8000 }).toBe(false);
   });
 
   test('đóng bằng ×, báo Reopen, mở lại đúng nội dung; Alt+Shift+T cũng được', async ({ page }) => {
@@ -339,7 +422,10 @@ test.describe('nhiều tài liệu', () => {
     await page.keyboard.press('Alt+n'); await ta(page).focus(); await page.keyboard.type('b');
     await page.keyboard.press('Alt+n'); await ta(page).focus(); await page.keyboard.type('c');
     const labels = await page.locator('.pv-tabnm').allInnerTexts();
-    expect(labels.slice(0, 3)).toEqual(['untitled', 'untitled (2)', 'untitled (3)']);
+    expect(labels[0]).toBe('untitled');
+    expect(labels[1]).toMatch(/\(2\)$/); expect(labels[2]).toMatch(/\(3\)$/); // bị cắt ở giữa nhưng vẫn thấy số cuối
+    expect(new Set(labels.slice(0, 3)).size).toBe(3);
+    expect(await page.locator('.pv-tabnm').evaluateAll((els) => els.filter((e) => (e as HTMLElement).offsetParent && e.scrollWidth > e.clientWidth).map((e) => e.textContent))).toEqual([]);
     await tabs(page).nth(1).dblclick();
     await page.keyboard.press('Control+A'); await page.keyboard.type('notes'); await page.keyboard.press('Enter');
     await expect(tabs(page).nth(1)).toContainText('notes');
@@ -368,5 +454,99 @@ test.describe('nhiều tài liệu', () => {
       }
       for (const b of boxes) expect(b.l >= 0 && b.r <= w, `trong khung hình ở ${w}px`).toBe(true);
     }
+  });
+  test('<details> đang mở giữ nguyên khi gõ tiếp (preview dựng lại)', async ({ page }) => {
+    await open(page, '# D\n\n<details>\n<summary>Xem thêm</summary>\n\nnội dung ẩn\n\n</details>\n\ncuối');
+    await page.getByRole('group', { name: 'View mode' }).getByRole('button', { name: 'Split', exact: true }).click();
+    const d = page.locator('.pv-out details').first();
+    await d.locator('summary').click();
+    await expect(d).toHaveJSProperty('open', true);
+    await ta(page).click(); await page.keyboard.press('Control+End'); await page.keyboard.type('Y');
+    await expect(page.locator('.pv-out').getByText('cuốiY')).toBeVisible();
+    await expect(page.locator('.pv-out details').first()).toHaveJSProperty('open', true);
+    await d.locator('summary').click(); // đóng lại thì gõ tiếp không tự mở
+    await ta(page).click(); await page.keyboard.press('Control+End'); await page.keyboard.type('Z');
+    await expect(page.locator('.pv-out').getByText('cuốiYZ')).toBeVisible();
+    await expect(page.locator('.pv-out details').first()).toHaveJSProperty('open', false);
+  });
+
+  test('chế độ Edit/Split/Read nhớ riêng từng tab', async ({ page }) => {
+    await open(page, '# One\n\naaa');
+    const mode = (n: string) => page.getByRole('group', { name: 'View mode' }).getByRole('button', { name: n, exact: true });
+    await mode('Edit').click();
+    await newTab(page, '# Two\n\nbbb');
+    await mode('Split').click();
+    await expect(mode('Split')).toHaveAttribute('aria-pressed', 'true');
+    await tabs(page).first().click();
+    await expect(mode('Edit')).toHaveAttribute('aria-pressed', 'true');
+    await tabs(page).nth(1).click();
+    await expect(mode('Split')).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  test('hai tab cùng phần đầu tên vẫn phân biệt được trên thanh tab; tooltip có Alt+số', async ({ page }) => {
+    await open(page, '# Kiem tra details sat khoi code\n\nx');
+    await newTab(page, '# Kiem tra an toan\n\ny');
+    const t = await tabs(page).locator('.pv-tabnm').allInnerTexts();
+    expect(new Set(t).size).toBe(2);
+    // nhãn đã rút gọn phải VỪA ô chữ (không bị CSS cắt thêm lần nữa thành "kiem-…" giống nhau)
+    const clipped = await page.locator('.pv-tabnm').evaluateAll((els) => els.filter((e) => (e as HTMLElement).offsetParent && e.textContent!.includes('…') && e.scrollWidth > e.clientWidth).map((e) => e.textContent));
+    expect(clipped).toEqual([]);
+    await expect(tabs(page).first()).toHaveAttribute('title', /Alt\+1/);
+  });
+
+  test('Clear document xoá bản lưu undo ngay (đúng lời hứa ở /privacy)', async ({ page }) => {
+    await open(page, 'secret text');
+    await page.keyboard.press('Control+End'); await page.keyboard.type(' more');
+    await expect.poll(async () => (await undoKeys(page)).length).toBe(1);
+    await page.getByRole('button', { name: 'File menu', exact: true }).click();
+    await page.getByRole('button', { name: 'Clear document' }).click();
+    await page.getByRole('alertdialog', { name: 'Clear this document' }).getByRole('button', { name: 'Clear document' }).click();
+    await expect(ta(page)).toHaveValue('');
+    await expect.poll(async () => (await undoKeys(page)).length, { timeout: 5000 }).toBe(0);
+  });
+
+  test('7 tab tên dài giống nhau: tab hiện giữ đuôi phân biệt; menu +N là danh sách dọc ~360px, tên đầy đủ, không cuộn ngang', async ({ page }) => {
+    const names = ['mot', 'hai', 'ba', 'bon', 'nam', 'sau', 'bay'];
+    await open(page, '');
+    for (let i = 0; i < names.length; i++) { if (i) { await page.keyboard.press('Alt+n'); await ta(page).focus(); } await page.keyboard.type(`# kiem-tra-ten-tab-dai-so-${names[i]}\n\nx`); }
+    await expect.poll(async () => (await tabs(page).locator('.pv-tabnm').allInnerTexts()).includes('untitled'), { timeout: 4000 }).toBe(false); // tên suy ra từ dòng # đầu, chờ dựng xong
+    const shown = await tabs(page).locator('.pv-tabnm').allInnerTexts();
+    expect(shown.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(shown).size).toBe(shown.length); // không có hai nhãn giống nhau
+    for (const t of shown) expect(t).toMatch(/…|^kiem-tra-ten-tab-dai-so-\w+$/); // cắt ở giữa (hoặc vừa nguyên)
+    expect(shown.every((t) => /so-\w+$|-\w{2,}$/.test(t))).toBe(true); // đuôi còn thấy
+    const clipped = await page.locator('.pv-tabnm').evaluateAll((els) => els.filter((e) => (e as HTMLElement).offsetParent && e.scrollWidth > e.clientWidth).map((e) => e.textContent));
+    expect(clipped).toEqual([]);
+    await page.locator('.pv-tabbtn[aria-haspopup]').click();
+    const menu = page.locator('.pv-tabmenu');
+    await expect(menu).toBeVisible();
+    const m = await menu.evaluate((e) => ({ w: e.getBoundingClientRect().width, sw: e.scrollWidth, cw: e.clientWidth }));
+    expect(Math.abs(m.w - 360)).toBeLessThan(3); expect(m.sw).toBeLessThanOrEqual(m.cw); // không thanh cuộn ngang
+    const items = await menu.getByRole('menuitem').locator('.pv-tabmi').allInnerTexts();
+    expect(items.length).toBe(7 - shown.length);
+    for (const t of items) expect(t).toMatch(/^kiem-tra-ten-tab-dai-so-\w+$/); // tên đầy đủ, không bị cắt
+    await menu.getByRole('menuitem').first().click();
+    await expect(menu).toBeHidden();
+  });
+
+  test('menu +N: thứ tự tab hiện giữ nguyên khi tab đang chọn nằm ngoài dãy; phím tắt và nút đóng trên từng dòng; axe sạch', async ({ page }) => {
+    await open(page, '');
+    for (let i = 1; i <= 6; i++) { if (i > 1) { await page.keyboard.press('Alt+n'); await ta(page).focus(); } await page.keyboard.type(`# tai-lieu-so-${i}\n\nx`); }
+    await expect.poll(async () => (await tabs(page).locator('.pv-tabnm').allInnerTexts()).includes('untitled'), { timeout: 4000 }).toBe(false);
+    const nums = async () => (await tabs(page).locator('.pv-tabnm').allInnerTexts()).map((t) => Number(/(\d)$/.exec(t)![1]));
+    const shown = await nums();
+    expect(shown.at(-1)).toBe(6); // tab đang chọn (6) hiện, ở cuối
+    expect(shown).toEqual([...shown].sort((a, b) => a - b)); // thứ tự tăng dần, không bị chen
+    expect(shown.every((n, i) => i === 0 || n === shown[i - 1]! + 1)).toBe(true); // liên tiếp
+    await page.locator('.pv-tabbtn[aria-haspopup]').click();
+    const menu = page.locator('.pv-tabmenu');
+    await expect(menu.locator('.pv-tabmgo kbd').first()).toHaveText('Alt+1');
+    const axe = await new AxeBuilder({ page }).include('.pv-tabmenu').analyze();
+    expect(axe.violations).toEqual([]);
+    await page.keyboard.press('ArrowDown');
+    const before = await menu.locator('.pv-tabmgo').count();
+    await menu.locator('.pv-tabmx').first().click(); // đóng một tài liệu ẩn ngay trong menu, không đổi tab đang chọn
+    await expect.poll(async () => (await tabs(page).count()) + (await menu.locator('.pv-tabmgo').count())).toBeLessThan(shown.length + before);
+    expect((await nums()).at(-1)).toBe(6);
   });
 });

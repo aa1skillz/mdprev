@@ -407,6 +407,7 @@ test('điện thoại: vùng chạm của nút chính nới theo chiều dọc (
     const r = (await loc.boundingBox())!;
     const cx = r.x + r.width / 2;
     for (const dy of [-3, r.height + below]) { // ngoài hình thấy được 3px nhưng trong vùng nới (mỗi hàng chrome chỉ dư ~4px mỗi phía)
+      if (r.y + dy < 0) continue; // nút 44px ở sát mép trên: điểm lệch nằm ngoài màn hình
       const hit = await page.evaluate(([x, y]) => { const el = document.elementFromPoint(x!, y!); return el?.closest('button, a, summary')?.getAttribute('aria-label') ?? el?.closest('button, a, summary')?.textContent?.trim() ?? ''; }, [cx, r.y + dy]);
       expect(hit, `${label} nhận chạm ở lệch ${dy}`).not.toBe('');
     }
@@ -654,8 +655,8 @@ test('điện thoại: vuốt đọc trong Zen không làm chrome nháy', async 
   });
   const cdp = await ctx.newCDPSession(page);
   const touch = async (type: string, y: number) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x: 200, y }] });
-  await touch('touchStart', 600);
-  for (let i = 1; i <= 14; i++) { await touch('touchMove', 600 - i * 30); await page.waitForTimeout(30); }
+  await touch('touchStart', 520);
+  for (let i = 1; i <= 14; i++) { await touch('touchMove', 520 - i * 25); await page.waitForTimeout(30); }
   await touch('touchEnd', 180);
   await page.waitForTimeout(400);
   const s = await page.evaluate(() => (window as unknown as { __s: boolean[] }).__s);
@@ -1057,6 +1058,7 @@ test('điện thoại: menu File/Open/View/Export là bảng trượt từ đáy
     await ready(page);
     const openers: [string, string][] = [['File menu', '.pv-menu-file'], ['Open menu', '.pv-menu-open'], ['View options', '.pv-menu-view']];
     for (const [name, sel] of openers) {
+      if (name === 'View options') await page.getByRole('button', { name: 'File menu', exact: true }).click(); // ≤640px: View options là hàng trong menu File
       await page.getByRole('button', { name, exact: true }).click();
       await page.waitForTimeout(260); // chờ hiệu ứng trượt (180 ms)
       const r = (await page.locator(sel).boundingBox())!;

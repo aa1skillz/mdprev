@@ -17,6 +17,9 @@ const STUDIO_GROUPS: [string, Help[]][] = [
     ['⌘/Ctrl K, >table', 'table: rows, columns, align, sort'], ['⌘/Ctrl click', 'follow link (#heading, URL, .md)'],
   ]],
   ['Navigate', [['⌘/Ctrl ⇧ O · o', 'jump to heading'], ['⌘/Ctrl \\', 'file panel (skill copy)'], ['⌘/Ctrl ⇧ \\', 'inspector']]],
+  ['Tabs', [
+    ['alt N', 'new tab'], ['alt W', 'close tab'], ['alt ⇧ T', 'reopen closed tab'], ['alt 1–9', 'go to tab 1–9'], ['alt PgUp · PgDn', 'previous, next tab'],
+  ]],
   ['Zen and present', [
     ['esc, then f', 'zen mode'], ['alt+v · v', 'zen: switch between write and read'],
     ['esc, then s', 'present from the start (g grid, n notes, b blank, p presenter)'], ['⇧S · alt+p', 'present from the current slide'],

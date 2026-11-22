@@ -1,7 +1,7 @@
 import { expect, test, type BrowserContext, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { readFileSync } from 'node:fs';
-import { enterZenWrite, exportMenu, fileMenu, openInspector, ready, viewOptions, viewTab, newDocument, docName } from './helpers';
+import { enterZenWrite, exportMenu, fileMenu, openInspector, openView, ready, viewOptions, viewTab, newDocument, docName } from './helpers';
 
 const URL_ = '/app/';
 // Từ 2026-11-18 bài mặc định của /app/ là tờ giấy trống (thẻ chào); bài mẫu về buổi họp (src/lib/studio/sample.md) chỉ nạp khi khách bấm "Try a sample".
@@ -1474,7 +1474,7 @@ test.describe('studio: callout, math, mermaid, splitter, bài mặc định', ()
     await viewTab(page, 'Edit').click();
     await expect(ta(page)).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-    await viewOptions(page).click();
+    await openView(page);
     const r = await page.locator('.pv-menu-view').evaluate((m) => { const b = m.getBoundingClientRect(); return [b.left, b.right]; });
     expect(r[0]).toBeGreaterThanOrEqual(0);
     expect(r[1]).toBeLessThanOrEqual(390);
